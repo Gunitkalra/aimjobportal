@@ -1,5 +1,10 @@
 import 'package:get/get.dart';
 
+import '../presentation/Login/Auth_binding.dart';
+import '../presentation/Login/view/Login_Screen.dart';
+import '../presentation/Login/view/Signup_Screen.dart';
+import '../presentation/Onboarding/onboardingBinding.dart';
+import '../presentation/Onboarding/view/onboarding_Screen.dart';
 import '../presentation/splash/Splash_binding.dart';
 import '../presentation/splash/view/Splash_Screen.dart';
 
@@ -8,6 +13,9 @@ import '../presentation/splash/view/Splash_Screen.dart';
 class AppRoutes {
 //   // Route constants
   static const String splash = '/';
+  static const String onboarding   = '/onboarding';
+  static const String login        = '/login';
+  static const String signup       = '/signup';
 //   static const String initial = '/';
 //   static const String productDetail = '/product-detail-screen';
 
@@ -18,6 +26,27 @@ class AppRoutes {
       binding: SplashBinding(),
       transition: Transition.fade,
     ),
+
+    GetPage(
+      name: onboarding,
+      page: () => const OnboardingScreen(),
+      binding: OnboardingBinding(),
+      transition: Transition.fade,
+    ),
+
+    GetPage(
+      name: login,
+      page: () => const LoginScreen(),
+      binding: AuthBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: signup,
+      page: () => const SignupScreen(),
+      binding: AuthBinding(),
+      transition: Transition.rightToLeft,
+    ),
+
 //     GetPage(
 //       name: initial,
 //       page: () => const SplashScreen(),
