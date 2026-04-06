@@ -7,6 +7,9 @@ import '../controller/Auth_Controller.dart';
 class LoginScreen extends GetView<AuthController> {
   const LoginScreen({super.key});
 
+  // Define the red color to be used consistently
+  static const Color brandRed = Colors.red;
+
   @override
   Widget build(BuildContext context) {
     final sw = MediaQuery.of(context).size.width;
@@ -25,15 +28,16 @@ class LoginScreen extends GetView<AuthController> {
                 SizedBox(height: sh * 0.06),
 
                 // ── Header ───────────────────────────────────────────────
-                Text(
+                const Text(
                   'Welcome Back 👋',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 24, // Increased size for header
+                    fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
                 ),
                 SizedBox(height: sh * 0.008),
-                Text(
+                const Text(
                   'Login to continue your job search',
                   style: TextStyle(
                     fontSize: 14,
@@ -44,18 +48,15 @@ class LoginScreen extends GetView<AuthController> {
                 SizedBox(height: sh * 0.048),
 
                 // ── Email field ──────────────────────────────────────────
-                _FieldLabel(label: 'Email Address'),
+                const _FieldLabel(label: 'Email Address'),
                 SizedBox(height: sh * 0.008),
                 TextFormField(
-                  controller:   controller.emailCtrl,
+                  controller: controller.emailCtrl,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textPrimary,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
                   decoration: _inputDecoration(
-                    hint:   'Enter your email',
+                    hint: 'Enter your email',
                     prefix: Icons.email_outlined,
                   ),
                   validator: controller.emailValidator,
@@ -64,19 +65,16 @@ class LoginScreen extends GetView<AuthController> {
                 SizedBox(height: sh * 0.022),
 
                 // ── Password field ───────────────────────────────────────
-                _FieldLabel(label: 'Password'),
+                const _FieldLabel(label: 'Password'),
                 SizedBox(height: sh * 0.008),
                 Obx(() => TextFormField(
-                  controller:     controller.passwordCtrl,
-                  obscureText:    controller.hidePassword.value,
+                  controller: controller.passwordCtrl,
+                  obscureText: controller.hidePassword.value,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => controller.login(),
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textPrimary,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
                   decoration: _inputDecoration(
-                    hint:   'Enter your password',
+                    hint: 'Enter your password',
                     prefix: Icons.lock_outline_rounded,
                     suffix: GestureDetector(
                       onTap: controller.togglePassword,
@@ -94,23 +92,24 @@ class LoginScreen extends GetView<AuthController> {
 
                 SizedBox(height: sh * 0.012),
 
-                // ── Forgot password ──────────────────────────────────────
+                // ── Forgot password (Red Color) ──────────────────────────
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // TODO: navigate to forgot password screen
+                      // Navigate to forgot password screen
+                      // Get.toNamed(AppRoutes.forgotPassword);
                     },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
                       minimumSize: const Size(0, 0),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    child: Text(
+                    child: const Text(
                       'Forgot Password?',
                       style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.buttonPrimary,
+                        color: AppColors.darkRed, // Red Color
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -119,18 +118,15 @@ class LoginScreen extends GetView<AuthController> {
 
                 SizedBox(height: sh * 0.04),
 
-                // ── Login button ─────────────────────────────────────────
+                // ── Login button (Red Color) ─────────────────────────────
                 Obx(() => SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: controller.isLoading.value
-                        ? null
-                        : controller.login,
+                    onPressed: controller.isLoading.value ? null : controller.login,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.buttonPrimary,
-                      disabledBackgroundColor:
-                      AppColors.buttonPrimary.withOpacity(0.6),
+                      backgroundColor: AppColors.darkRed, // Red Color
+                      disabledBackgroundColor: brandRed.withOpacity(0.6),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -145,91 +141,84 @@ class LoginScreen extends GetView<AuthController> {
                         color: AppColors.white,
                       ),
                     )
-                        : Text('Login',  style: TextStyle(
-                      fontSize: 14,)),
+                        : const Text(
+                      'Login',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 )),
 
-                SizedBox(height: sh * 0.028),
+                SizedBox(height: sh * 0.04),
 
                 // ── Divider ──────────────────────────────────────────────
-                Row(
+                const Row(
                   children: [
-                    const Expanded(child: Divider(color: AppColors.line)),
+                    Expanded(child: Divider(color: AppColors.line)),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
-                        'OR',
+                        'OR CONTINUE WITH',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           color: AppColors.textMuted,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                    const Expanded(child: Divider(color: AppColors.line)),
+                    Expanded(child: Divider(color: AppColors.line)),
                   ],
                 ),
 
-                SizedBox(height: sh * 0.028),
+                SizedBox(height: sh * 0.03),
 
-                // ── Google sign in (placeholder) ─────────────────────────
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      // TODO: implement Google sign-in
-                    },
-                    icon: const Icon(
-                      Icons.g_mobiledata_rounded,
-                      size: 26,
-                      color: AppColors.textPrimary,
-                    ),
-                    label: Text(
-                      'Continue with Google',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.line, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                  ),
+                // ── Social Logins (Google, LinkedIn, Facebook) ───────────
+                // inside LoginScreen Column...
+
+// ── Social Logins (Now triggering real login pages) ───────────
+                _SocialLoginButton(
+                  label: 'Continue with Google',
+                  icon: Icons.g_mobiledata_rounded,
+                  onTap: () => controller.loginWithGoogle(), // Calls the Google Auth logic
                 ),
-
+                SizedBox(height: sh * 0.015),
+                _SocialLoginButton(
+                  label: 'Continue with LinkedIn',
+                  icon: Icons.business_center_rounded,
+                  onTap: () => controller.loginWithLinkedIn(),
+                ),
+                SizedBox(height: sh * 0.015),
+                _SocialLoginButton(
+                  label: 'Continue with Facebook',
+                  icon: Icons.facebook_rounded,
+                  onTap: () => controller.loginWithFacebook(),
+                ),
                 SizedBox(height: sh * 0.04),
 
                 // ── Sign up link ─────────────────────────────────────────
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       "Don't have an account? ",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
-                      ),
+                      style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                     ),
                     GestureDetector(
                       onTap: () => Get.toNamed(AppRoutes.signup),
-                      child: Text(
+                      child: const Text(
                         'Sign Up',
                         style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.buttonPrimary,
+                          color: AppColors.darkRed, // Red Color
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
                   ],
                 ),
-
                 SizedBox(height: sh * 0.03),
               ],
             ),
@@ -246,11 +235,10 @@ class LoginScreen extends GetView<AuthController> {
   }) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(fontSize: 15),
+      hintStyle: const TextStyle(fontSize: 14, color: AppColors.textHint),
       filled: true,
-      fillColor: AppColors.black,
-      contentPadding:
-      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      fillColor: Colors.grey[50], // Light grey instead of black for better contrast
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       prefixIcon: Icon(prefix, color: AppColors.textHint, size: 20),
       suffixIcon: suffix,
       border: OutlineInputBorder(
@@ -263,22 +251,51 @@ class LoginScreen extends GetView<AuthController> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide:
-        const BorderSide(color: AppColors.buttonPrimary, width: 1.5),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide:  BorderSide(color: AppColors.black),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.black, width: 1.5),
+        borderSide: const BorderSide(color: brandRed, width: 1.5),
       ),
     );
   }
 }
 
-// ── Small label above fields ─────────────────────────────────────────────────
+// ── Social Login Button Helper ───────────────────────────────────────────────
+class _SocialLoginButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _SocialLoginButton({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton.icon(
+        onPressed: onTap,
+        icon: Icon(icon, size: 24, color: AppColors.textPrimary),
+        label: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: AppColors.line, width: 1.5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _FieldLabel extends StatelessWidget {
   final String label;
   const _FieldLabel({required this.label});
@@ -287,7 +304,7 @@ class _FieldLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       label,
-      style: TextStyle(
+      style: const TextStyle(
         fontSize: 14,
         color: AppColors.textPrimary,
         fontWeight: FontWeight.w600,

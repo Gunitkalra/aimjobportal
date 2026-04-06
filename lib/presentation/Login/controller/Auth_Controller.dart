@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_sign_in/google_sign_in.dart'; // Add this package
+// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart'; // Add this package
 
 import '../../../Utils/shared_prehelper.dart';
 import '../../../routes/app_routes.dart';
-
 
 class AuthController extends GetxController {
   // ── Form controllers ──────────────────────────────────────────────────────
@@ -15,12 +16,16 @@ class AuthController extends GetxController {
   final loginFormKey  = GlobalKey<FormState>();
   final signupFormKey = GlobalKey<FormState>();
 
+  // ── Social Login instances ───────────────────────────────────────────────
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
   // ── Reactive state ────────────────────────────────────────────────────────
   final isLoading       = false.obs;
   final hidePassword    = true.obs;
   final hideConfirmPass = true.obs;
 
-  final _prefs = SharedPrefHelper;
+  // FIXED: Added () to create an instance
+  final _prefs = SharedPrefHelper();
 
   @override
   void onClose() {
@@ -33,44 +38,83 @@ class AuthController extends GetxController {
   void togglePassword()        => hidePassword.toggle();
   void toggleConfirmPassword() => hideConfirmPass.toggle();
 
-  // ── Login ─────────────────────────────────────────────────────────────────
+  // ── Email/Password Login ─────────────────────────────────────────────────
   Future<void> login() async {
     if (!loginFormKey.currentState!.validate()) return;
     isLoading.value = true;
     try {
-      // ── TODO: replace with your real API call ──────────────────────────
-      // final res = await ApiService.instance.login(
-      //   email:    emailCtrl.text.trim(),
-      //   password: passwordCtrl.text,
-      // );
-      // final model = AuthModel.fromJson(res.data);
-      // await _prefs.saveSession(
-      //   token:  model.token,
-      //   userId: model.userId,
-      //   name:   model.name,
-      //   email:  model.email,
-      // );
-      // ─────────────────────────────────────────────────────────────────
-
-      // Simulated delay — remove after API is wired
+      // Simulate API Call
       await Future.delayed(const Duration(seconds: 1));
-      // await _prefs.saveSession(
-      //   token:  'mock_token_123',
-      //   userId: '1',
-      //   name:   emailCtrl.text.split('@').first,
-      //   email:  emailCtrl.text.trim(),
-      // );
 
-      // Get.offAllNamed(AppRoutes.home);
+      // Save session and navigate
+      // await _prefs.saveSession(...);
+
+      // Get.offAllNamed(AppRoutes.customerDashboard);
     } catch (_) {
-      Fluttertoast.showToast(
-        msg:             'Login failed. Please check your credentials.',
-        backgroundColor: const Color(0xFFE53935),
-        textColor:       const Color(0xFFFFFFFF),
-      );
+      _showErrorToast('Login failed. Please check your credentials.');
     } finally {
       isLoading.value = false;
     }
+  }
+
+  // ── Google Login ─────────────────────────────────────────────────────────
+  Future<void> loginWithGoogle() async {
+    try {
+      isLoading.value = true;
+      // This triggers the official Google Login popup
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser != null) {
+        // Success! Navigate to dashboard
+        // Get.offAllNamed(AppRoutes.customerDashboard);
+      }
+    } catch (e) {
+      _showErrorToast('Google Sign-In failed');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // ── Facebook Login ───────────────────────────────────────────────────────
+  Future<void> loginWithFacebook() async {
+    try {
+      isLoading.value = true;
+      // Logic for Facebook:
+      // final result = await FacebookAuth.instance.login();
+      // if (result.status == LoginStatus.success) { ... }
+
+      // Placeholder navigation
+      await Future.delayed(const Duration(seconds: 1));
+      // Get.offAllNamed(AppRoutes.customerDashboard);
+    } catch (e) {
+      _showErrorToast('Facebook Sign-In failed');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // ── LinkedIn Login ───────────────────────────────────────────────────────
+  Future<void> loginWithLinkedIn() async {
+    try {
+      isLoading.value = true;
+      // LinkedIn usually requires a WebView or a specialized package
+      await Future.delayed(const Duration(seconds: 1));
+      // Get.offAllNamed(AppRoutes.customerDashboard);
+    } catch (e) {
+      _showErrorToast('LinkedIn Sign-In failed');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // ── Helper: Red Toast ────────────────────────────────────────────────────
+  void _showErrorToast(String msg) {
+    Fluttertoast.showToast(
+      msg: msg,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      gravity: ToastGravity.BOTTOM,
+    );
   }
 
   // ── Logout ────────────────────────────────────────────────────────────────
