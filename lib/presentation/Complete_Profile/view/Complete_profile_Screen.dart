@@ -6,6 +6,7 @@ import '../../../routes/app_routes.dart';
 import '../Controller/Complete_Profile_Controller.dart';
 
 
+
 class CompleteProfileScreen extends GetView<CompleteProfileController> {
   const CompleteProfileScreen({super.key});
 
@@ -13,6 +14,7 @@ class CompleteProfileScreen extends GetView<CompleteProfileController> {
   Widget build(BuildContext context) {
     final sw = MediaQuery.of(context).size.width;
     final sh = MediaQuery.of(context).size.height;
+
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -47,60 +49,6 @@ class CompleteProfileScreen extends GetView<CompleteProfileController> {
                         style: TextStyle(
                           fontSize: 14,
                           color: AppColors.textSecondary,
-                        ),
-                      ),
-
-                      SizedBox(height: sh * 0.032),
-
-                      // ── Profile avatar ────────────────────────────
-                      Center(
-                        child: Stack(
-                          children: [
-                            Obx(() => Container(
-                              width: 90,
-                              height: 90,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppColors.appBg1,
-                                border: Border.all(
-                                  color: AppColors.buttonPrimary.withOpacity(0.3),
-                                  width: 2,
-                                ),
-                              ),
-                              child: controller.avatarPath.value.isEmpty
-                                  ? const Icon(
-                                Icons.person_outline_rounded,
-                                size: 44,
-                                color: AppColors.textHint,
-                              )
-                                  : ClipOval(
-                                child: Image.asset(
-                                  controller.avatarPath.value,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            )),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: GestureDetector(
-                                onTap: controller.pickAvatar,
-                                child: Container(
-                                  width: 28,
-                                  height: 28,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.buttonPrimary,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.camera_alt_rounded,
-                                    color: Colors.white,
-                                    size: 15,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
                         ),
                       ),
 
@@ -271,22 +219,6 @@ class CompleteProfileScreen extends GetView<CompleteProfileController> {
 
                       SizedBox(height: sh * 0.012),
 
-                      // ── Skip resume hint ──────────────────────────
-                      Center(
-                        child: TextButton(
-                          onPressed: controller.skipResume,
-                          child: const Text(
-                            'Skip for now — add resume later',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textMuted,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: sh * 0.028),
-
                       // ── Save & continue button ────────────────────
                       Obx(() => SizedBox(
                         width: double.infinity,
@@ -296,7 +228,7 @@ class CompleteProfileScreen extends GetView<CompleteProfileController> {
                               ? null
                               : controller.saveProfile,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.buttonPrimary,
+                            backgroundColor: AppColors.darkRed,
                             disabledBackgroundColor:
                             AppColors.buttonPrimary.withOpacity(0.6),
                             elevation: 0,

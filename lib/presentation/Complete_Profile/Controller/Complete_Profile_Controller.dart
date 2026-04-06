@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -54,26 +55,35 @@ class CompleteProfileController extends GetxController {
     );
   }
 
-  void pickResume() {
-    // TODO: Integrate file_picker package
-    // FilePickerResult? result = await FilePicker.platform.pickFiles(
-    //   type: FileType.custom,
-    //   allowedExtensions: ['pdf', 'doc', 'docx'],
-    // );
-    // if (result != null && result.files.single.path != null) {
-    //   resumeFileName.value = result.files.single.name;
-    //   final bytes = result.files.single.size;
-    //   resumeFileSize.value = '${(bytes / 1024).toStringAsFixed(1)} KB';
-    // }
-
-    // Simulated for now
-    resumeFileName.value = 'My_Resume.pdf';
-    resumeFileSize.value = '245 KB';
-    Fluttertoast.showToast(
-      msg: 'Resume selected! Integrate file_picker package for real upload.',
-      backgroundColor: const Color(0xFF7F8839),
-      textColor: Colors.white,
+// Replace the entire pickResume() method with this:
+  Future<void> pickResume() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx'],
+      allowMultiple: false,
     );
+
+    if (result != null && result.files.isNotEmpty) {
+      final file = result.files.first;
+
+      if (file.size > 5 * 1024 * 1024) {
+        Fluttertoast.showToast(
+          msg: 'File too large. Max size is 5MB.',
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+        return;
+      }
+
+      resumeFileName.value = file.name;
+
+      final bytes = file.size;
+      if (bytes < 1024 * 1024) {
+        resumeFileSize.value = '${(bytes / 1024).toStringAsFixed(1)} KB';
+      } else {
+        resumeFileSize.value = '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+      }
+    }
   }
 
   void removeResume() {
