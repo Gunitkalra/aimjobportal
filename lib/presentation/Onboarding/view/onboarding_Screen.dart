@@ -28,7 +28,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
                   'Skip',
                   style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.textSecondary,
+                    color: AppColors.darkRed,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -196,7 +196,7 @@ class _DotIndicator extends StatelessWidget {
           height: 8,
           decoration: BoxDecoration(
             color: isActive
-                ? AppColors.buttonPrimary
+                ? AppColors.darkRed
                 : AppColors.buttonPrimary.withOpacity(0.25),
             borderRadius: BorderRadius.circular(4),
           ),
@@ -221,7 +221,7 @@ class _PrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.buttonPrimary,
+          backgroundColor: AppColors.darkRed,
           foregroundColor: AppColors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
