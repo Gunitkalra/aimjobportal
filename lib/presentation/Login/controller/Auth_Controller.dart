@@ -1,125 +1,210 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:google_sign_in/google_sign_in.dart'; // Add this package
-// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart'; // Add this package
 
 import '../../../Utils/shared_prehelper.dart';
 import '../../../routes/app_routes.dart';
 
 class AuthController extends GetxController {
   // ── Form controllers ──────────────────────────────────────────────────────
-  final emailCtrl    = TextEditingController();
-  final passwordCtrl = TextEditingController();
-  final nameCtrl     = TextEditingController();
+  final emailCtrl           = TextEditingController();
+  final passwordCtrl        = TextEditingController();
+  final confirmPasswordCtrl = TextEditingController();
+  final nameCtrl            = TextEditingController();
+  final phoneCtrl           = TextEditingController();
 
   final loginFormKey  = GlobalKey<FormState>();
   final signupFormKey = GlobalKey<FormState>();
-
-  // ── Social Login instances ───────────────────────────────────────────────
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // ── Reactive state ────────────────────────────────────────────────────────
   final isLoading       = false.obs;
   final hidePassword    = true.obs;
   final hideConfirmPass = true.obs;
+  final usePhone        = false.obs;      // signup toggle: email vs phone
+  final agreedToTerms   = false.obs;
 
-  // FIXED: Added () to create an instance
   final _prefs = SharedPrefHelper();
 
   @override
   void onClose() {
     emailCtrl.dispose();
     passwordCtrl.dispose();
+    confirmPasswordCtrl.dispose();
     nameCtrl.dispose();
+    phoneCtrl.dispose();
     super.onClose();
   }
 
   void togglePassword()        => hidePassword.toggle();
   void toggleConfirmPassword() => hideConfirmPass.toggle();
 
-  // ── Email/Password Login ─────────────────────────────────────────────────
+  // ── Session check (call from SplashController) ────────────────────────────
+  Future<void> checkSession() async {
+    final token = await _prefs.get('token');
+    final profileCompleted = await _prefs.get('profileCompleted') ?? false;
+
+    if (token != null && token.toString().isNotEmpty) {
+      if (profileCompleted == true) {
+        Get.offAllNamed(AppRoutes.dashboard);
+      } else {
+        Get.offAllNamed(AppRoutes.completeProfile);
+      }
+    } else {
+      Get.offAllNamed(AppRoutes.onboarding);
+    }
+  }
+
+  // ── Login with email ──────────────────────────────────────────────────────
   Future<void> login() async {
     if (!loginFormKey.currentState!.validate()) return;
     isLoading.value = true;
     try {
-      // Simulate API Call
+      // TODO: replace with your real API call
+      // final res = await ApiService.instance.login(
+      //   email:    emailCtrl.text.trim(),
+      //   password: passwordCtrl.text,
+      // );
+      // Handle response:
+      //   - 200 + user exists + profile complete  → dashboard
+      //   - 200 + user exists + profile incomplete → completeProfile
+      //   - 404 user not found → signup page
+
       await Future.delayed(const Duration(seconds: 1));
 
-      // Save session and navigate
-      // await _prefs.saveSession(...);
+      // ── SIMULATED LOGIC ──────────────────────────────────────────
+      // Pretend we got a token back; check profile completion flag
+      await _prefs.save('token', 'mock_token_123');
+      await _prefs.save('email', emailCtrl.text.trim());
 
-      // Get.offAllNamed(AppRoutes.customerDashboard);
-    } catch (_) {
-      _showErrorToast('Login failed. Please check your credentials.');
-    } finally {
-      isLoading.value = false;
-    }
-  }
+      final profileCompleted = await _prefs.get('profileCompleted') ?? false;
 
-  // ── Google Login ─────────────────────────────────────────────────────────
-  Future<void> loginWithGoogle() async {
-    try {
-      isLoading.value = true;
-      // This triggers the official Google Login popup
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-      if (googleUser != null) {
-        // Success! Navigate to dashboard
-        // Get.offAllNamed(AppRoutes.customerDashboard);
+      if (profileCompleted == true) {
+        Get.offAllNamed(AppRoutes.dashboard);
+      } else {
+        // User exists but hasn't completed profile
+        Get.offAllNamed(AppRoutes.completeProfile);
       }
-    } catch (e) {
-      _showErrorToast('Google Sign-In failed');
+      // ─────────────────────────────────────────────────────────────
+
+      // Real pattern when user not found (404):
+      // Get.offAllNamed(AppRoutes.signup);
+
+    } catch (_) {
+      _toast('Login failed. Please check your credentials.', isError: true);
     } finally {
       isLoading.value = false;
     }
   }
 
-  // ── Facebook Login ───────────────────────────────────────────────────────
+  // ── Signup ────────────────────────────────────────────────────────────────
+  Future<void> signup() async {
+    if (!signupFormKey.currentState!.validate()) return;
+
+    if (!agreedToTerms.value) {
+      _toast('Please agree to the Terms of Service to continue.', isError: true);
+      return;
+    }
+
+    isLoading.value = true;
+    try {
+      // TODO: replace with your real signup API call
+      // final res = await ApiService.instance.signup(
+      //   email:    usePhone.value ? null : emailCtrl.text.trim(),
+      //   phone:    usePhone.value ? phoneCtrl.text.trim() : null,
+      //   password: passwordCtrl.text,
+      // );
+      // await _saveSession(res.data);
+
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Save session
+      await _prefs.save('token', 'mock_token_signup');
+      if (usePhone.value) {
+        await _prefs.save('phone', phoneCtrl.text.trim());
+      } else {
+        await _prefs.save('email', emailCtrl.text.trim());
+      }
+
+      // After signup → go complete profile
+      Get.offAllNamed(AppRoutes.completeProfile);
+    } catch (_) {
+      _toast('Signup failed. Please try again.', isError: true);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // ── Social logins ─────────────────────────────────────────────────────────
+
+  Future<void> loginWithGoogle() async {
+    // TODO: integrate google_sign_in package
+    // final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
+    // final account = await _googleSignIn.signIn();
+    // if (account == null) return;
+    // Call your backend with the Google token, then navigate accordingly.
+
+    isLoading.value = true;
+    try {
+      await Future.delayed(const Duration(milliseconds: 800));
+      await _prefs.save('token', 'google_mock_token');
+      await _prefs.save('email', 'user@gmail.com');
+
+      final profileCompleted = await _prefs.get('profileCompleted') ?? false;
+      if (profileCompleted == true) {
+        Get.offAllNamed(AppRoutes.dashboard);
+      } else {
+        Get.offAllNamed(AppRoutes.completeProfile);
+      }
+    } catch (_) {
+      _toast('Google sign-in failed. Please try again.', isError: true);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> loginWithFacebook() async {
+    // TODO: integrate flutter_facebook_auth package
+    isLoading.value = true;
     try {
-      isLoading.value = true;
-      // Logic for Facebook:
-      // final result = await FacebookAuth.instance.login();
-      // if (result.status == LoginStatus.success) { ... }
+      await Future.delayed(const Duration(milliseconds: 800));
+      await _prefs.save('token', 'facebook_mock_token');
 
-      // Placeholder navigation
-      await Future.delayed(const Duration(seconds: 1));
-      // Get.offAllNamed(AppRoutes.customerDashboard);
-    } catch (e) {
-      _showErrorToast('Facebook Sign-In failed');
+      final profileCompleted = await _prefs.get('profileCompleted') ?? false;
+      if (profileCompleted == true) {
+        Get.offAllNamed(AppRoutes.dashboard);
+      } else {
+        Get.offAllNamed(AppRoutes.completeProfile);
+      }
+    } catch (_) {
+      _toast('Facebook sign-in failed. Please try again.', isError: true);
     } finally {
       isLoading.value = false;
     }
   }
 
-  // ── LinkedIn Login ───────────────────────────────────────────────────────
   Future<void> loginWithLinkedIn() async {
+    // TODO: integrate linkedin_login or webview-based LinkedIn OAuth
+    isLoading.value = true;
     try {
-      isLoading.value = true;
-      // LinkedIn usually requires a WebView or a specialized package
-      await Future.delayed(const Duration(seconds: 1));
-      // Get.offAllNamed(AppRoutes.customerDashboard);
-    } catch (e) {
-      _showErrorToast('LinkedIn Sign-In failed');
+      await Future.delayed(const Duration(milliseconds: 800));
+      await _prefs.save('token', 'linkedin_mock_token');
+
+      final profileCompleted = await _prefs.get('profileCompleted') ?? false;
+      if (profileCompleted == true) {
+        Get.offAllNamed(AppRoutes.dashboard);
+      } else {
+        Get.offAllNamed(AppRoutes.completeProfile);
+      }
+    } catch (_) {
+      _toast('LinkedIn sign-in failed. Please try again.', isError: true);
     } finally {
       isLoading.value = false;
     }
-  }
-
-  // ── Helper: Red Toast ────────────────────────────────────────────────────
-  void _showErrorToast(String msg) {
-    Fluttertoast.showToast(
-      msg: msg,
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-      gravity: ToastGravity.BOTTOM,
-    );
   }
 
   // ── Logout ────────────────────────────────────────────────────────────────
   Future<void> logout() async {
-    // await _prefs.clearSession();
+    await _prefs.clear();
     Get.offAllNamed(AppRoutes.login);
   }
 
@@ -130,9 +215,21 @@ class AuthController extends GetxController {
     return null;
   }
 
+  String? phoneValidator(String? v) {
+    if (v == null || v.isEmpty) return 'Phone number is required';
+    if (v.length < 10)          return 'Enter a valid 10-digit number';
+    return null;
+  }
+
   String? passwordValidator(String? v) {
     if (v == null || v.isEmpty) return 'Password is required';
     if (v.length < 6)           return 'Minimum 6 characters required';
+    return null;
+  }
+
+  String? confirmPasswordValidator(String? v) {
+    if (v == null || v.isEmpty)    return 'Please confirm your password';
+    if (v != passwordCtrl.text)    return 'Passwords do not match';
     return null;
   }
 
@@ -140,5 +237,15 @@ class AuthController extends GetxController {
     if (v == null || v.trim().isEmpty) return 'Full name is required';
     if (v.trim().length < 2)           return 'Name is too short';
     return null;
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  void _toast(String msg, {bool isError = false}) {
+    Fluttertoast.showToast(
+      msg: msg,
+      backgroundColor: isError ? const Color(0xFFE53935) : const Color(0xFF7F8839),
+      textColor: Colors.white,
+      toastLength: Toast.LENGTH_LONG,
+    );
   }
 }
