@@ -3,12 +3,12 @@ import 'package:get/get.dart';
 
 import '../presentation/Complete_Profile/Complete_profile_Binding.dart';
 import '../presentation/Complete_Profile/view/Complete_profile_Screen.dart';
-import '../presentation/Dashboard/Dashboard_Binding.dart';
 import '../presentation/Login/Auth_binding.dart';
 import '../presentation/Login/view/Login_Screen.dart';
 import '../presentation/Login/view/Signup_Screen.dart';
 import '../presentation/Onboarding/onboardingBinding.dart';
 import '../presentation/Onboarding/view/onboarding_Screen.dart';
+import '../presentation/dashboard/Dashboard_Binding.dart';
 import '../presentation/dashboard/view/Dashboard_Screen.dart';
 import '../presentation/splash/Splash_binding.dart';
 import '../presentation/splash/view/Splash_Screen.dart';
