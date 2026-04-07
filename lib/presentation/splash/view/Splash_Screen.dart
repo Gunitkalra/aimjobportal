@@ -132,11 +132,11 @@ class _LogoWidget extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.all(size * 0.15),
           // ── Replace with your actual asset image ──────────────────────────
-          // child: Image.asset(
-          //   'assets/images/logo.png',
-          //   fit: BoxFit.contain,
-          // ),
-          child: _PlaceholderLogo(size: size),
+          child: Image.asset(
+            'assets/logo.png',
+            fit: BoxFit.contain,
+          ),
+          // child: _PlaceholderLogo(size: size),
         ),
       ),
     );

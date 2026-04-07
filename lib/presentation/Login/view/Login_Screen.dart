@@ -28,41 +28,17 @@ class LoginScreen extends GetView<AuthController> {
                 Center(
                   child: Column(
                     children: [
-                      Container(
-                        width: 64,
-                        height: 64,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [AppColors.buttonPrimary, AppColors.textPrimary],
-                          ),
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.buttonPrimary.withOpacity(0.30),
-                              blurRadius: 16,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'AJ',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                        ),
+                       Image.asset(
+                        'assets/logo.png',
+                        fit: BoxFit.cover,
+                         height: 50,
+                         width: 200,
                       ),
-                      SizedBox(height: sh * 0.022),
+                      // SizedBox(height: sh * 0.022),
                       Text(
                         'Welcome Back 👋',
                         style: TextStyle(
-                          fontSize: sw * 0.065,
+                          fontSize: sw * 0.055,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textPrimary,
                         ),
@@ -193,7 +169,7 @@ class LoginScreen extends GetView<AuthController> {
                       'Forgot Password?',
                       style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.buttonPrimary,
+                        color: AppColors.darkRed,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -210,9 +186,9 @@ class LoginScreen extends GetView<AuthController> {
                     onPressed:
                     controller.isLoading.value ? null : controller.login,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.buttonPrimary,
+                      backgroundColor: AppColors.darkRed,
                       disabledBackgroundColor:
-                      AppColors.buttonPrimary.withOpacity(0.6),
+                      AppColors.darkRed.withOpacity(0.6),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -257,7 +233,7 @@ class LoginScreen extends GetView<AuthController> {
                         'Sign Up',
                         style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.buttonPrimary,
+                          color: AppColors.darkRed,
                           fontWeight: FontWeight.w700,
                         ),
                       ),

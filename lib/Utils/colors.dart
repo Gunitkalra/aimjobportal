@@ -25,7 +25,19 @@ class AppColors {
   // Buttons
   static const Color buttonPrimary = Color.fromRGBO(127, 136, 57, 1);
   static const Color buttonAppbar = Color.fromRGBO(137, 159, 135, 1);
-  static const Color darkRed = Color(0xFF8B0000);
+  static const Color darkRed = Color(0xFF1274b8);
+
+  // static const Color bluekRed = Color(0xFF8B0000);
+  static const Color lightRed = Color(0xFF5AA9E6);
+
+  static const LinearGradient blueGradient = LinearGradient(
+  colors: [
+  darkRed,
+  lightRed,
+  ],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+  );
 
   // Navigation
   static const Color navUnselected = Color.fromRGBO(33, 55, 33, 1);

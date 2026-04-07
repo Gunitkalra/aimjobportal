@@ -215,12 +215,12 @@ class SignupScreen extends GetView<AuthController> {
                         margin: const EdgeInsets.only(top: 1),
                         decoration: BoxDecoration(
                           color: controller.agreedToTerms.value
-                              ? AppColors.buttonPrimary
+                              ? AppColors.darkRed
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(5),
                           border: Border.all(
                             color: controller.agreedToTerms.value
-                                ? AppColors.buttonPrimary
+                                ? AppColors.darkRed
                                 : AppColors.textHint,
                             width: 1.5,
                           ),
@@ -244,7 +244,7 @@ class SignupScreen extends GetView<AuthController> {
                               TextSpan(
                                 text: 'Terms of Service',
                                 style: const TextStyle(
-                                  color: AppColors.buttonPrimary,
+                                  color: AppColors.darkRed,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -252,7 +252,7 @@ class SignupScreen extends GetView<AuthController> {
                               TextSpan(
                                 text: 'Privacy Policy',
                                 style: const TextStyle(
-                                  color: AppColors.buttonPrimary,
+                                  color: AppColors.darkRed,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -274,9 +274,9 @@ class SignupScreen extends GetView<AuthController> {
                     onPressed:
                     controller.isLoading.value ? null : controller.signup,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.buttonPrimary,
+                      backgroundColor: AppColors.darkRed,
                       disabledBackgroundColor:
-                      AppColors.buttonPrimary.withOpacity(0.6),
+                      AppColors.darkRed.withOpacity(0.6),
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -321,7 +321,7 @@ class SignupScreen extends GetView<AuthController> {
                         'Login',
                         style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.buttonPrimary,
+                          color: AppColors.darkRed,
                           fontWeight: FontWeight.w700,
                         ),
                       ),

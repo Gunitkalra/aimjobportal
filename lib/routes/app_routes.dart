@@ -10,6 +10,7 @@ import '../presentation/Onboarding/onboardingBinding.dart';
 import '../presentation/Onboarding/view/onboarding_Screen.dart';
 import '../presentation/dashboard/Dashboard_Binding.dart';
 import '../presentation/dashboard/view/Dashboard_Screen.dart';
+import '../presentation/dashboard/view/Job_detail_screen.dart';
 import '../presentation/splash/Splash_binding.dart';
 import '../presentation/splash/view/Splash_Screen.dart';
 
@@ -20,7 +21,7 @@ class AppRoutes {
   static const String signup          = '/signup';
   static const String completeProfile = '/complete-profile';
   static const String dashboard       = '/dashboard';
-
+  static const String jobDetail       = '/job-detail';
   static List<GetPage> routes = [
     GetPage(
       name: splash,
@@ -57,6 +58,11 @@ class AppRoutes {
       page: () => const DashboardScreen(),
       binding: DashboardBinding(),
       transition: Transition.fade,
+    ),
+    GetPage(
+      name: jobDetail,
+      page: () => const JobDetailScreen(),
+      transition: Transition.rightToLeft,
     ),
   ];
 }

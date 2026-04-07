@@ -120,34 +120,34 @@ class CompleteProfileScreen extends GetView<CompleteProfileController> {
                       SizedBox(height: sh * 0.02),
 
                       // ── Job title ─────────────────────────────────
-                      _FieldLabel(label: 'Current / Desired Job Title'),
-                      SizedBox(height: 8),
-                      TextFormField(
-                        controller: controller.jobTitleCtrl,
-                        textInputAction: TextInputAction.next,
-                        style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
-                        decoration: _inputDecoration(
-                          hint: 'e.g. Software Engineer, Designer',
-                          prefix: Icons.work_outline_rounded,
-                        ),
-                      ),
-
-                      SizedBox(height: sh * 0.02),
+                      // _FieldLabel(label: 'Current / Desired Job Title'),
+                      // SizedBox(height: 8),
+                      // TextFormField(
+                      //   controller: controller.jobTitleCtrl,
+                      //   textInputAction: TextInputAction.next,
+                      //   style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+                      //   decoration: _inputDecoration(
+                      //     hint: 'e.g. Software Engineer, Designer',
+                      //     prefix: Icons.work_outline_rounded,
+                      //   ),
+                      // ),
+                      //
+                      // SizedBox(height: sh * 0.02),
 
                       // ── Location ──────────────────────────────────
-                      _FieldLabel(label: 'Location'),
-                      SizedBox(height: 8),
-                      TextFormField(
-                        controller: controller.locationCtrl,
-                        textInputAction: TextInputAction.done,
-                        style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
-                        decoration: _inputDecoration(
-                          hint: 'City, State',
-                          prefix: Icons.location_on_outlined,
-                        ),
-                      ),
-
-                      SizedBox(height: sh * 0.032),
+                      // _FieldLabel(label: 'Location'),
+                      // SizedBox(height: 8),
+                      // TextFormField(
+                      //   controller: controller.locationCtrl,
+                      //   textInputAction: TextInputAction.done,
+                      //   style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+                      //   decoration: _inputDecoration(
+                      //     hint: 'City, State',
+                      //     prefix: Icons.location_on_outlined,
+                      //   ),
+                      // ),
+                      //
+                      // SizedBox(height: sh * 0.032),
 
                       // ── Resume upload section ─────────────────────
                       Container(
@@ -230,7 +230,7 @@ class CompleteProfileScreen extends GetView<CompleteProfileController> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.darkRed,
                             disabledBackgroundColor:
-                            AppColors.buttonPrimary.withOpacity(0.6),
+                            AppColors.darkRed.withOpacity(0.6),
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),

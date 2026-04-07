@@ -96,7 +96,7 @@ class _OnboardingPage extends StatelessWidget {
             width:  sw * 0.72,
             height: sw * 0.72,
             decoration: BoxDecoration(
-              color: AppColors.appBgBanner,
+              color: AppColors.lightRed.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             child: ClipOval(
@@ -168,7 +168,7 @@ class _IllustrationPlaceholder extends StatelessWidget {
         child: Icon(
           _icon,
           size: MediaQuery.of(context).size.width * 0.18,
-          color: AppColors.buttonPrimary,
+          color: AppColors.darkRed,
         ),
       ),
     );
