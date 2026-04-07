@@ -891,6 +891,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../Utils/colors.dart';
+import '../../../routes/app_routes.dart';
 import '../Controller/Dashboard_Controller.dart';
 import 'widget/filter_sheet.dart';
 import 'widget/job_card.dart';
@@ -1481,7 +1482,10 @@ class _SideDrawer extends StatelessWidget {
             _DrawerItem(
               icon: Icons.speed_outlined,
               label: 'Dashboard',
-              onTap: () => Get.back(),
+              onTap: () {
+                Get.back();
+                Get.toNamed(AppRoutes.sideDashboard);
+              },
             ),
             _DrawerItem(
               icon: Icons.person_outline_rounded,

@@ -8,6 +8,7 @@ import '../presentation/Login/view/Login_Screen.dart';
 import '../presentation/Login/view/Signup_Screen.dart';
 import '../presentation/Onboarding/onboardingBinding.dart';
 import '../presentation/Onboarding/view/onboarding_Screen.dart';
+import '../presentation/Side_Dashboard/view/Side_dashboard.dart';
 import '../presentation/dashboard/Dashboard_Binding.dart';
 import '../presentation/dashboard/view/Dashboard_Screen.dart';
 import '../presentation/dashboard/view/Job_detail_screen.dart';
@@ -22,6 +23,7 @@ class AppRoutes {
   static const String completeProfile = '/complete-profile';
   static const String dashboard       = '/dashboard';
   static const String jobDetail       = '/job-detail';
+  static const sideDashboard = '/side-dashboard';
   static List<GetPage> routes = [
     GetPage(
       name: splash,
@@ -62,6 +64,11 @@ class AppRoutes {
     GetPage(
       name: jobDetail,
       page: () => const JobDetailScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: sideDashboard,
+      page: () => const SideDashboardScreen(),
       transition: Transition.rightToLeft,
     ),
   ];
