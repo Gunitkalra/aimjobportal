@@ -166,12 +166,12 @@ class CompleteProfileScreen extends GetView<CompleteProfileController> {
                                   width: 40,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    color: AppColors.buttonPrimary.withOpacity(0.1),
+                                    color: AppColors.darkRed.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: const Icon(
                                     Icons.description_outlined,
-                                    color: AppColors.buttonPrimary,
+                                    color: AppColors.textPrimary,
                                     size: 22,
                                   ),
                                 ),
@@ -331,7 +331,7 @@ class _TopProgressBar extends StatelessWidget {
                 '100%',
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.buttonPrimary,
+                  color: AppColors.darkRed,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -343,7 +343,7 @@ class _TopProgressBar extends StatelessWidget {
             child: LinearProgressIndicator(
               value: 1.0,
               backgroundColor: AppColors.appBg5,
-              color: AppColors.buttonPrimary,
+              color: AppColors.darkRed,
               minHeight: 5,
             ),
           ),
@@ -371,7 +371,7 @@ class _ResumeUploadArea extends StatelessWidget {
           color: AppColors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppColors.buttonPrimary.withOpacity(0.35),
+            color: AppColors.darkRed.withOpacity(0.35),
             width: 1.5,
             style: BorderStyle.solid,
           ),
@@ -382,14 +382,14 @@ class _ResumeUploadArea extends StatelessWidget {
             Icon(
               Icons.cloud_upload_outlined,
               size: 32,
-              color: AppColors.buttonPrimary.withOpacity(0.7),
+              color: AppColors.darkRed.withOpacity(0.7),
             ),
             const SizedBox(height: 8),
             const Text(
               'Tap to upload your resume',
               style: TextStyle(
                 fontSize: 13,
-                color: AppColors.buttonPrimary,
+                color: AppColors.darkRed,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -426,10 +426,10 @@ class _ResumeFileCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.buttonPrimary.withOpacity(0.06),
+        color: AppColors.darkRed.withOpacity(0.06),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.buttonPrimary.withOpacity(0.25),
+          color: AppColors.darkRed.withOpacity(0.25),
           width: 1.5,
         ),
       ),
@@ -439,12 +439,12 @@ class _ResumeFileCard extends StatelessWidget {
             width: 40,
             height: 44,
             decoration: BoxDecoration(
-              color: AppColors.buttonPrimary.withOpacity(0.1),
+              color: AppColors.darkRed.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
               Icons.picture_as_pdf_rounded,
-              color: AppColors.buttonPrimary,
+              color: AppColors.textPrimary,
               size: 22,
             ),
           ),
@@ -470,14 +470,14 @@ class _ResumeFileCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 7, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppColors.buttonPrimary.withOpacity(0.12),
+                        color: AppColors.darkRed.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Text(
                         'Uploaded',
                         style: TextStyle(
                           fontSize: 10,
-                          color: AppColors.buttonPrimary,
+                          color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -508,7 +508,7 @@ class _ResumeFileCard extends StatelessWidget {
               child: const Icon(
                 Icons.close_rounded,
                 size: 16,
-                color: AppColors.textSecondary,
+                color: AppColors.textRed,
               ),
             ),
           ),

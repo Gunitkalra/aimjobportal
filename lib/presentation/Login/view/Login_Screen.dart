@@ -67,25 +67,25 @@ class LoginScreen extends GetView<AuthController> {
                   onTap: () => controller.loginWithGoogle(),
                 ),
                 SizedBox(height: 12),
-                _SocialLoginButton(
-                  label: 'Continue with Facebook',
-                  icon: const _FacebookIcon(),
-                  backgroundColor: const Color(0xFF1877F2),
-                  textColor: Colors.white,
-                  borderColor: Colors.transparent,
-                  onTap: () => controller.loginWithFacebook(),
-                ),
-                SizedBox(height: 12),
-                _SocialLoginButton(
-                  label: 'Continue with LinkedIn',
-                  icon: const _LinkedInIcon(),
-                  backgroundColor: const Color(0xFF0A66C2),
-                  textColor: Colors.white,
-                  borderColor: Colors.transparent,
-                  onTap: () => controller.loginWithLinkedIn(),
-                ),
-
-                SizedBox(height: sh * 0.028),
+                // _SocialLoginButton(
+                //   label: 'Continue with Facebook',
+                //   icon: const _FacebookIcon(),
+                //   backgroundColor: const Color(0xFF1877F2),
+                //   textColor: Colors.white,
+                //   borderColor: Colors.transparent,
+                //   onTap: () => controller.loginWithFacebook(),
+                // ),
+                // SizedBox(height: 12),
+                // _SocialLoginButton(
+                //   label: 'Continue with LinkedIn',
+                //   icon: const _LinkedInIcon(),
+                //   backgroundColor: const Color(0xFF0A66C2),
+                //   textColor: Colors.white,
+                //   borderColor: Colors.transparent,
+                //   onTap: () => controller.loginWithLinkedIn(),
+                // ),
+                //
+                // SizedBox(height: sh * 0.028),
 
                 // ── Divider ──────────────────────────────────────────
                 Row(
@@ -157,9 +157,7 @@ class LoginScreen extends GetView<AuthController> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {
-                      // TODO: navigate to forgot password screen
-                    },
+                    onPressed: () => Get.toNamed(AppRoutes.forgotPassword),
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
                       minimumSize: const Size(0, 0),

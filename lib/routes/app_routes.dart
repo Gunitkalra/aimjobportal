@@ -12,6 +12,7 @@ import '../presentation/Side_Dashboard/view/Side_dashboard.dart';
 import '../presentation/dashboard/Dashboard_Binding.dart';
 import '../presentation/dashboard/view/Dashboard_Screen.dart';
 import '../presentation/dashboard/view/Job_detail_screen.dart';
+import '../presentation/forgot_password/view/Forgot_Password.dart';
 import '../presentation/splash/Splash_binding.dart';
 import '../presentation/splash/view/Splash_Screen.dart';
 
@@ -24,6 +25,7 @@ class AppRoutes {
   static const String dashboard       = '/dashboard';
   static const String jobDetail       = '/job-detail';
   static const sideDashboard = '/side-dashboard';
+  static const forgotPassword = '/forgot-password';
   static List<GetPage> routes = [
     GetPage(
       name: splash,
@@ -69,6 +71,11 @@ class AppRoutes {
     GetPage(
       name: sideDashboard,
       page: () => const SideDashboardScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: forgotPassword,
+      page: () => const ForgotPasswordScreen(),
       transition: Transition.rightToLeft,
     ),
   ];

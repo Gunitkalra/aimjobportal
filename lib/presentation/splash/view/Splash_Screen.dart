@@ -54,7 +54,7 @@ class SplashScreen extends GetView<SplashController> {
                       curve: Curves.easeOut,
                       opacity: controller.logoOpacity.value,
                       child: Text(
-                        'AimJobs',
+                        'Aim Jobs',
                         style: TextStyle(
                           fontSize: appNameFontSize,
                           fontWeight: FontWeight.w700,

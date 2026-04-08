@@ -75,25 +75,25 @@ class SignupScreen extends GetView<AuthController> {
                   onTap: () => controller.loginWithGoogle(),
                 ),
                 SizedBox(height: 12),
-                _SocialSignupButton(
-                  label: 'Sign up with Facebook',
-                  icon: const _FacebookIcon(),
-                  backgroundColor: const Color(0xFF1877F2),
-                  textColor: Colors.white,
-                  borderColor: Colors.transparent,
-                  onTap: () => controller.loginWithFacebook(),
-                ),
-                SizedBox(height: 12),
-                _SocialSignupButton(
-                  label: 'Sign up with LinkedIn',
-                  icon: const _LinkedInIcon(),
-                  backgroundColor: const Color(0xFF0A66C2),
-                  textColor: Colors.white,
-                  borderColor: Colors.transparent,
-                  onTap: () => controller.loginWithLinkedIn(),
-                ),
-
-                SizedBox(height: sh * 0.028),
+                // _SocialSignupButton(
+                //   label: 'Sign up with Facebook',
+                //   icon: const _FacebookIcon(),
+                //   backgroundColor: const Color(0xFF1877F2),
+                //   textColor: Colors.white,
+                //   borderColor: Colors.transparent,
+                //   onTap: () => controller.loginWithFacebook(),
+                // ),
+                // SizedBox(height: 12),
+                // _SocialSignupButton(
+                //   label: 'Sign up with LinkedIn',
+                //   icon: const _LinkedInIcon(),
+                //   backgroundColor: const Color(0xFF0A66C2),
+                //   textColor: Colors.white,
+                //   borderColor: Colors.transparent,
+                //   onTap: () => controller.loginWithLinkedIn(),
+                // ),
+                //
+                // SizedBox(height: sh * 0.028),
 
                 // ── Divider ──────────────────────────────────────────
                 Row(
