@@ -52,7 +52,7 @@ class SplashController extends GetxController {
       return;
     }
 
-    // No session → login
-    Get.offAllNamed(AppRoutes.login);
+    // No session → guest mode (go to dashboard instead of login)
+    Get.offAllNamed(AppRoutes.dashboard);
   }
 }

@@ -8,11 +8,14 @@ import '../presentation/Login/view/Login_Screen.dart';
 import '../presentation/Login/view/Signup_Screen.dart';
 import '../presentation/Onboarding/onboardingBinding.dart';
 import '../presentation/Onboarding/view/onboarding_Screen.dart';
+import '../presentation/Savedjobs/view/Saved_Jobs.dart';
 import '../presentation/Side_Dashboard/view/Side_dashboard.dart';
 import '../presentation/dashboard/Dashboard_Binding.dart';
 import '../presentation/dashboard/view/Dashboard_Screen.dart';
 import '../presentation/dashboard/view/Job_detail_screen.dart';
 import '../presentation/forgot_password/view/Forgot_Password.dart';
+import '../presentation/myprofile/view/my_Profile.dart';
+import '../presentation/myresume/view/myresume.dart';
 import '../presentation/splash/Splash_binding.dart';
 import '../presentation/splash/view/Splash_Screen.dart';
 
@@ -26,6 +29,9 @@ class AppRoutes {
   static const String jobDetail       = '/job-detail';
   static const sideDashboard = '/side-dashboard';
   static const forgotPassword = '/forgot-password';
+  static const savedJobs = '/saved-jobs';
+  static const myresume = '/my-resume';
+  static const myprofile = '/my-profile';
   static List<GetPage> routes = [
     GetPage(
       name: splash,
@@ -76,6 +82,21 @@ class AppRoutes {
     GetPage(
       name: forgotPassword,
       page: () => const ForgotPasswordScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: savedJobs,
+      page: () => const SavedJobsScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: myresume,
+      page: () => const MyResumeScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: myprofile,
+      page: () => const MyProfileScreen (),
       transition: Transition.rightToLeft,
     ),
   ];

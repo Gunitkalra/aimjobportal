@@ -36,6 +36,7 @@ import '../model/job_model/job_Filter.dart';
 class DashboardController extends GetxController {
   final searchCtrl = TextEditingController();
   final userName = 'there'.obs;
+  final isLoggedIn = false.obs;
   final isLoading = false.obs;
   final _prefs = SharedPrefHelper();
 
@@ -226,8 +227,15 @@ class DashboardController extends GetxController {
   }
 
   Future<void> _loadUser() async {
-    final name = await _prefs.get('name') ?? 'there';
-    userName.value = name.toString().split(' ').first;
+    final token = await _prefs.get('token');
+    if (token != null && token.toString().isNotEmpty) {
+      isLoggedIn.value = true;
+      final name = await _prefs.get('name') ?? 'there';
+      userName.value = name.toString().split(' ').first;
+    } else {
+      isLoggedIn.value = false;
+      userName.value = 'Guest';
+    }
   }
 
   Future<void> _loadJobs() async {

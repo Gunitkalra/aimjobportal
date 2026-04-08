@@ -947,10 +947,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final sw = MediaQuery.of(context).size.width;
     final sh = MediaQuery.of(context).size.height;
 
-    return Scaffold(
+    return Obx(() => Scaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.appBg1,
-      drawer: _SideDrawer(controller: controller),
+      drawer: controller.isLoggedIn.value ? _SideDrawer(controller: controller) : null,
       body: SafeArea(
         child: Column(
           children: [
@@ -1002,30 +1002,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const Spacer(),
                   Obx(() {
-                    final initial = controller.userName.value.isNotEmpty
-                        ? controller.userName.value[0].toUpperCase()
-                        : 'U';
-                    return GestureDetector(
-                      onTap: () => _scaffoldKey.currentState?.openDrawer(),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: const BoxDecoration(
-                          color: AppColors.darkRed,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            initial,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
+                    if (controller.isLoggedIn.value) {
+                      final initial = controller.userName.value.isNotEmpty
+                          ? controller.userName.value[0].toUpperCase()
+                          : 'U';
+                      return GestureDetector(
+                        onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: const BoxDecoration(
+                            color: AppColors.darkRed,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              initial,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    );
+                      );
+                    } else {
+                      return ElevatedButton(
+                        onPressed: () => Get.toNamed(AppRoutes.login),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.darkRed,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          minimumSize: const Size(80, 36),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                        child: const Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    }
                   }),
                 ],
               ),
@@ -1358,7 +1379,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -1469,7 +1490,7 @@ class _SideDrawer extends StatelessWidget {
                     )),
                   ),
                   GestureDetector(
-                    onTap: () => Get.back(),
+                    onTap: () =>Navigator.of(context).pop(),
                     child: const Icon(Icons.close,
                         color: AppColors.textSecondary, size: 22),
                   ),
@@ -1483,29 +1504,38 @@ class _SideDrawer extends StatelessWidget {
               icon: Icons.speed_outlined,
               label: 'Dashboard',
               onTap: () {
-                Get.back();
+                Navigator.of(context).pop();
                 Get.toNamed(AppRoutes.sideDashboard);
               },
             ),
             _DrawerItem(
               icon: Icons.person_outline_rounded,
               label: 'Profile',
-              onTap: () => Get.back(),
+              onTap: () {
+                Navigator.of(context).pop();
+                Get.toNamed(AppRoutes.myprofile);
+              },
             ),
             _DrawerItem(
               icon: Icons.bookmark_outline_rounded,
               label: 'Saved Jobs',
-              onTap: () => Get.back(),
+              onTap: () {
+                Navigator.of(context).pop();
+                Get.toNamed(AppRoutes.savedJobs);
+              },
             ),
             _DrawerItem(
               icon: Icons.description_outlined,
               label: 'My Resume',
-              onTap: () => Get.back(),
+              onTap: () {
+                Navigator.of(context).pop();
+                Get.toNamed(AppRoutes.myresume);
+              },
             ),
             _DrawerItem(
               icon: Icons.search_rounded,
               label: 'Search',
-              onTap: () => Get.back(),
+              onTap: () => Navigator.of(context).pop(),
             ),
 
             const Divider(height: 1, color: AppColors.border),

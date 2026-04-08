@@ -38,6 +38,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
     _filter = widget.currentFilter.copyWith();
   }
 
+  void _close() => Navigator.of(context).pop();
+
   void _toggleItem(List<String> list, String value) {
     setState(() {
       if (list.contains(value)) {
@@ -50,8 +52,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final sw = MediaQuery.of(context).size.width;
-
     return Container(
       height: MediaQuery.of(context).size.height * 0.92,
       decoration: const BoxDecoration(
@@ -60,7 +60,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
       ),
       child: Column(
         children: [
-          // ── Handle ───────────────────────────────────────────────
           Container(
             margin: const EdgeInsets.only(top: 12),
             width: 40,
@@ -71,7 +70,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
             ),
           ),
 
-          // ── Header ───────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
@@ -86,13 +84,28 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   ),
                 ),
                 const Spacer(),
+                GestureDetector(
+                  onTap: _close,
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: AppColors.appBg1,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.close_rounded,
+                      size: 18,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
 
           const Divider(height: 1, color: AppColors.line),
 
-          // ── Scrollable content ────────────────────────────────────
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -100,8 +113,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 24),
-
-                  // Job Type
                   _SectionTitle(title: 'Job Type'),
                   const SizedBox(height: 14),
                   _ChipGrid(
@@ -109,10 +120,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     selected: _filter.jobTypes,
                     onTap: (v) => _toggleItem(_filter.jobTypes, v),
                   ),
-
                   const SizedBox(height: 28),
-
-                  // Work Location
                   _SectionTitle(title: 'Work Location'),
                   const SizedBox(height: 14),
                   _ChipGrid(
@@ -120,10 +128,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     selected: _filter.workLocations,
                     onTap: (v) => _toggleItem(_filter.workLocations, v),
                   ),
-
                   const SizedBox(height: 28),
-
-                  // Experience
                   _SectionTitle(title: 'Experience'),
                   const SizedBox(height: 14),
                   _ChipGrid(
@@ -131,10 +136,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     selected: _filter.experiences,
                     onTap: (v) => _toggleItem(_filter.experiences, v),
                   ),
-
                   const SizedBox(height: 28),
-
-                  // Salary slider
                   _SectionTitle(title: 'Salary'),
                   const SizedBox(height: 8),
                   Center(
@@ -153,11 +155,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     data: SliderTheme.of(context).copyWith(
                       activeTrackColor: AppColors.darkRed,
                       inactiveTrackColor: AppColors.appBg5,
-                      thumbColor:AppColors.darkRed ,
+                      thumbColor: AppColors.darkRed,
                       overlayColor: AppColors.lightRed.withOpacity(0.2),
                       trackHeight: 4,
-                      thumbShape: const RoundSliderThumbShape(
-                          enabledThumbRadius: 10),
+                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
                     ),
                     child: Slider(
                       value: _filter.salary,
@@ -167,10 +168,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       onChanged: (v) => setState(() => _filter.salary = v),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
-                  // Distance slider
                   _SectionTitle(title: 'Distance'),
                   const SizedBox(height: 8),
                   Center(
@@ -188,10 +186,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       activeTrackColor: AppColors.darkRed,
                       inactiveTrackColor: AppColors.appBg5,
                       thumbColor: AppColors.darkRed,
-                      overlayColor:AppColors.lightRed.withOpacity(0.2) ,
+                      overlayColor: AppColors.lightRed.withOpacity(0.2),
                       trackHeight: 4,
-                      thumbShape: const RoundSliderThumbShape(
-                          enabledThumbRadius: 10),
+                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
                     ),
                     child: Slider(
                       value: _filter.distance,
@@ -201,10 +198,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       onChanged: (v) => setState(() => _filter.distance = v),
                     ),
                   ),
-
                   const SizedBox(height: 28),
-
-                  // Posted date
                   _SectionTitle(title: 'Posted date'),
                   const SizedBox(height: 14),
                   _ChipGrid(
@@ -213,30 +207,28 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     onTap: (v) => _toggleItem(_filter.postedDates, v),
                     singleSelect: true,
                   ),
-
                   const SizedBox(height: 32),
                 ],
               ),
             ),
           ),
 
-          // ── Bottom buttons ────────────────────────────────────────
           const Divider(height: 1, color: AppColors.line),
           Padding(
             padding: EdgeInsets.fromLTRB(
                 20, 14, 20, MediaQuery.of(context).padding.bottom + 14),
             child: Row(
               children: [
-                // Clear
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
                       setState(() => _filter.clear());
+                      widget.onApply(_filter);
+                      _close();
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFFB33A3A),
-                      side: const BorderSide(
-                          color: AppColors.darkRed, width: 1.5),
+                      side: const BorderSide(color: AppColors.darkRed, width: 1.5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -253,13 +245,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Show Jobs
                 Expanded(
                   flex: 2,
                   child: ElevatedButton(
                     onPressed: () {
                       widget.onApply(_filter);
-                      Get.back();
+                      _close();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.darkRed,
@@ -288,8 +279,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   }
 }
 
-// ── Section title ─────────────────────────────────────────────────────────────
-
 class _SectionTitle extends StatelessWidget {
   final String title;
   const _SectionTitle({required this.title});
@@ -306,8 +295,6 @@ class _SectionTitle extends StatelessWidget {
     );
   }
 }
-
-// ── Chip grid ─────────────────────────────────────────────────────────────────
 
 class _ChipGrid extends StatefulWidget {
   final List<String> items;
@@ -350,14 +337,10 @@ class _ChipGridState extends State<_ChipGrid> {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
             decoration: BoxDecoration(
-              color: isSelected
-                  ? const Color(0xFFE8F0FE)
-                  : Colors.white,
+              color: isSelected ? const Color(0xFFE8F0FE) : Colors.white,
               borderRadius: BorderRadius.circular(30),
               border: Border.all(
-                color: isSelected
-                    ? const Color(0xFF1A73E8)
-                    : const Color(0xFFDDDDDD),
+                color: isSelected ? const Color(0xFF1A73E8) : const Color(0xFFDDDDDD),
                 width: isSelected ? 1.5 : 1,
               ),
             ),
@@ -367,9 +350,7 @@ class _ChipGridState extends State<_ChipGrid> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected
-                      ? const Color(0xFF1A73E8)
-                      : const Color(0xFF333333),
+                  color: isSelected ? const Color(0xFF1A73E8) : const Color(0xFF333333),
                 ),
               ),
             ),

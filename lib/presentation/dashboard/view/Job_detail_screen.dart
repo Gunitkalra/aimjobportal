@@ -1,7 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../Utils/colors.dart';
+import '../../../routes/app_routes.dart';
+import '../Controller/Dashboard_Controller.dart';
 import '../model/job_model/Job_Model.dart';
 
 class JobDetailScreen extends StatelessWidget {
@@ -285,7 +286,13 @@ class JobDetailScreen extends StatelessWidget {
                   // Save Job
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        final dashCtrl = Get.find<DashboardController>();
+                        if (!dashCtrl.isLoggedIn.value) {
+                          Get.toNamed(AppRoutes.login);
+                          return;
+                        }
+                      },
                       icon: const Icon(Icons.bookmark_border_rounded,
                           color: AppColors.darkRed,
                           size: 24),
@@ -310,6 +317,11 @@ class JobDetailScreen extends StatelessWidget {
                     flex: 2,
                     child: ElevatedButton(
                       onPressed: () {
+                        final dashCtrl = Get.find<DashboardController>();
+                        if (!dashCtrl.isLoggedIn.value) {
+                          Get.toNamed(AppRoutes.login);
+                          return;
+                        }
                         // TODO: Apply action
                       },
                       style: ElevatedButton.styleFrom(
