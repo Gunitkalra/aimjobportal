@@ -1144,17 +1144,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     hintStyle: const TextStyle(
                                         fontSize: 14,
                                         color: AppColors.textHint),
-                                    border: UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: AppColors.border),
-                                    ),
+                                    // border: UnderlineInputBorder(
+                                    //   borderSide: BorderSide(
+                                    //       color: AppColors.darkRed),
+                                    // ),
                                     enabledBorder: UnderlineInputBorder(
                                       borderSide: BorderSide(
-                                          color: AppColors.border),
+                                          color: AppColors.darkRed),
                                     ),
                                     focusedBorder: UnderlineInputBorder(
                                       borderSide: BorderSide(
-                                          color: AppColors.buttonPrimary),
+                                          color: AppColors.darkRed),
                                     ),
                                     contentPadding:
                                     const EdgeInsets.symmetric(
