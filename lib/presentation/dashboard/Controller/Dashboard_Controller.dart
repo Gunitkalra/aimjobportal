@@ -227,8 +227,14 @@ class DashboardController extends GetxController {
   }
 
   Future<void> _loadUser() async {
+
     final token = await _prefs.get('token');
     if (token != null && token.toString().isNotEmpty) {
+      final profileCompleted = await _prefs.get('profileCompleted') ?? false;
+      if (profileCompleted != true) {
+        Get.offAllNamed(AppRoutes.completeProfile);
+        return;
+      }
       isLoggedIn.value = true;
       final name = await _prefs.get('name') ?? 'there';
       userName.value = name.toString().split(' ').first;

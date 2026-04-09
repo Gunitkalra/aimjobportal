@@ -16,16 +16,13 @@ import '../presentation/dashboard/view/Job_detail_screen.dart';
 import '../presentation/forgot_password/view/Forgot_Password.dart';
 import '../presentation/myprofile/view/my_Profile.dart';
 import '../presentation/myresume/view/myresume.dart';
-import '../presentation/splash/Splash_binding.dart';
-import '../presentation/splash/view/Splash_Screen.dart';
 
 class AppRoutes {
-  static const String splash          = '/';
   static const String onboarding      = '/onboarding';
   static const String login           = '/login';
   static const String signup          = '/signup';
   static const String completeProfile = '/complete-profile';
-  static const String dashboard       = '/dashboard';
+  static const String dashboard       = '/';
   static const String jobDetail       = '/job-detail';
   static const sideDashboard = '/side-dashboard';
   static const forgotPassword = '/forgot-password';
@@ -34,9 +31,9 @@ class AppRoutes {
   static const myprofile = '/my-profile';
   static List<GetPage> routes = [
     GetPage(
-      name: splash,
-      page: () => const SplashScreen(),
-      binding: SplashBinding(),
+      name: dashboard,
+      page: () => const DashboardScreen(),
+      binding: DashboardBinding(),
       transition: Transition.fade,
     ),
     GetPage(
@@ -63,12 +60,7 @@ class AppRoutes {
       binding: CompleteProfileBinding(),
       transition: Transition.rightToLeft,
     ),
-    GetPage(
-      name: dashboard,
-      page: () => const DashboardScreen(),
-      binding: DashboardBinding(),
-      transition: Transition.fade,
-    ),
+
     GetPage(
       name: jobDetail,
       page: () => const JobDetailScreen(),

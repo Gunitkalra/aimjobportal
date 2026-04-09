@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       title: 'Aim Jobs',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      initialRoute: AppRoutes.splash,
+      initialRoute: AppRoutes.dashboard,
       getPages: AppRoutes.routes,
     );
   }
