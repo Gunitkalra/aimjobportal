@@ -168,36 +168,36 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       onChanged: (v) => setState(() => _filter.salary = v),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  _SectionTitle(title: 'Distance'),
-                  const SizedBox(height: 8),
-                  Center(
-                    child: Text(
-                      '${_filter.distance.toInt()} km',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.darkRed,
-                      ),
-                    ),
-                  ),
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: AppColors.darkRed,
-                      inactiveTrackColor: AppColors.appBg5,
-                      thumbColor: AppColors.darkRed,
-                      overlayColor: AppColors.lightRed.withOpacity(0.2),
-                      trackHeight: 4,
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
-                    ),
-                    child: Slider(
-                      value: _filter.distance,
-                      min: 0,
-                      max: 200,
-                      divisions: 200,
-                      onChanged: (v) => setState(() => _filter.distance = v),
-                    ),
-                  ),
+                  // const SizedBox(height: 20),
+                  // _SectionTitle(title: 'Distance'),
+                  // const SizedBox(height: 8),
+                  // Center(
+                  //   child: Text(
+                  //     '${_filter.distance.toInt()} km',
+                  //     style: const TextStyle(
+                  //       fontSize: 16,
+                  //       fontWeight: FontWeight.w600,
+                  //       color: AppColors.darkRed,
+                  //     ),
+                  //   ),
+                  // ),
+                  // SliderTheme(
+                  //   data: SliderTheme.of(context).copyWith(
+                  //     activeTrackColor: AppColors.darkRed,
+                  //     inactiveTrackColor: AppColors.appBg5,
+                  //     thumbColor: AppColors.darkRed,
+                  //     overlayColor: AppColors.lightRed.withOpacity(0.2),
+                  //     trackHeight: 4,
+                  //     thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+                  //   ),
+                  //   child: Slider(
+                  //     value: _filter.distance,
+                  //     min: 0,
+                  //     max: 200,
+                  //     divisions: 200,
+                  //     onChanged: (v) => setState(() => _filter.distance = v),
+                  //   ),
+                  // ),
                   const SizedBox(height: 28),
                   _SectionTitle(title: 'Posted date'),
                   const SizedBox(height: 14),
@@ -316,45 +316,84 @@ class _ChipGrid extends StatefulWidget {
 class _ChipGridState extends State<_ChipGrid> {
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: widget.items.map((item) {
-        final isSelected = widget.selected.contains(item);
-        return GestureDetector(
-          onTap: () {
-            if (widget.singleSelect) {
-              widget.selected.clear();
-              if (!isSelected) widget.selected.add(item);
-            } else {
-              widget.onTap(item);
-            }
-            setState(() {});
-          },
-          child: Container(
-            constraints: BoxConstraints(
-              minWidth: (MediaQuery.of(context).size.width - 52) / 2,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-            decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFFE8F0FE) : Colors.white,
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(
-                color: isSelected ? const Color(0xFF1A73E8) : const Color(0xFFDDDDDD),
-                width: isSelected ? 1.5 : 1,
-              ),
-            ),
-            child: Center(
-              child: Text(
-                item,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected ? const Color(0xFF1A73E8) : const Color(0xFF333333),
+    final items = widget.items;
+
+    // Build rows of 2
+    final rows = <List<String>>[];
+    for (int i = 0; i < items.length; i += 2) {
+      rows.add([
+        items[i],
+        if (i + 1 < items.length) items[i + 1],
+      ]);
+    }
+
+    return Column(
+      children: rows.map((row) {
+        // Build chip widgets for this row
+        final rowChildren = <Widget>[];
+        for (int i = 0; i < row.length; i++) {
+          final item       = row[i];
+          final isSelected = widget.selected.contains(item);
+          final isLast     = i == row.length - 1;
+
+          rowChildren.add(
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: isLast ? 0 : 12),
+                child: GestureDetector(
+                  onTap: () {
+                    if (widget.singleSelect) {
+                      widget.selected.clear();
+                      if (!isSelected) widget.selected.add(item);
+                    } else {
+                      widget.onTap(item);
+                    }
+                    setState(() {});
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 13),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? const Color(0xFFE8F0FE)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xFF1A73E8)
+                            : const Color(0xFFDDDDDD),
+                        width: isSelected ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        item,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
+                          color: isSelected
+                              ? const Color(0xFF1A73E8)
+                              : const Color(0xFF333333),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+          );
+        }
+
+        // If odd item, fill the second slot so chip takes exactly half width
+        if (row.length == 1) {
+          rowChildren.add(const Expanded(child: SizedBox()));
+        }
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(children: rowChildren),
         );
       }).toList(),
     );

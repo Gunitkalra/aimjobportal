@@ -95,22 +95,22 @@ class JobCard extends StatelessWidget {
                   // ── Experience + Location ─────────────────────────
                   Row(
                     children: [
-                      Icon(Icons.access_time_rounded,
-                          size: 13, color: AppColors.textMuted),
+                      Icon(Icons.card_travel_sharp,
+                          size: 13, color: AppColors.darkRed),
                       const SizedBox(width: 4),
                       Text(
                         job.experience,
                         style: const TextStyle(
-                            fontSize: 12, color: AppColors.textMuted),
+                            fontSize: 12, color: AppColors.black),
                       ),
                       const SizedBox(width: 16),
-                      Icon(Icons.location_on_outlined,
-                          size: 13, color: AppColors.textMuted),
+                      Icon(Icons.location_on,
+                          size: 13, color: AppColors.darkRed),
                       const SizedBox(width: 4),
                       Text(
                         job.location,
                         style: const TextStyle(
-                            fontSize: 12, color: AppColors.textMuted),
+                            fontSize: 12, color: AppColors.black),
                       ),
                     ],
                   ),
@@ -122,7 +122,7 @@ class JobCard extends StatelessWidget {
                     job.description,
                     style: const TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: AppColors.black,
                       height: 1.5,
                     ),
                     maxLines: 3,
@@ -186,18 +186,18 @@ class _FlatTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F0F0),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: const Color(0xFFDDDDDD), width: 1),
+        color: AppColors.lightRed.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.lightRed.withOpacity(0.4), width: 0.5),
       ),
       child: Text(
         label,
         style: const TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w500,
-          color: AppColors.textSecondary,
+          color: AppColors.darkRed,
         ),
       ),
     );

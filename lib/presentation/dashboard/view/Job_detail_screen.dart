@@ -117,25 +117,25 @@ class JobDetailScreen extends StatelessWidget {
                     // ── Experience + Location ──────────────────────────
                     Row(
                       children: [
-                        const Icon(Icons.work_history_outlined,
-                            size: 15, color: AppColors.textMuted),
+                        const Icon(Icons.card_travel_sharp,
+                            size: 15, color: AppColors.darkRed),
                         const SizedBox(width: 4),
                         Text(
                           job.experience,
                           style: const TextStyle(
                             fontSize: 13,
-                            color: AppColors.textSecondary,
+                            color: AppColors.black,
                           ),
                         ),
                         const SizedBox(width: 16),
-                        const Icon(Icons.location_on_outlined,
-                            size: 15, color: AppColors.textMuted),
+                        const Icon(Icons.location_on,
+                            size: 15, color: AppColors.darkRed),
                         const SizedBox(width: 4),
                         Text(
                           job.location,
                           style: const TextStyle(
                             fontSize: 13,
-                            color: AppColors.textSecondary,
+                            color: AppColors.black,
                           ),
                         ),
                       ],
@@ -148,17 +148,16 @@ class JobDetailScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 5),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF3E0),
+                        color: AppColors.appBg1,
                         borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                            color: const Color(0xFFFFCC80), width: 1),
+
                       ),
                       child: Text(
                         job.jobType,
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFFE65100),
+                          color: AppColors.black,
                         ),
                       ),
                     ),
@@ -200,7 +199,7 @@ class JobDetailScreen extends StatelessWidget {
                       job.description,
                       style: const TextStyle(
                         fontSize: 14,
-                        color: AppColors.textSecondary,
+                        color: AppColors.black,
                         height: 1.7,
                       ),
                     ),
@@ -217,13 +216,13 @@ class JobDetailScreen extends StatelessWidget {
                       children: [
                         const Text('• ',
                             style: TextStyle(
-                                color: AppColors.textSecondary, fontSize: 14)),
+                                color: AppColors.black, fontSize: 14)),
                         Expanded(
                           child: Text(
                             job.education,
                             style: const TextStyle(
                               fontSize: 14,
-                              color: AppColors.textSecondary,
+                              color: AppColors.black,
                               height: 1.5,
                             ),
                           ),
@@ -235,37 +234,37 @@ class JobDetailScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _Divider(),
                     const SizedBox(height: 20),
-                    const _SectionTitle(title: 'Salary'),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: AppColors.buttonPrimary.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.currency_rupee_rounded,
-                                  size: 15,
-                                  color: AppColors.buttonPrimary),
-                              Text(
-                                job.salary,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.buttonPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                    // const _SectionTitle(title: 'Salary'),
+                    // const SizedBox(height: 10),
+                    // Row(
+                    //   children: [
+                    //     Container(
+                    //       padding: const EdgeInsets.symmetric(
+                    //           horizontal: 14, vertical: 8),
+                    //       decoration: BoxDecoration(
+                    //         color: AppColors.buttonPrimary.withOpacity(0.08),
+                    //         borderRadius: BorderRadius.circular(8),
+                    //       ),
+                    //       child: Row(
+                    //         children: [
+                    //           const Icon(Icons.currency_rupee_rounded,
+                    //               size: 15,
+                    //               color: AppColors.buttonPrimary),
+                    //           Text(
+                    //             job.salary,
+                    //             style: const TextStyle(
+                    //               fontSize: 15,
+                    //               fontWeight: FontWeight.w600,
+                    //               color: AppColors.buttonPrimary,
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
 
-                    const SizedBox(height: 40),
+                    // const SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -298,8 +297,8 @@ class JobDetailScreen extends StatelessWidget {
                           size: 24),
                       label: const Text('Save Job'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.textPrimary,
-                        side: const BorderSide(color: AppColors.line, width: 1.5),
+                        foregroundColor: AppColors.darkRed,
+                        side: const BorderSide(color: AppColors.darkRed, width: 1.5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -314,7 +313,7 @@ class JobDetailScreen extends StatelessWidget {
                   const SizedBox(width: 12),
                   // Apply
                   Expanded(
-                    flex: 2,
+
                     child: ElevatedButton(
                       onPressed: () {
                         final dashCtrl = Get.find<DashboardController>();
@@ -381,10 +380,10 @@ class _SkillChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     decoration: BoxDecoration(
-      color: AppColors.appBg1,
-      borderRadius: BorderRadius.circular(20),
+      color: AppColors.lightRed.withOpacity(0.1),
+      borderRadius: BorderRadius.circular(6),
     ),
     child: Text(
       label,
@@ -403,11 +402,11 @@ class _DetailTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     decoration: BoxDecoration(
-      color: const Color(0xFFE3F2FD),
-      borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: const Color(0xFF90CAF9)),
+      color: AppColors.lightRed.withOpacity(0.1),
+      borderRadius: BorderRadius.circular(6),
+      // border: Border.all(color: const Color(0xFF90CAF9)),
     ),
     child: Text(
       label,

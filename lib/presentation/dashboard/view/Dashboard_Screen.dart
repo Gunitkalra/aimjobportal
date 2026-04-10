@@ -958,42 +958,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(
               color: AppColors.white,
               padding: EdgeInsets.symmetric(
-                  horizontal: sw * 0.05, vertical: 14),
+                  horizontal: sw * 0.05, vertical: 8),
               child: Row(
                 children: [
-                  // RichText(
-                  //   text: const TextSpan(
-                  //     children: [
-                  //       TextSpan(
-                  //         text: 'AIMJ',
-                  //         style: TextStyle(
-                  //           fontSize: 16,
-                  //           fontWeight: FontWeight.w800,
-                  //           color: AppColors.textPrimary,
-                  //           letterSpacing: 0.5,
-                  //         ),
-                  //       ),
-                  //       TextSpan(
-                  //         text: 'OBS',
-                  //         style: TextStyle(
-                  //           fontSize: 16,
-                  //           fontWeight: FontWeight.w800,
-                  //           color: AppColors.buttonPrimary,
-                  //           letterSpacing: 0.5,
-                  //         ),
-                  //       ),
-                  //       TextSpan(
-                  //         text: '.AI',
-                  //         style: TextStyle(
-                  //           fontSize: 16,
-                  //           fontWeight: FontWeight.w800,
-                  //           color: AppColors.textPrimary,
-                  //           letterSpacing: 0.5,
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                   Image.asset(
                     'assets/logo.png',
                     fit: BoxFit.cover,
@@ -1006,48 +973,80 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       final initial = controller.userName.value.isNotEmpty
                           ? controller.userName.value[0].toUpperCase()
                           : 'U';
-                      return GestureDetector(
+                      return  GestureDetector(
                         onTap: () => _scaffoldKey.currentState?.openDrawer(),
                         child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: const BoxDecoration(
-                            color: AppColors.darkRed,
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
                             shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              initial,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 6,
+                                offset: const Offset(0, 3),
                               ),
+                            ],
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.menu,
+                              color: AppColors.darkRed,
+                              size: 22,
                             ),
                           ),
                         ),
                       );
                     } else {
-                      return ElevatedButton(
-                        onPressed: () => Get.toNamed(AppRoutes.login),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.darkRed,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                      return Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () => Get.toNamed(AppRoutes.signup),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.darkRed,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              minimumSize: const Size(80, 36),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                            ),
+                            child: const Text(
+                              'Register',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
-                          minimumSize: const Size(80, 36),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                        ),
-                        child: const Text(
-                          'Login',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                          SizedBox(width: 10,),
+                          ElevatedButton(
+                            onPressed: () => Get.toNamed(AppRoutes.login),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: const BorderSide(
+                                  color: AppColors.darkRed, // ✅ border color
+                                  width: 1, // optional
+                                ),
+                              ),
+                              minimumSize: const Size(80, 36),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                            ),
+                            child: const Text(
+                              'Login',
+                              style: TextStyle(
+                                color: AppColors.darkRed,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       );
                     }
                   }),
+
                 ],
               ),
             ),
@@ -1074,42 +1073,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (!_hasSearched) ...[
-                            RichText(
-                              text: const TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Get Your ',
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w800,
-                                      color: AppColors.textPrimary,
+                            Center(
+                              child: RichText(
+                                text: const TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'Get Your ',
+                                      style: TextStyle(
+                                        fontSize: 34,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.textPrimary,
+                                      ),
                                     ),
-                                  ),
-                                  TextSpan(
-                                    text: 'Dream Career Job',
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w800,
-                                      color: AppColors.darkRed,
+                                    TextSpan(
+                                      text: 'Dream \n Career Job',
+                                      style: TextStyle(
+                                        fontSize: 34,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.darkRed,
+                                      ),
                                     ),
-                                  ),
-                                  TextSpan(
-                                    text: ' Now',
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w800,
-                                      color: AppColors.textPrimary,
+                                    TextSpan(
+                                      text: ' Now',
+                                      style: TextStyle(
+                                        fontSize: 34,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.textPrimary,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                             const SizedBox(height: 6),
-                            const Text(
-                              'Multilevel Jobs for You to Explore',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppColors.textSecondary,
+                            Center(
+                              child: const Text(
+                                'Multilevel Jobs for You to Explore',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppColors.textSecondary,
+                                ),
                               ),
                             ),
                             SizedBox(height: sh * 0.025),
@@ -1136,29 +1139,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   controller: controller.searchCtrl,
                                   textInputAction: TextInputAction.next,
                                   style: const TextStyle(
-                                      fontSize: 14,
-                                      color: AppColors.textPrimary),
+                                    fontSize: 14,
+                                    color: AppColors.textPrimary,
+                                  ),
                                   decoration: InputDecoration(
-                                    hintText:
-                                    'Skills, Designations, Companies',
+                                    hintText: 'Skills, Designations, Companies',
                                     hintStyle: const TextStyle(
-                                        fontSize: 14,
-                                        color: AppColors.textHint),
-                                    // border: UnderlineInputBorder(
-                                    //   borderSide: BorderSide(
-                                    //       color: AppColors.darkRed),
-                                    // ),
-                                    enabledBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: AppColors.darkRed),
+                                      fontSize: 14,
+                                      color: AppColors.textHint,
                                     ),
-                                    focusedBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: AppColors.darkRed),
+
+                                    // ✅ Search Icon
+                                    prefixIcon: const Icon(
+                                      Icons.search,
+                                      color: AppColors.darkRed,
+                                      size: 30,
                                     ),
-                                    contentPadding:
-                                    const EdgeInsets.symmetric(
-                                        vertical: 10),
+
+                                    // ✅ Align text with icon properly
+                                    prefixIconConstraints: const BoxConstraints(
+                                      minWidth: 40,
+                                      minHeight: 40,
+                                    ),
+
+                                    enabledBorder: const UnderlineInputBorder(
+                                      borderSide: BorderSide(color: AppColors.darkRed),
+                                    ),
+                                    focusedBorder: const UnderlineInputBorder(
+                                      borderSide: BorderSide(color: AppColors.darkRed),
+                                    ),
+
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -1175,6 +1188,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     hintStyle: TextStyle(
                                         fontSize: 14,
                                         color: AppColors.textHint),
+                                    prefixIcon: const Icon(
+                                      Icons.location_on_outlined,
+                                      color: AppColors.darkRed,
+                                      size: 30,
+                                    ),
+
+                                    // ✅ Align text with icon properly
+                                    prefixIconConstraints: const BoxConstraints(
+                                      minWidth: 40,
+                                      minHeight: 40,
+                                    ),
                                     border: InputBorder.none,
                                     contentPadding: EdgeInsets.symmetric(
                                         vertical: 10),
@@ -1224,16 +1248,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Container(
                           width: double.infinity,
                           color: AppColors.appBg1,
-                          padding:
-                          EdgeInsets.symmetric(vertical: sh * 0.04),
-                          child: Column(
+                          padding: EdgeInsets.symmetric(vertical: sh * 0.04),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center, // ✅ IMPORTANT
                             children: [
                               _StatItem(
                                 value: '4+',
                                 label: 'Companies',
                                 valueColor: AppColors.darkRed,
                               ),
-                              SizedBox(height: sh * 0.04),
+                              SizedBox(width: sh * 0.07),
                               _StatItem(
                                 value: '5340+',
                                 label: 'Jobs',
@@ -1320,7 +1344,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         final count = controller.activeFilterCount;
                                         return Row(
                                           children: [
-                                            Icon(Icons.tune_rounded,
+                                            Icon(Icons.filter_list_rounded,
                                                 size: 16,
                                                 color: count > 0
                                                     ? AppColors.buttonPrimary
