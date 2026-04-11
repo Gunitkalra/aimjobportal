@@ -26,7 +26,7 @@ String franchiseid ="";
 String franchisetoken ="";
 String reportIds ="";
 String orderIdforverify ="";
-
+String XApikeys = "Eyfb1JHA0pZGfigQAqwFhmMB1vArZnxI";
 
 String deliveryboyid=userId;
 // String deliveryboyid="67e7ebb4667c2d0972efe6b7";
