@@ -31,28 +31,24 @@ class SplashController extends GetxController {
   }
 
   Future<void> _navigate() async {
-    final token            = await _prefHelper.get('token');
+    final token            = await _prefHelper.get('accessToken');      // ✅ was 'token'
     final isOnboarded      = await _prefHelper.get('isOnboarded') ?? false;
-    final profileCompleted = await _prefHelper.get('profileCompleted') ?? false;
+    final profileCompleted = await _prefHelper.get('isProfileComplete') ?? false; // ✅ was 'profileCompleted'
 
-    // First-time user (never opened onboarding)
     if (isOnboarded != true) {
       Get.offAllNamed(AppRoutes.onboarding);
       return;
     }
 
-    // Has session token
     if (token != null && token.toString().isNotEmpty) {
       if (profileCompleted == true) {
-        Get.offAllNamed(AppRoutes.dashboard);
+        Get.offAllNamed(AppRoutes.dashboard);  // logged in + profile done → dashboard
       } else {
-        // Logged in but profile not done
-        Get.offAllNamed(AppRoutes.completeProfile);
+        Get.offAllNamed(AppRoutes.completeProfile); // logged in + profile not done
       }
       return;
     }
 
-    // No session → guest mode (go to dashboard instead of login)
-    Get.offAllNamed(AppRoutes.dashboard);
+    Get.offAllNamed(AppRoutes.dashboard); // no token → guest dashboard
   }
 }

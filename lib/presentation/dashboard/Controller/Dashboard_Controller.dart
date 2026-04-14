@@ -172,10 +172,26 @@ class DashboardController extends GetxController {
     super.onClose();
   }
 
+  // Future<void> _loadUser() async {
+  //   final token = await _prefs.get('token');
+  //   if (token != null && token.toString().isNotEmpty) {
+  //     final profileCompleted = await _prefs.get('profileCompleted') ?? false;
+  //     if (profileCompleted != true) {
+  //       Get.offAllNamed(AppRoutes.completeProfile);
+  //       return;
+  //     }
+  //     isLoggedIn.value = true;
+  //     final name = await _prefs.get('name') ?? 'there';
+  //     userName.value = name.toString().split(' ').first;
+  //   } else {
+  //     isLoggedIn.value = false;
+  //     userName.value   = 'Guest';
+  //   }
+  // }
   Future<void> _loadUser() async {
-    final token = await _prefs.get('token');
+    final token = await _prefs.get('accessToken');          // ✅ was 'token'
     if (token != null && token.toString().isNotEmpty) {
-      final profileCompleted = await _prefs.get('profileCompleted') ?? false;
+      final profileCompleted = await _prefs.get('isProfileComplete') ?? false; // ✅ was 'profileCompleted'
       if (profileCompleted != true) {
         Get.offAllNamed(AppRoutes.completeProfile);
         return;
@@ -188,7 +204,6 @@ class DashboardController extends GetxController {
       userName.value   = 'Guest';
     }
   }
-
   // ── Called by DashboardScreen._search() ──────────────────────────────────
   // Passes the current active filter along with the query.
   Future<void> triggerSearch(String query) async {
