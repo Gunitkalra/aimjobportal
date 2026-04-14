@@ -1,9 +1,16 @@
+import 'dart:io';
+
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../Utils/colors.dart';
 import '../../../routes/app_routes.dart';
 import '../Controller/Dashboard_Controller.dart';
 import '../model/job_model/Job_Model.dart';
+
+// ── Universal URL opener ───────────────────────────────────────────
 
 class JobDetailScreen extends StatelessWidget {
   const JobDetailScreen({super.key});
@@ -20,7 +27,42 @@ class JobDetailScreen extends StatelessWidget {
     ];
     return colors[job.company.length % colors.length];
   }
-
+  Future<void> openUrl(String urlString) async {
+    if (Platform.isAndroid) {
+      try {
+        final intent = AndroidIntent(
+          action: 'action_view',
+          data: urlString,
+          flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
+        );
+        await intent.launch();
+      } catch (e) {
+        print("Android Intent Error: $e");
+        Get.snackbar(
+          "Error",
+          "Could not open link.",
+          snackPosition: SnackPosition.bottom,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } else {
+      // iOS — url_launcher works fine here
+      final uri = Uri.parse(urlString);
+      try {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } catch (e) {
+        print("iOS Launch Error: $e");
+        Get.snackbar(
+          "Error",
+          "Could not open link.",
+          snackPosition: SnackPosition.bottom,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final job = Get.arguments as JobModel;
@@ -153,7 +195,7 @@ class JobDetailScreen extends StatelessWidget {
 
                       ),
                       child: Text(
-                        job.jobType,
+                        job.jobTypes.join(","),
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -168,7 +210,7 @@ class JobDetailScreen extends StatelessWidget {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: job.tags
+                      children: job.indsector
                           .map((tag) => _DetailTag(label: tag))
                           .toList(),
                     ),
@@ -183,7 +225,7 @@ class JobDetailScreen extends StatelessWidget {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: job.skills
+                      children: job.requiredSkills
                           .map((s) => _SkillChip(label: s))
                           .toList(),
                     ),
@@ -219,7 +261,7 @@ class JobDetailScreen extends StatelessWidget {
                                 color: AppColors.black, fontSize: 14)),
                         Expanded(
                           child: Text(
-                            job.education,
+                            job.requiredEducation.join('\n'),
                             style: const TextStyle(
                               fontSize: 14,
                               color: AppColors.black,
@@ -315,13 +357,16 @@ class JobDetailScreen extends StatelessWidget {
                   Expanded(
 
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         final dashCtrl = Get.find<DashboardController>();
+
                         if (!dashCtrl.isLoggedIn.value) {
                           Get.toNamed(AppRoutes.login);
                           return;
                         }
-                        // TODO: Apply action
+
+                        print("Opening URL: ${job.jobUrl}");
+                        await openUrl(job.jobUrl);  // ✅ clean single call
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.darkRed,

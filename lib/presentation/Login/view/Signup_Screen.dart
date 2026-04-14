@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../../Utils/colors.dart';
+import '../../../Utils/constant_utils.dart';
 import '../../../routes/app_routes.dart';
 import '../controller/Auth_Controller.dart';
 
@@ -73,27 +74,10 @@ class SignupScreen extends GetView<AuthController> {
                   textColor: const Color(0xFF3C4043),
                   borderColor: const Color(0xFFDADCE0),
                   onTap: () => controller.loginWithGoogle(),
+                  // onTap: () => controller.loginWithGoogle(),
                 ),
-                SizedBox(height: 12),
-                // _SocialSignupButton(
-                //   label: 'Sign up with Facebook',
-                //   icon: const _FacebookIcon(),
-                //   backgroundColor: const Color(0xFF1877F2),
-                //   textColor: Colors.white,
-                //   borderColor: Colors.transparent,
-                //   onTap: () => controller.loginWithFacebook(),
-                // ),
-                // SizedBox(height: 12),
-                // _SocialSignupButton(
-                //   label: 'Sign up with LinkedIn',
-                //   icon: const _LinkedInIcon(),
-                //   backgroundColor: const Color(0xFF0A66C2),
-                //   textColor: Colors.white,
-                //   borderColor: Colors.transparent,
-                //   onTap: () => controller.loginWithLinkedIn(),
-                // ),
-                //
-                // SizedBox(height: sh * 0.028),
+
+                SizedBox(height: sh * 0.028),
 
                 // ── Divider ──────────────────────────────────────────
                 Row(
@@ -102,7 +86,7 @@ class SignupScreen extends GetView<AuthController> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
-                        'or sign up with',
+                        'or sign up with email',
                         style: TextStyle(
                           fontSize: 13,
                           color: AppColors.textMuted,
@@ -116,40 +100,26 @@ class SignupScreen extends GetView<AuthController> {
 
                 SizedBox(height: sh * 0.024),
 
-                // ── Email / Phone toggle ──────────────────────────────
-                Obx(() => Container(
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: AppColors.appBg1,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      _ToggleTab(
-                        label: 'Email',
-                        isActive: !controller.usePhone.value,
-                        onTap: () => controller.usePhone.value = false,
-                      ),
-                      _ToggleTab(
-                        label: 'Phone Number',
-                        isActive: controller.usePhone.value,
-                        onTap: () => controller.usePhone.value = true,
-                      ),
-                    ],
-                  ),
-                )),
-
-                SizedBox(height: sh * 0.022),
-
-                // ── Email or Phone input ──────────────────────────────
-                Obx(() => controller.usePhone.value
-                    ? _buildPhoneField(sh)
-                    : _buildEmailField(sh)),
+                // ── Email input (Phone toggle removed) ───────────────
+                _buildEmailField(sh),
 
                 SizedBox(height: sh * 0.022),
 
                 // ── Password field ───────────────────────────────────
-                _FieldLabel(label: 'Password'),
+                Row(
+                  children: [
+                    _FieldLabel(label: 'Password'),
+                    SizedBox(width: 5,),
+                    Text(
+                      "(min. 8 characters)",
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textHint,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ),
                 SizedBox(height: sh * 0.008),
                 Obx(() => TextFormField(
                   controller: controller.passwordCtrl,
@@ -241,17 +211,17 @@ class SignupScreen extends GetView<AuthController> {
                             ),
                             children: [
                               const TextSpan(text: 'I agree to the '),
-                              TextSpan(
+                              const TextSpan(
                                 text: 'Terms of Service',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppColors.darkRed,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const TextSpan(text: ' and '),
-                              TextSpan(
+                              const TextSpan(
                                 text: 'Privacy Policy',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppColors.darkRed,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -266,42 +236,37 @@ class SignupScreen extends GetView<AuthController> {
 
                 SizedBox(height: sh * 0.032),
 
-                // ── Signup button ────────────────────────────────────
+                // ── Signup button inside SignupScreen ────────────────────────────────
                 Obx(() => SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed:
-                    controller.isLoading.value ? null : controller.signup,
+                    onPressed: controller.isLoading.value
+                        ? null
+                        : () {
+                      // Validate 8-character password and Terms checkbox first
+                      if (controller.signupFormKey.currentState!.validate()) {
+                        if (!controller.agreedToTerms.value) {
+                          showToastFail("Please agree to the Terms of Service.");
+                          return;
+                        }
+
+                        // Trigger the actual API call
+                        controller.sendOtp();
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.darkRed,
-                      disabledBackgroundColor:
-                      AppColors.darkRed.withOpacity(0.6),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                     child: controller.isLoading.value
-                        ? const SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: Colors.white,
-                      ),
-                    )
+                        ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
-                      'Create Account',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+                      'Send OTP to verify email',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
                 )),
-
                 SizedBox(height: sh * 0.028),
 
                 // ── Login link ───────────────────────────────────────
@@ -342,7 +307,7 @@ class SignupScreen extends GetView<AuthController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _FieldLabel(label: 'Email Address'),
+        const _FieldLabel(label: 'Email Address'),
         SizedBox(height: sh * 0.008),
         TextFormField(
           controller: controller.emailCtrl,
@@ -354,29 +319,6 @@ class SignupScreen extends GetView<AuthController> {
             prefix: Icons.email_outlined,
           ),
           validator: controller.emailValidator,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPhoneField(double sh) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _FieldLabel(label: 'Phone Number'),
-        SizedBox(height: sh * 0.008),
-        TextFormField(
-          controller: controller.phoneCtrl,
-          keyboardType: TextInputType.phone,
-          textInputAction: TextInputAction.next,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          maxLength: 10,
-          style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
-          decoration: _inputDecoration(
-            hint: 'Enter 10-digit phone number',
-            prefix: Icons.phone_outlined,
-          ).copyWith(counterText: ''),
-          validator: controller.phoneValidator,
         ),
       ],
     );
@@ -415,59 +357,6 @@ class SignupScreen extends GetView<AuthController> {
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: AppColors.textRed, width: 1.5),
-      ),
-    );
-  }
-}
-
-// ── Toggle tab ────────────────────────────────────────────────────────────────
-
-class _ToggleTab extends StatelessWidget {
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const _ToggleTab({
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          margin: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: isActive ? AppColors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(9),
-            boxShadow: isActive
-                ? [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              )
-            ]
-                : [],
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight:
-                isActive ? FontWeight.w600 : FontWeight.w400,
-                color: isActive
-                    ? AppColors.textPrimary
-                    : AppColors.textMuted,
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -579,64 +468,6 @@ class _GoogleLogoPainter extends CustomPainter {
   bool shouldRepaint(_) => false;
 }
 
-// ── Facebook Icon ─────────────────────────────────────────────────────────────
-
-class _FacebookIcon extends StatelessWidget {
-  const _FacebookIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 22,
-      height: 22,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-      ),
-      child: const Center(
-        child: Text(
-          'f',
-          style: TextStyle(
-            color: Color(0xFF1877F2),
-            fontSize: 15,
-            fontWeight: FontWeight.w900,
-            height: 1,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── LinkedIn Icon ─────────────────────────────────────────────────────────────
-
-class _LinkedInIcon extends StatelessWidget {
-  const _LinkedInIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 22,
-      height: 22,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: const Center(
-        child: Text(
-          'in',
-          style: TextStyle(
-            color: Color(0xFF0A66C2),
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-            height: 1,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // ── Field label ───────────────────────────────────────────────────────────────
 
 class _FieldLabel extends StatelessWidget {
@@ -645,13 +476,17 @@ class _FieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: const TextStyle(
-        fontSize: 14,
-        color: AppColors.textPrimary,
-        fontWeight: FontWeight.w600,
-      ),
+    return Row(
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }

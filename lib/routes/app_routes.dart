@@ -6,6 +6,7 @@ import '../presentation/Complete_Profile/view/Complete_profile_Screen.dart';
 import '../presentation/Login/Auth_binding.dart';
 import '../presentation/Login/view/Login_Screen.dart';
 import '../presentation/Login/view/Signup_Screen.dart';
+import '../presentation/Login/view/Verifyotp.dart';
 import '../presentation/Onboarding/onboardingBinding.dart';
 import '../presentation/Onboarding/view/onboarding_Screen.dart';
 import '../presentation/Savedjobs/view/Saved_Jobs.dart';
@@ -29,6 +30,7 @@ class AppRoutes {
   static const savedJobs = '/saved-jobs';
   static const myresume = '/my-resume';
   static const myprofile = '/my-profile';
+  static const verifyotp = '/verifyOTP';
   static List<GetPage> routes = [
     GetPage(
       name: dashboard,
@@ -89,6 +91,11 @@ class AppRoutes {
     GetPage(
       name: myprofile,
       page: () => const MyProfileScreen (),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: verifyotp,
+      page: () => const VerifyOtpScreen (),
       transition: Transition.rightToLeft,
     ),
   ];

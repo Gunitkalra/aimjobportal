@@ -1,9 +1,310 @@
+// import 'dart:convert';
+// import 'package:flutter/material.dart';
+// import 'package:get/get.dart';
+// import 'package:fluttertoast/fluttertoast.dart';
+// import 'package:http/http.dart' as http;
+//
+// import '../../../Utils/constant_utils.dart';
+// import '../../../Utils/constraint.dart';
+// import '../../../Utils/shared_prehelper.dart';
+// import '../../../routes/app_routes.dart';
+// import '../model/sendOtpModel.dart';
+// import '../model/verifyOtpModel.dart';
+//
+// class AuthController extends GetxController {
+//   // ── Form controllers ──────────────────────────────────────────────────────
+//   final emailCtrl           = TextEditingController();
+//   final passwordCtrl        = TextEditingController();
+//   final confirmPasswordCtrl = TextEditingController();
+//   final nameCtrl            = TextEditingController();
+//   final phoneCtrl           = TextEditingController();
+//
+//   // ── OTP Controllers for 6 Boxes ───────────────────────────────────────────
+//   final otpControllers = List.generate(6, (index) => TextEditingController());
+//
+//   final loginFormKey  = GlobalKey<FormState>();
+//   final signupFormKey = GlobalKey<FormState>();
+//
+//   // ── Reactive state ────────────────────────────────────────────────────────
+//   final isLoading       = false.obs;
+//   final hidePassword    = true.obs;
+//   final hideConfirmPass = true.obs;
+//   final usePhone        = false.obs;
+//   final agreedToTerms   = false.obs;
+//
+//   final _prefs = SharedPrefHelper();
+//
+//   @override
+//   void onClose() {
+//     emailCtrl.dispose();
+//     passwordCtrl.dispose();
+//     confirmPasswordCtrl.dispose();
+//     nameCtrl.dispose();
+//     phoneCtrl.dispose();
+//     for (var controller in otpControllers) {
+//       controller.dispose();
+//     }
+//     super.onClose();
+//   }
+//
+//   void togglePassword()        => hidePassword.toggle();
+//   void toggleConfirmPassword() => hideConfirmPass.toggle();
+//
+//   // ── Send OTP API ──────────────────────────────────────────────────────────
+//   Future<void> sendOtp() async {
+//     if (emailCtrl.text.isEmpty || !GetUtils.isEmail(emailCtrl.text.trim())) {
+//       showToastFail("Please enter a valid email address");
+//       return;
+//     }
+//
+//     try {
+//       isLoading.value = true;
+//       final url = Uri.parse("https://aurore-nonappendent-ares.ngrok-free.dev/api/v1/auth/email/send-otp");
+//       final body = {"email": emailCtrl.text.trim(), "purpose": "register"};
+//       final headers = {'Content-Type': 'application/json', 'X-API-Key': XApikeys};
+//
+//       final response = await http.post(url, headers: headers, body: json.encode(body));
+//
+//       if (response.statusCode == 200 || response.statusCode == 202) {
+//         final data = SendOtpReponseModel.fromJson(json.decode(response.body));
+//         if (data.success == true) {
+//           showToastSuccess(data.message ?? "OTP sent successfully");
+//           Get.toNamed(AppRoutes.verifyotp, arguments: {
+//             'email': emailCtrl.text.trim(),
+//             'password': passwordCtrl.text,
+//           });
+//         } else {
+//           showToastFail(data.message ?? "Failed to send OTP");
+//         }
+//       } else {
+//         showToastFail("Error: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       showToastFail("Connection error.");
+//     } finally {
+//       isLoading.value = false;
+//     }
+//   }
+//
+//   // ── Verify OTP & Register API (New Integrated Method) ─────────────────────
+//   Future<void> verifyOtpRegister(String email, String password) async {
+//     // Combine the 6 digits from controllers
+//     String otp = otpControllers.map((e) => e.text).join();
+//
+//     if (otp.length < 6) {
+//       showToastFail("Please enter the complete 6-digit OTP");
+//       return;
+//     }
+//
+//     try {
+//       isLoading.value = true;
+//       final url = Uri.parse("https://aurore-nonappendent-ares.ngrok-free.dev/api/v1/auth/email/register");
+//
+//       final body = {
+//         "email": email,
+//         "password": password,
+//         "otp": otp,
+//       };
+//
+//       final response = await http.post(
+//         url,
+//         headers: {'Content-Type': 'application/json', 'X-API-Key': XApikeys},
+//         body: json.encode(body),
+//       );
+//
+//       if (response.statusCode == 200 || response.statusCode == 201) {
+//         final verifyRes = VerifyOtpReponseModel.fromJson(json.decode(response.body));
+//
+//         if (verifyRes.success == true && verifyRes.data != null) {
+//           final data = verifyRes.data!;
+//
+//           // ── Save all data to SharedPreferences ────────────────────
+//           await _prefs.save('accessToken', data.accessToken ?? "");
+//           await _prefs.save('refreshToken', data.refreshToken ?? "");
+//           await _prefs.save('tokenType', data.tokenType ?? "");
+//           await _prefs.save('userId', data.user?.id ?? "");
+//           await _prefs.save('userEmail', data.user?.email ?? "");
+//           await _prefs.save('isProfileComplete', data.user?.isProfileComplete ?? false);
+//
+//           showToastSuccess(verifyRes.message ?? "Account verified!");
+//
+//           // Navigate to complete profile
+//           Get.offAllNamed(AppRoutes.completeProfile);
+//         } else {
+//           showToastFail(verifyRes.message ?? "Verification failed");
+//         }
+//       } else {
+//         showToastFail("Verification error: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       print("Verify Error: $e");
+//       showToastFail("Connection error.");
+//     } finally {
+//       isLoading.value = false;
+//     }
+//   }
+//
+//   // ── Session check ─────────────────────────────────────────────────────────
+//   Future<void> checkSession() async {
+//     final token = await _prefs.get('accessToken');
+//     final profileCompleted = await _prefs.get('isProfileComplete') ?? false;
+//
+//     if (token != null && token.toString().isNotEmpty) {
+//       if (profileCompleted == true) {
+//         Get.offAllNamed(AppRoutes.dashboard);
+//       } else {
+//         Get.offAllNamed(AppRoutes.completeProfile);
+//       }
+//     } else {
+//       Get.offAllNamed(AppRoutes.onboarding);
+//     }
+//   }
+//
+//   // ── Login with email ──────────────────────────────────────────────────────
+//   Future<void> login() async {
+//     if (!loginFormKey.currentState!.validate()) return;
+//     isLoading.value = true;
+//     try {
+//       await Future.delayed(const Duration(seconds: 1));
+//       await _prefs.save('accessToken', 'mock_token_123');
+//       await _prefs.save('userEmail', emailCtrl.text.trim());
+//
+//       final profileCompleted = await _prefs.get('isProfileComplete') ?? false;
+//
+//       if (profileCompleted == true) {
+//         Get.offAllNamed(AppRoutes.dashboard);
+//       } else {
+//         Get.offAllNamed(AppRoutes.completeProfile);
+//       }
+//     } catch (_) {
+//       _toast('Login failed. Please check your credentials.', isError: true);
+//     } finally {
+//       isLoading.value = false;
+//     }
+//   }
+//
+//   // ── Signup (Placeholder/Fallback) ─────────────────────────────────────────
+//   Future<void> signup() async {
+//     if (!signupFormKey.currentState!.validate()) return;
+//     if (!agreedToTerms.value) {
+//       _toast('Please agree to the Terms of Service to continue.', isError: true);
+//       return;
+//     }
+//     // Logic redirected to sendOtp() for email verification flow
+//     sendOtp();
+//   }
+//
+//   // ── Social logins ─────────────────────────────────────────────────────────
+//   Future<void> loginWithGoogle() async {
+//     isLoading.value = true;
+//     try {
+//       await Future.delayed(const Duration(milliseconds: 800));
+//       await _prefs.save('accessToken', 'google_mock_token');
+//       await _prefs.save('userEmail', 'user@gmail.com');
+//
+//       final profileCompleted = await _prefs.get('isProfileComplete') ?? false;
+//       if (profileCompleted == true) {
+//         Get.offAllNamed(AppRoutes.dashboard);
+//       } else {
+//         Get.offAllNamed(AppRoutes.completeProfile);
+//       }
+//     } catch (_) {
+//       _toast('Google sign-in failed.', isError: true);
+//     } finally {
+//       isLoading.value = false;
+//     }
+//   }
+//
+//   Future<void> loginWithFacebook() async {
+//     isLoading.value = true;
+//     try {
+//       await Future.delayed(const Duration(milliseconds: 800));
+//       await _prefs.save('accessToken', 'facebook_mock_token');
+//       Get.offAllNamed(AppRoutes.completeProfile);
+//     } catch (_) {
+//       _toast('Facebook sign-in failed.', isError: true);
+//     } finally {
+//       isLoading.value = false;
+//     }
+//   }
+//
+//   Future<void> loginWithLinkedIn() async {
+//     isLoading.value = true;
+//     try {
+//       await Future.delayed(const Duration(milliseconds: 800));
+//       await _prefs.save('accessToken', 'linkedin_mock_token');
+//       Get.offAllNamed(AppRoutes.completeProfile);
+//     } catch (_) {
+//       _toast('LinkedIn sign-in failed.', isError: true);
+//     } finally {
+//       isLoading.value = false;
+//     }
+//   }
+//
+//   // ── Logout ────────────────────────────────────────────────────────────────
+//   Future<void> logout() async {
+//     await _prefs.clear();
+//     Get.offAllNamed(AppRoutes.login);
+//   }
+//
+//   // ── Validators ────────────────────────────────────────────────────────────
+//   String? emailValidator(String? v) {
+//     if (v == null || v.trim().isEmpty) return 'Email is required';
+//     if (!GetUtils.isEmail(v.trim()))   return 'Enter a valid email address';
+//     return null;
+//   }
+//
+//   String? phoneValidator(String? v) {
+//     if (v == null || v.isEmpty) return 'Phone number is required';
+//     if (v.length < 10)          return 'Enter a valid 10-digit number';
+//     return null;
+//   }
+//
+//   String? passwordValidator(String? v) {
+//     if (v == null || v.isEmpty) return 'Password is required';
+//     if (v.length < 8)           return 'Minimum 8 characters required';
+//     return null;
+//   }
+//
+//   String? confirmPasswordValidator(String? v) {
+//     if (v == null || v.isEmpty)    return 'Please confirm your password';
+//     if (v != passwordCtrl.text)    return 'Passwords do not match';
+//     return null;
+//   }
+//
+//   String? nameValidator(String? v) {
+//     if (v == null || v.trim().isEmpty) return 'Full name is required';
+//     if (v.trim().length < 2)           return 'Name is too short';
+//     return null;
+//   }
+//
+//   // ── Helpers ───────────────────────────────────────────────────────────────
+//   void _toast(String msg, {bool isError = false}) {
+//     Fluttertoast.showToast(
+//       msg: msg,
+//       backgroundColor: isError ? const Color(0xFFE53935) : const Color(0xFF7F8839),
+//       textColor: Colors.white,
+//       toastLength: Toast.LENGTH_LONG,
+//     );
+//   }
+// }
+
+
+
+
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart' as http;
 
+import '../../../Utils/constant_utils.dart';
+import '../../../Utils/constraint.dart';
 import '../../../Utils/shared_prehelper.dart';
 import '../../../routes/app_routes.dart';
+import '../model/Login_Model.dart';
+import '../model/sendOtpModel.dart';
+import '../model/verifyOtpModel.dart';
 
 class AuthController extends GetxController {
   // ── Form controllers ──────────────────────────────────────────────────────
@@ -13,6 +314,9 @@ class AuthController extends GetxController {
   final nameCtrl            = TextEditingController();
   final phoneCtrl           = TextEditingController();
 
+  // ── OTP Controllers for 6 Boxes ───────────────────────────────────────────
+  final otpControllers = List.generate(6, (index) => TextEditingController());
+
   final loginFormKey  = GlobalKey<FormState>();
   final signupFormKey = GlobalKey<FormState>();
 
@@ -20,7 +324,7 @@ class AuthController extends GetxController {
   final isLoading       = false.obs;
   final hidePassword    = true.obs;
   final hideConfirmPass = true.obs;
-  final usePhone        = false.obs;      // signup toggle: email vs phone
+  final usePhone        = false.obs;
   final agreedToTerms   = false.obs;
 
   final _prefs = SharedPrefHelper();
@@ -32,16 +336,113 @@ class AuthController extends GetxController {
     confirmPasswordCtrl.dispose();
     nameCtrl.dispose();
     phoneCtrl.dispose();
+    for (var controller in otpControllers) {
+      controller.dispose();
+    }
     super.onClose();
   }
 
   void togglePassword()        => hidePassword.toggle();
   void toggleConfirmPassword() => hideConfirmPass.toggle();
 
-  // ── Session check (call from SplashController) ────────────────────────────
+  // ── Send OTP API ──────────────────────────────────────────────────────────
+  Future<void> sendOtp() async {
+    if (emailCtrl.text.isEmpty || !GetUtils.isEmail(emailCtrl.text.trim())) {
+      showToastFail("Please enter a valid email address");
+      return;
+    }
+
+    try {
+      isLoading.value = true;
+      final url = Uri.parse("https://aurore-nonappendent-ares.ngrok-free.dev/api/v1/auth/email/send-otp");
+      final body = {"email": emailCtrl.text.trim(), "purpose": "register"};
+      final headers = {'Content-Type': 'application/json', 'X-API-Key': XApikeys};
+
+      final response = await http.post(url, headers: headers, body: json.encode(body));
+
+      if (response.statusCode == 200 || response.statusCode == 202) {
+        final data = SendOtpReponseModel.fromJson(json.decode(response.body));
+        if (data.success == true) {
+          showToastSuccess(data.message ?? "OTP sent successfully");
+          Get.toNamed(AppRoutes.verifyotp, arguments: {
+            'email': emailCtrl.text.trim(),
+            'password': passwordCtrl.text,
+          });
+        } else {
+          showToastFail(data.message ?? "Failed to send OTP");
+        }
+      } else {
+        showToastFail("Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      showToastFail("Connection error.");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // ── Verify OTP & Register API (New Integrated Method) ─────────────────────
+  Future<void> verifyOtpRegister(String email, String password) async {
+    // Combine the 6 digits from controllers
+    String otp = otpControllers.map((e) => e.text).join();
+
+    if (otp.length < 6) {
+      showToastFail("Please enter the complete 6-digit OTP");
+      return;
+    }
+
+    try {
+      isLoading.value = true;
+      final url = Uri.parse("https://aurore-nonappendent-ares.ngrok-free.dev/api/v1/auth/email/register");
+
+      final body = {
+        "email": email,
+        "password": password,
+        "otp": otp,
+      };
+
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json', 'X-API-Key': XApikeys},
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final verifyRes = VerifyOtpReponseModel.fromJson(json.decode(response.body));
+
+        if (verifyRes.success == true && verifyRes.data != null) {
+          final data = verifyRes.data!;
+
+          // ── Save all data to SharedPreferences ────────────────────
+          await _prefs.save('accessToken', data.accessToken ?? "");
+          await _prefs.save('refreshToken', data.refreshToken ?? "");
+          await _prefs.save('tokenType', data.tokenType ?? "");
+          await _prefs.save('userId', data.user?.id ?? "");
+          await _prefs.save('userEmail', data.user?.email ?? "");
+          await _prefs.save('isProfileComplete', data.user?.isProfileComplete ?? false);
+
+          showToastSuccess(verifyRes.message ?? "Account verified!");
+
+          // Navigate to complete profile
+          Get.offAllNamed(AppRoutes.completeProfile);
+        } else {
+          showToastFail(verifyRes.message ?? "Verification failed");
+        }
+      } else {
+        showToastFail("Verification error: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Verify Error: $e");
+      showToastFail("Connection error.");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // ── Session check ─────────────────────────────────────────────────────────
   Future<void> checkSession() async {
-    final token = await _prefs.get('token');
-    final profileCompleted = await _prefs.get('profileCompleted') ?? false;
+    final token = await _prefs.get('accessToken');
+    final profileCompleted = await _prefs.get('isProfileComplete') ?? false;
 
     if (token != null && token.toString().isNotEmpty) {
       if (profileCompleted == true) {
@@ -54,149 +455,124 @@ class AuthController extends GetxController {
     }
   }
 
-  // ── Login with email ──────────────────────────────────────────────────────
+  // ── Login with email (Integrated Real API) ────────────────────────────────
   Future<void> login() async {
     if (!loginFormKey.currentState!.validate()) return;
+
     isLoading.value = true;
     try {
-      // TODO: replace with your real API call
-      // final res = await ApiService.instance.login(
-      //   email:    emailCtrl.text.trim(),
-      //   password: passwordCtrl.text,
-      // );
-      // Handle response:
-      //   - 200 + user exists + profile complete  → dashboard
-      //   - 200 + user exists + profile incomplete → completeProfile
-      //   - 404 user not found → signup page
+      final url = Uri.parse("https://aurore-nonappendent-ares.ngrok-free.dev/api/v1/auth/email/login");
 
-      await Future.delayed(const Duration(seconds: 1));
+      final body = {
+        "email": emailCtrl.text.trim(),
+        "password": passwordCtrl.text,
+      };
 
-      // ── SIMULATED LOGIC ──────────────────────────────────────────
-      // Pretend we got a token back; check profile completion flag
-      await _prefs.save('token', 'mock_token_123');
-      await _prefs.save('email', emailCtrl.text.trim());
+      final headers = {
+        'Content-Type': 'application/json',
+        'X-API-Key': XApikeys,
+      };
 
-      final profileCompleted = await _prefs.get('profileCompleted') ?? false;
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: json.encode(body),
+      );
 
-      if (profileCompleted == true) {
-        Get.offAllNamed(AppRoutes.dashboard);
+      if (response.statusCode == 200) {
+        final loginRes = LoginReponseModel.fromJson(json.decode(response.body));
+
+        if (loginRes.success == true && loginRes.data != null) {
+          final data = loginRes.data!;
+
+          // ── Save all response data to SharedPreferences ────────────────────
+          await _prefs.save('accessToken', data.accessToken ?? "");
+          await _prefs.save('refreshToken', data.refreshToken ?? "");
+          await _prefs.save('tokenType', data.tokenType ?? "");
+          await _prefs.save('userId', data.user?.id ?? "");
+          await _prefs.save('userEmail', data.user?.email ?? "");
+          await _prefs.save('name', data.user?.name ?? "");
+          await _prefs.save('isProfileComplete', data.user?.isProfileComplete ?? false);
+
+          showToastSuccess(loginRes.message ?? "Login successful!");
+
+          // ── Check navigation logic ─────────────────────────────────────────
+          final bool isComplete = data.user?.isProfileComplete ?? false;
+
+          if (isComplete) {
+            Get.offAllNamed(AppRoutes.dashboard);
+          } else {
+            Get.offAllNamed(AppRoutes.completeProfile);
+          }
+        } else {
+          showToastFail(loginRes.message ?? "Login failed");
+        }
+      } else if (response.statusCode == 401) {
+        showToastFail("Invalid email or password");
       } else {
-        // User exists but hasn't completed profile
-        Get.offAllNamed(AppRoutes.completeProfile);
+        showToastFail("Login failed. Status: ${response.statusCode}");
       }
-      // ─────────────────────────────────────────────────────────────
-
-      // Real pattern when user not found (404):
-      // Get.offAllNamed(AppRoutes.signup);
-
-    } catch (_) {
-      _toast('Login failed. Please check your credentials.', isError: true);
+    } catch (e) {
+      print("Login Error: $e");
+      showToastFail("Connection error. Please check your internet.");
     } finally {
       isLoading.value = false;
     }
   }
 
-  // ── Signup ────────────────────────────────────────────────────────────────
+  // ── Signup (Placeholder/Fallback) ─────────────────────────────────────────
   Future<void> signup() async {
     if (!signupFormKey.currentState!.validate()) return;
-
     if (!agreedToTerms.value) {
       _toast('Please agree to the Terms of Service to continue.', isError: true);
       return;
     }
-
-    isLoading.value = true;
-    try {
-      // TODO: replace with your real signup API call
-      // final res = await ApiService.instance.signup(
-      //   email:    usePhone.value ? null : emailCtrl.text.trim(),
-      //   phone:    usePhone.value ? phoneCtrl.text.trim() : null,
-      //   password: passwordCtrl.text,
-      // );
-      // await _saveSession(res.data);
-
-      await Future.delayed(const Duration(seconds: 1));
-
-      // Save session
-      await _prefs.save('token', 'mock_token_signup');
-      if (usePhone.value) {
-        await _prefs.save('phone', phoneCtrl.text.trim());
-      } else {
-        await _prefs.save('email', emailCtrl.text.trim());
-      }
-
-      // After signup → go complete profile
-      Get.offAllNamed(AppRoutes.completeProfile);
-    } catch (_) {
-      _toast('Signup failed. Please try again.', isError: true);
-    } finally {
-      isLoading.value = false;
-    }
+    // Logic redirected to sendOtp() for email verification flow
+    sendOtp();
   }
 
   // ── Social logins ─────────────────────────────────────────────────────────
-
   Future<void> loginWithGoogle() async {
-    // TODO: integrate google_sign_in package
-    // final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
-    // final account = await _googleSignIn.signIn();
-    // if (account == null) return;
-    // Call your backend with the Google token, then navigate accordingly.
-
     isLoading.value = true;
     try {
       await Future.delayed(const Duration(milliseconds: 800));
-      await _prefs.save('token', 'google_mock_token');
-      await _prefs.save('email', 'user@gmail.com');
+      await _prefs.save('accessToken', 'google_mock_token');
+      await _prefs.save('userEmail', 'user@gmail.com');
 
-      final profileCompleted = await _prefs.get('profileCompleted') ?? false;
+      final profileCompleted = await _prefs.get('isProfileComplete') ?? false;
       if (profileCompleted == true) {
         Get.offAllNamed(AppRoutes.dashboard);
       } else {
         Get.offAllNamed(AppRoutes.completeProfile);
       }
     } catch (_) {
-      _toast('Google sign-in failed. Please try again.', isError: true);
+      _toast('Google sign-in failed.', isError: true);
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> loginWithFacebook() async {
-    // TODO: integrate flutter_facebook_auth package
     isLoading.value = true;
     try {
       await Future.delayed(const Duration(milliseconds: 800));
-      await _prefs.save('token', 'facebook_mock_token');
-
-      final profileCompleted = await _prefs.get('profileCompleted') ?? false;
-      if (profileCompleted == true) {
-        Get.offAllNamed(AppRoutes.dashboard);
-      } else {
-        Get.offAllNamed(AppRoutes.completeProfile);
-      }
+      await _prefs.save('accessToken', 'facebook_mock_token');
+      Get.offAllNamed(AppRoutes.completeProfile);
     } catch (_) {
-      _toast('Facebook sign-in failed. Please try again.', isError: true);
+      _toast('Facebook sign-in failed.', isError: true);
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> loginWithLinkedIn() async {
-    // TODO: integrate linkedin_login or webview-based LinkedIn OAuth
     isLoading.value = true;
     try {
       await Future.delayed(const Duration(milliseconds: 800));
-      await _prefs.save('token', 'linkedin_mock_token');
-
-      final profileCompleted = await _prefs.get('profileCompleted') ?? false;
-      if (profileCompleted == true) {
-        Get.offAllNamed(AppRoutes.dashboard);
-      } else {
-        Get.offAllNamed(AppRoutes.completeProfile);
-      }
+      await _prefs.save('accessToken', 'linkedin_mock_token');
+      Get.offAllNamed(AppRoutes.completeProfile);
     } catch (_) {
-      _toast('LinkedIn sign-in failed. Please try again.', isError: true);
+      _toast('LinkedIn sign-in failed.', isError: true);
     } finally {
       isLoading.value = false;
     }
@@ -223,7 +599,7 @@ class AuthController extends GetxController {
 
   String? passwordValidator(String? v) {
     if (v == null || v.isEmpty) return 'Password is required';
-    if (v.length < 6)           return 'Minimum 6 characters required';
+    if (v.length < 8)           return 'Minimum 8 characters required';
     return null;
   }
 

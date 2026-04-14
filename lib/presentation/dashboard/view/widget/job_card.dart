@@ -125,8 +125,8 @@ class JobCard extends StatelessWidget {
                       color: AppColors.black,
                       height: 1.5,
                     ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
+                    // maxLines: 4,
+                    // overflow: TextOverflow.ellipsis,
                   ),
 
                   const SizedBox(height: 10),

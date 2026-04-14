@@ -43,6 +43,9 @@ dependencies:
     # For LinkedIn, most developers use:
   linkedin_login: ^3.0.0
   file_picker: ^8.1.2
+  url_launcher: ^6.2.5
+  android_intent_plus: ^5.0.0
+  http: ^1.2.1
 
 dev_dependencies:
   flutter_test:

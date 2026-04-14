@@ -1,898 +1,11 @@
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import '../../../Utils/colors.dart';
-// import '../Controller/Dashboard_Controller.dart';
-//
-// // ── Mock job model ────────────────────────────────────────────────────────────
-//
-// class _JobModel {
-//   final String title;
-//   final String company;
-//   final String experience;
-//   final String location;
-//   final String description;
-//   final List<String> tags;
-//   final String postedBy;
-//   final String postedOn;
-//
-//   const _JobModel({
-//     required this.title,
-//     required this.company,
-//     required this.experience,
-//     required this.location,
-//     required this.description,
-//     required this.tags,
-//     required this.postedBy,
-//     required this.postedOn,
-//   });
-// }
-//
-// final _mockJobs = [
-//   _JobModel(
-//     title: 'Testing (Domain_Docsis)',
-//     company: 'Tata Consultancy Services',
-//     experience: '6-9 Yrs',
-//     location: 'Chennai',
-//     description:
-//     'Strong knowledge of software testing methodologies. Familiarity with DOCSIS domain and related protocols. Analytical and problem-solving skills. Experience wit...',
-//     tags: ['Senior', 'Technology', 'On-site', 'IT Services'],
-//     postedBy: 'Tata Consultancy Services',
-//     postedOn: '06 Mar 2026',
-//   ),
-//   _JobModel(
-//     title: 'Net Developer',
-//     company: 'Tata Consultancy Services',
-//     experience: '3-10 Yrs',
-//     location: 'Chennai',
-//     description:
-//     '3 - 10 years of experience in VB.net, C#.net and MS SQL Server. Designs and develops need-based software programs. Documents testing, error...',
-//     tags: ['Mid-level', 'Technology', 'On-site', 'IT Services'],
-//     postedBy: 'Tata Consultancy Services',
-//     postedOn: '04 Mar 2026',
-//   ),
-//   _JobModel(
-//     title: 'Python Developer',
-//     company: 'Tata Consultancy Services',
-//     experience: '3-10 Yrs',
-//     location: 'Chennai',
-//     description:
-//     'Strong server-side Engineering: Python, REST APIs, asynchronous and functional programming. Experience with Python libraries for AI/ML, NLP & AP...',
-//     tags: ['Mid-level', 'IT Infrastructure Services', 'On-site', 'IT Services'],
-//     postedBy: 'Tata Consultancy Services',
-//     postedOn: '06 Mar 2026',
-//   ),
-//   _JobModel(
-//     title: 'Software Developer',
-//     company: 'Tata Consultancy Services',
-//     experience: '3-10 Yrs',
-//     location: 'Mumbai',
-//     description:
-//     'Must Have: Proficient in Core Java, Spring Boot. Hands on experience in Microservices. Good to have: Hands on distributed version control repository...',
-//     tags: ['Mid-level', 'IT Infrastructure Services', 'On-site'],
-//     postedBy: 'Tata Consultancy Services',
-//     postedOn: '06 Mar 2026',
-//   ),
-//   _JobModel(
-//     title: 'Servicenow Irm Developer',
-//     company: 'Tata Consultancy Services',
-//     experience: '3-10 Yrs',
-//     location: 'Bengaluru',
-//     description:
-//     'Job Role: Servicenow IRM Developer Location: Pan India Experience: 4+ Years Job Description: 08+ years of strong experience in software development...',
-//     tags: ['Mid-level', 'Technology', 'On-site', 'IT Services'],
-//     postedBy: 'Tata Consultancy Services',
-//     postedOn: '06 Mar 2026',
-//   ),
-//   _JobModel(
-//     title: 'End User Support - L1',
-//     company: 'Tata Consultancy Services',
-//     experience: '3-5 Yrs',
-//     location: 'Ahmedabad',
-//     description:
-//     'Location - Dholera. Required Technical Skill Set: Strong knowledge of Windows and macOS operating systems. Basic understanding of Linux environment...',
-//     tags: ['Mid-level', 'Consultancy', 'On-site', 'IT Services'],
-//     postedBy: 'Tata Consultancy Services',
-//     postedOn: '06 Mar 2026',
-//   ),
-//   _JobModel(
-//     title: 'Automation Tester',
-//     company: 'Tata Consultancy Services',
-//     experience: '3-10 Yrs',
-//     location: 'Pune',
-//     description:
-//     'More than 6 years of IT experience of which at least 1 year as a team leader and managing automation testing team. Sound understanding of software...',
-//     tags: ['Mid-level', 'Business Process Services', 'On-site'],
-//     postedBy: 'Tata Consultancy Services',
-//     postedOn: '06 Mar 2026',
-//   ),
-// ];
-//
-// // ── Dashboard Screen ──────────────────────────────────────────────────────────
-//
-// class DashboardScreen extends StatefulWidget {
-//   const DashboardScreen({super.key});
-//
-//   @override
-//   State<DashboardScreen> createState() => _DashboardScreenState();
-// }
-//
-// class _DashboardScreenState extends State<DashboardScreen> {
-//   // ✅ Key declared here — never recreated on rebuild
-//   final _scaffoldKey = GlobalKey<ScaffoldState>();
-//   final _skillsCtrl = TextEditingController();
-//   final _locationCtrl = TextEditingController();
-//
-//   bool _hasSearched = false;
-//   List<_JobModel> _results = [];
-//
-//   late final DashboardController controller;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     controller = Get.find<DashboardController>();
-//   }
-//
-//   @override
-//   void dispose() {
-//     _skillsCtrl.dispose();
-//     _locationCtrl.dispose();
-//     super.dispose();
-//   }
-//
-//   void _search() {
-//     FocusScope.of(context).unfocus();
-//     setState(() {
-//       _hasSearched = true;
-//       _results = _mockJobs;
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final sw = MediaQuery.of(context).size.width;
-//     final sh = MediaQuery.of(context).size.height;
-//
-//     return Scaffold(
-//       key: _scaffoldKey,
-//       backgroundColor: AppColors.appBg1,
-//       drawer: _SideDrawer(controller: controller),
-//       body: SafeArea(
-//         child: Column(
-//           children: [
-//             // ── Top bar ────────────────────────────────────────────
-//             Container(
-//               color: AppColors.white,
-//               padding: EdgeInsets.symmetric(
-//                   horizontal: sw * 0.05, vertical: 14),
-//               child: Row(
-//                 children: [
-//                   RichText(
-//                     text: const TextSpan(
-//                       children: [
-//                         TextSpan(
-//                           text: 'AIMJ',
-//                           style: TextStyle(
-//                             fontSize: 16,
-//                             fontWeight: FontWeight.w800,
-//                             color: AppColors.textPrimary,
-//                             letterSpacing: 0.5,
-//                           ),
-//                         ),
-//                         TextSpan(
-//                           text: 'OBS',
-//                           style: TextStyle(
-//                             fontSize: 16,
-//                             fontWeight: FontWeight.w800,
-//                             color: AppColors.buttonPrimary,
-//                             letterSpacing: 0.5,
-//                           ),
-//                         ),
-//                         TextSpan(
-//                           text: '.AI',
-//                           style: TextStyle(
-//                             fontSize: 16,
-//                             fontWeight: FontWeight.w800,
-//                             color: AppColors.textPrimary,
-//                             letterSpacing: 0.5,
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   const Spacer(),
-//                   Obx(() {
-//                     final c = Get.find<DashboardController>();
-//                     final initial = c.userName.value.isNotEmpty
-//                         ? c.userName.value[0].toUpperCase()
-//                         : 'U';
-//                     return GestureDetector(
-//                       onTap: () => _scaffoldKey.currentState?.openDrawer(),
-//                       child: Container(
-//                         width: 40,
-//                         height: 40,
-//                         decoration: const BoxDecoration(
-//                           color: AppColors.darkRed,
-//                           shape: BoxShape.circle,
-//                         ),
-//                         child: Center(
-//                           child: Text(
-//                             initial,
-//                             style: const TextStyle(
-//                               color: Colors.white,
-//                               fontWeight: FontWeight.w700,
-//                               fontSize: 16,
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     );
-//                   }),
-//                 ],
-//               ),
-//             ),
-//
-//             // ── Body ──────────────────────────────────────────────
-//             Expanded(
-//               child: SingleChildScrollView(
-//                 keyboardDismissBehavior:
-//                 ScrollViewKeyboardDismissBehavior.onDrag,
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     // ── Search section ───────────────────────────
-//                     Container(
-//                       width: double.infinity,
-//                       color: AppColors.white,
-//                       padding: EdgeInsets.fromLTRB(
-//                           sw * 0.05,
-//                           _hasSearched ? sh * 0.02 : sh * 0.03,
-//                           sw * 0.05,
-//                           _hasSearched ? sh * 0.02 : sh * 0.035),
-//                       child: Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         children: [
-//                           if (!_hasSearched) ...[
-//                             RichText(
-//                               text: const TextSpan(
-//                                 children: [
-//                                   TextSpan(
-//                                     text: 'Get Your ',
-//                                     style: TextStyle(
-//                                       fontSize: 24,
-//                                       fontWeight: FontWeight.w800,
-//                                       color: AppColors.textPrimary,
-//                                     ),
-//                                   ),
-//                                   TextSpan(
-//                                     text: 'Dream Career Job',
-//                                     style: TextStyle(
-//                                       fontSize: 24,
-//                                       fontWeight: FontWeight.w800,
-//                                       color: AppColors.buttonPrimary,
-//                                     ),
-//                                   ),
-//                                   TextSpan(
-//                                     text: ' Now',
-//                                     style: TextStyle(
-//                                       fontSize: 24,
-//                                       fontWeight: FontWeight.w800,
-//                                       color: AppColors.textPrimary,
-//                                     ),
-//                                   ),
-//                                 ],
-//                               ),
-//                             ),
-//                             const SizedBox(height: 6),
-//                             const Text(
-//                               'Multilevel Jobs for You to Explore',
-//                               style: TextStyle(
-//                                 fontSize: 14,
-//                                 color: AppColors.textSecondary,
-//                               ),
-//                             ),
-//                             SizedBox(height: sh * 0.025),
-//                           ],
-//
-//                           // Search card
-//                           Container(
-//                             decoration: BoxDecoration(
-//                               color: AppColors.white,
-//                               borderRadius: BorderRadius.circular(16),
-//                               boxShadow: [
-//                                 BoxShadow(
-//                                   color: Colors.black.withOpacity(0.07),
-//                                   blurRadius: 20,
-//                                   offset: const Offset(0, 4),
-//                                 ),
-//                               ],
-//                             ),
-//                             padding: const EdgeInsets.all(16),
-//                             child: Column(
-//                               children: [
-//                                 TextField(
-//                                   controller: _skillsCtrl,
-//                                   textInputAction: TextInputAction.next,
-//                                   style: const TextStyle(
-//                                       fontSize: 14,
-//                                       color: AppColors.textPrimary),
-//                                   decoration: InputDecoration(
-//                                     hintText:
-//                                     'Skills, Designations, Companies',
-//                                     hintStyle: const TextStyle(
-//                                         fontSize: 14,
-//                                         color: AppColors.textHint),
-//                                     border: UnderlineInputBorder(
-//                                       borderSide: BorderSide(
-//                                           color: AppColors.border),
-//                                     ),
-//                                     enabledBorder: UnderlineInputBorder(
-//                                       borderSide: BorderSide(
-//                                           color: AppColors.border),
-//                                     ),
-//                                     focusedBorder: UnderlineInputBorder(
-//                                       borderSide: BorderSide(
-//                                           color: AppColors.buttonPrimary),
-//                                     ),
-//                                     contentPadding:
-//                                     const EdgeInsets.symmetric(
-//                                         vertical: 10),
-//                                   ),
-//                                 ),
-//                                 const SizedBox(height: 4),
-//                                 TextField(
-//                                   controller: _locationCtrl,
-//                                   textInputAction: TextInputAction.search,
-//                                   onSubmitted: (_) => _search(),
-//                                   style: const TextStyle(
-//                                       fontSize: 14,
-//                                       color: AppColors.textPrimary),
-//                                   decoration: const InputDecoration(
-//                                     hintText: 'Location',
-//                                     hintStyle: TextStyle(
-//                                         fontSize: 14,
-//                                         color: AppColors.textHint),
-//                                     border: InputBorder.none,
-//                                     contentPadding: EdgeInsets.symmetric(
-//                                         vertical: 10),
-//                                   ),
-//                                 ),
-//                                 const SizedBox(height: 8),
-//                                 SizedBox(
-//                                   width: double.infinity,
-//                                   height: 48,
-//                                   child: DecoratedBox(
-//                                     decoration: BoxDecoration(
-//                                       gradient: const LinearGradient(
-//                                         colors: [
-//                                           Color(0xFFE8453C),
-//                                           Color(0xFFD63384),
-//                                         ],
-//                                       ),
-//                                       borderRadius:
-//                                       BorderRadius.circular(10),
-//                                     ),
-//                                     child: ElevatedButton(
-//                                       onPressed: _search,
-//                                       style: ElevatedButton.styleFrom(
-//                                         backgroundColor: Colors.transparent,
-//                                         shadowColor: Colors.transparent,
-//                                         shape: RoundedRectangleBorder(
-//                                           borderRadius:
-//                                           BorderRadius.circular(10),
-//                                         ),
-//                                       ),
-//                                       child: const Text(
-//                                         'Search Job',
-//                                         style: TextStyle(
-//                                           fontSize: 15,
-//                                           fontWeight: FontWeight.w600,
-//                                           color: Colors.white,
-//                                         ),
-//                                       ),
-//                                     ),
-//                                   ),
-//                                 ),
-//                               ],
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//
-//                     // ── Results / Stats ──────────────────────────
-//                     if (!_hasSearched)
-//                       Center(
-//                         child: Container(
-//                           width: double.infinity,
-//                           color: AppColors.appBg1,
-//                           padding:
-//                           EdgeInsets.symmetric(vertical: sh * 0.04),
-//                           child: Column(
-//                             children: [
-//                               _StatItem(
-//                                 value: '4+',
-//                                 label: 'Companies',
-//                                 valueColor: AppColors.buttonPrimary,
-//                               ),
-//                               SizedBox(height: sh * 0.04),
-//                               _StatItem(
-//                                 value: '5340+',
-//                                 label: 'Jobs',
-//                                 valueColor: AppColors.darkRed,
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                       )
-//                     else ...[
-//                       // Results header
-//                       Padding(
-//                         padding: EdgeInsets.fromLTRB(
-//                             sw * 0.05, 18, sw * 0.05, 4),
-//                         child: Row(
-//                           children: [
-//                             RichText(
-//                               text: TextSpan(
-//                                 children: [
-//                                   const TextSpan(
-//                                     text: 'We found ',
-//                                     style: TextStyle(
-//                                       fontSize: 18,
-//                                       fontWeight: FontWeight.w700,
-//                                       color: AppColors.textPrimary,
-//                                     ),
-//                                   ),
-//                                   TextSpan(
-//                                     text: '${_results.length}',
-//                                     style: const TextStyle(
-//                                       fontSize: 18,
-//                                       fontWeight: FontWeight.w800,
-//                                       color: AppColors.darkRed,
-//                                     ),
-//                                   ),
-//                                   const TextSpan(
-//                                     text: ' Matches\nfor you.',
-//                                     style: TextStyle(
-//                                       fontSize: 18,
-//                                       fontWeight: FontWeight.w700,
-//                                       color: AppColors.textPrimary,
-//                                     ),
-//                                   ),
-//                                 ],
-//                               ),
-//                             ),
-//                             const Spacer(),
-//                             Container(
-//                               padding: const EdgeInsets.symmetric(
-//                                   horizontal: 12, vertical: 8),
-//                               decoration: BoxDecoration(
-//                                 color: AppColors.white,
-//                                 borderRadius: BorderRadius.circular(8),
-//                                 border: Border.all(
-//                                     color: AppColors.border),
-//                               ),
-//                               child: Row(
-//                                 children: const [
-//                                   Icon(Icons.tune_rounded,
-//                                       size: 16,
-//                                       color: AppColors.textPrimary),
-//                                   SizedBox(width: 6),
-//                                   Text(
-//                                     'Filters',
-//                                     style: TextStyle(
-//                                       fontSize: 13,
-//                                       fontWeight: FontWeight.w600,
-//                                       color: AppColors.textPrimary,
-//                                     ),
-//                                   ),
-//                                 ],
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                       ),
-//
-//                       const SizedBox(height: 12),
-//
-//                       // Job cards
-//                       ListView.separated(
-//                         shrinkWrap: true,
-//                         physics: const NeverScrollableScrollPhysics(),
-//                         padding: EdgeInsets.symmetric(
-//                             horizontal: sw * 0.04),
-//                         itemCount: _results.length,
-//                         separatorBuilder: (_, __) =>
-//                         const SizedBox(height: 12),
-//                         itemBuilder: (_, i) =>
-//                             _JobCard(job: _results[i]),
-//                       ),
-//
-//                       const SizedBox(height: 24),
-//                     ],
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-// // ── Job Card ──────────────────────────────────────────────────────────────────
-//
-// class _JobCard extends StatelessWidget {
-//   final _JobModel job;
-//   const _JobCard({required this.job});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final initial = job.company.isNotEmpty
-//         ? job.company[0].toUpperCase()
-//         : 'C';
-//
-//     return Container(
-//       decoration: BoxDecoration(
-//         color: AppColors.white,
-//         borderRadius: BorderRadius.circular(14),
-//         border: Border.all(color: AppColors.border, width: 1),
-//       ),
-//       padding: const EdgeInsets.all(14),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           // ── Header row ─────────────────────────────────────────
-//           Row(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Container(
-//                 width: 42,
-//                 height: 42,
-//                 decoration: BoxDecoration(
-//                   color: AppColors.darkRed,
-//                   borderRadius: BorderRadius.circular(10),
-//                 ),
-//                 child: Center(
-//                   child: Text(
-//                     initial,
-//                     style: const TextStyle(
-//                       color: Colors.white,
-//                       fontWeight: FontWeight.w700,
-//                       fontSize: 18,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//               const SizedBox(width: 10),
-//               Expanded(
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Text(
-//                       job.title,
-//                       style: const TextStyle(
-//                         fontSize: 14,
-//                         fontWeight: FontWeight.w700,
-//                         color: AppColors.textPrimary,
-//                       ),
-//                     ),
-//                     const SizedBox(height: 2),
-//                     Text(
-//                       job.company,
-//                       style: const TextStyle(
-//                         fontSize: 12,
-//                         color: AppColors.textSecondary,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ],
-//           ),
-//
-//           const SizedBox(height: 10),
-//
-//           // ── Experience & Location ──────────────────────────────
-//           Row(
-//             children: [
-//               const Icon(Icons.access_time_rounded,
-//                   size: 13, color: AppColors.textMuted),
-//               const SizedBox(width: 4),
-//               Text(
-//                 job.experience,
-//                 style: const TextStyle(
-//                     fontSize: 12, color: AppColors.textMuted),
-//               ),
-//               const SizedBox(width: 14),
-//               const Icon(Icons.location_on_outlined,
-//                   size: 13, color: AppColors.textMuted),
-//               const SizedBox(width: 4),
-//               Text(
-//                 job.location,
-//                 style: const TextStyle(
-//                     fontSize: 12, color: AppColors.textMuted),
-//               ),
-//             ],
-//           ),
-//
-//           const SizedBox(height: 8),
-//
-//           // ── Description ────────────────────────────────────────
-//           Text(
-//             job.description,
-//             style: const TextStyle(
-//               fontSize: 12,
-//               color: AppColors.textSecondary,
-//               height: 1.5,
-//             ),
-//             maxLines: 3,
-//             overflow: TextOverflow.ellipsis,
-//           ),
-//
-//           const SizedBox(height: 10),
-//
-//           // ── Tags ───────────────────────────────────────────────
-//           Wrap(
-//             spacing: 6,
-//             runSpacing: 6,
-//             children: job.tags
-//                 .map((tag) => Container(
-//               padding: const EdgeInsets.symmetric(
-//                   horizontal: 8, vertical: 4),
-//               decoration: BoxDecoration(
-//                 color: AppColors.appBg1,
-//                 borderRadius: BorderRadius.circular(6),
-//                 border:
-//                 Border.all(color: AppColors.border, width: 1),
-//               ),
-//               child: Text(
-//                 tag,
-//                 style: const TextStyle(
-//                   fontSize: 11,
-//                   color: AppColors.textSecondary,
-//                   fontWeight: FontWeight.w500,
-//                 ),
-//               ),
-//             ))
-//                 .toList(),
-//           ),
-//
-//           const SizedBox(height: 10),
-//           const Divider(height: 1, color: AppColors.border),
-//           const SizedBox(height: 8),
-//
-//           // ── Footer ────────────────────────────────────────────
-//           Row(
-//             children: [
-//               Expanded(
-//                 child: Text(
-//                   'Posted By: ${job.postedBy}',
-//                   style: const TextStyle(
-//                       fontSize: 10, color: AppColors.textMuted),
-//                   overflow: TextOverflow.ellipsis,
-//                 ),
-//               ),
-//               Text(
-//                 'Posted on: ${job.postedOn}',
-//                 style: const TextStyle(
-//                     fontSize: 10, color: AppColors.textMuted),
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-//
-// // ── Stat item ─────────────────────────────────────────────────────────────────
-//
-// class _StatItem extends StatelessWidget {
-//   final String value;
-//   final String label;
-//   final Color valueColor;
-//
-//   const _StatItem({
-//     required this.value,
-//     required this.label,
-//     required this.valueColor,
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: [
-//         Text(
-//           value,
-//           style: TextStyle(
-//             fontSize: 36,
-//             fontWeight: FontWeight.w800,
-//             color: valueColor,
-//           ),
-//         ),
-//         const SizedBox(height: 4),
-//         Text(
-//           label,
-//           style: const TextStyle(
-//             fontSize: 15,
-//             fontWeight: FontWeight.w500,
-//             color: AppColors.textPrimary,
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
-//
-// // ── Side Drawer ───────────────────────────────────────────────────────────────
-//
-// class _SideDrawer extends StatelessWidget {
-//   final DashboardController controller;
-//   const _SideDrawer({required this.controller});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Drawer(
-//       backgroundColor: AppColors.white,
-//       child: SafeArea(
-//         child: Column(
-//           children: [
-//             Padding(
-//               padding: const EdgeInsets.symmetric(
-//                   horizontal: 20, vertical: 18),
-//               child: Row(
-//                 children: [
-//                   Obx(() {
-//                     final initial = controller.userName.value.isNotEmpty
-//                         ? controller.userName.value[0].toUpperCase()
-//                         : 'U';
-//                     return Container(
-//                       width: 46,
-//                       height: 46,
-//                       decoration: const BoxDecoration(
-//                         color: AppColors.darkRed,
-//                         shape: BoxShape.circle,
-//                       ),
-//                       child: Center(
-//                         child: Text(
-//                           initial,
-//                           style: const TextStyle(
-//                             color: Colors.white,
-//                             fontWeight: FontWeight.w700,
-//                             fontSize: 18,
-//                           ),
-//                         ),
-//                       ),
-//                     );
-//                   }),
-//                   const SizedBox(width: 14),
-//                   Expanded(
-//                     child: Obx(() => Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Text(
-//                           controller.userName.value,
-//                           style: const TextStyle(
-//                             fontSize: 15,
-//                             fontWeight: FontWeight.w700,
-//                             color: AppColors.textPrimary,
-//                           ),
-//                         ),
-//                         const SizedBox(height: 2),
-//                         Text(
-//                           controller.userName.value,
-//                           style: const TextStyle(
-//                             fontSize: 12,
-//                             color: AppColors.textSecondary,
-//                           ),
-//                           maxLines: 1,
-//                           overflow: TextOverflow.ellipsis,
-//                         ),
-//                       ],
-//                     )),
-//                   ),
-//                   GestureDetector(
-//                     onTap: () => Get.back(),
-//                     child: const Icon(Icons.close,
-//                         color: AppColors.textSecondary, size: 22),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//
-//             const Divider(height: 1, color: AppColors.border),
-//
-//             _DrawerItem(
-//                 icon: Icons.speed_outlined,
-//                 label: 'Dashboard',
-//                 onTap: () => Get.back()),
-//             _DrawerItem(
-//               icon: Icons.person_outline_rounded,
-//               label: 'Profile',
-//               onTap: () => Get.back(),
-//             ),
-//             _DrawerItem(
-//               icon: Icons.bookmark_outline_rounded,
-//               label: 'Saved Jobs',
-//               onTap: () => Get.back(),
-//             ),
-//             _DrawerItem(
-//               icon: Icons.description_outlined,
-//               label: 'My Resume',
-//               onTap: () => Get.back(),
-//             ),
-//             _DrawerItem(
-//               icon: Icons.search_rounded,
-//               label: 'Search',
-//               onTap: () => Get.back(),
-//             ),
-//
-//             const Divider(height: 1, color: AppColors.border),
-//
-//             _DrawerItem(
-//               icon: Icons.logout_rounded,
-//               label: 'Logout',
-//               labelColor: AppColors.textRed,
-//               iconColor: AppColors.textRed,
-//               onTap: controller.logout,
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-// // ── Drawer item ───────────────────────────────────────────────────────────────
-//
-// class _DrawerItem extends StatelessWidget {
-//   final IconData icon;
-//   final String label;
-//   final VoidCallback onTap;
-//   final Color iconColor;
-//   final Color labelColor;
-//
-//   const _DrawerItem({
-//     required this.icon,
-//     required this.label,
-//     required this.onTap,
-//     this.iconColor = AppColors.textPrimary,
-//     this.labelColor = AppColors.textPrimary,
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return InkWell(
-//       onTap: onTap,
-//       child: Container(
-//         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-//         child: Row(
-//           children: [
-//             Icon(icon, size: 22, color: iconColor),
-//             const SizedBox(width: 16),
-//             Text(
-//               label,
-//               style: TextStyle(
-//                 fontSize: 15,
-//                 fontWeight: FontWeight.w500,
-//                 color: labelColor,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../Utils/colors.dart';
 import '../../../routes/app_routes.dart';
 import '../Controller/Dashboard_Controller.dart';
+import '../Controller/Get_Job_Controller.dart';
+import '../Controller/Get_stats_Controller.dart';
 import 'widget/filter_sheet.dart';
 import 'widget/job_card.dart';
 
@@ -904,35 +17,48 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _locationCtrl = TextEditingController(); // ✅ only location is local
+  final _scaffoldKey   = GlobalKey<ScaffoldState>();
+  final _locationCtrl  = TextEditingController();
+  final _scrollCtrl    = ScrollController();        // ✅ for infinite scroll
 
   bool _hasSearched = false;
 
+  final GetAllJobsController getjobcontroller = Get.put(GetAllJobsController());
+  final GetStatsController getstatscontroller = Get.put(GetStatsController());
   late final DashboardController controller;
 
   @override
   void initState() {
     super.initState();
     controller = Get.find<DashboardController>();
-
-    // ✅ ADD THIS — reset to home screen when search is cleared
+getstatscontroller.fetchStats();
+    // Reset to home when search bar is cleared
     controller.searchCtrl.addListener(() {
       if (controller.searchCtrl.text.isEmpty && _hasSearched) {
         setState(() => _hasSearched = false);
       }
     });
+
+    // ✅ Infinite scroll — trigger next page near bottom
+    _scrollCtrl.addListener(() {
+      final pos        = _scrollCtrl.position;
+      final nearBottom = pos.pixels >= pos.maxScrollExtent - 200;
+      if (nearBottom && getjobcontroller.hasMore) {
+        getjobcontroller.loadNextPage();
+      }
+    });
   }
+
   @override
   void dispose() {
     _locationCtrl.dispose();
+    _scrollCtrl.dispose();
     super.dispose();
   }
 
   void _search() {
     FocusScope.of(context).unfocus();
 
-    // ✅ ADD THIS — if nothing typed, go back to home
     if (controller.searchCtrl.text.trim().isEmpty &&
         _locationCtrl.text.trim().isEmpty) {
       setState(() => _hasSearched = false);
@@ -940,6 +66,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     setState(() => _hasSearched = true);
+
+    // ✅ Always start from page 1 on a new search
+    controller.triggerSearch(controller.searchCtrl.text.trim());
+
+    // Scroll back to top on new search
+    if (_scrollCtrl.hasClients) {
+      _scrollCtrl.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   @override
@@ -950,11 +88,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Obx(() => Scaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.appBg1,
-      drawer: controller.isLoggedIn.value ? _SideDrawer(controller: controller) : null,
+      drawer: controller.isLoggedIn.value
+          ? _SideDrawer(controller: controller)
+          : null,
       body: SafeArea(
         child: Column(
           children: [
-            // ── Top bar ──────────────────────────────────────────────
+            // ── Top bar ────────────────────────────────────────────────
             Container(
               color: AppColors.white,
               padding: EdgeInsets.symmetric(
@@ -970,11 +110,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const Spacer(),
                   Obx(() {
                     if (controller.isLoggedIn.value) {
-                      final initial = controller.userName.value.isNotEmpty
-                          ? controller.userName.value[0].toUpperCase()
-                          : 'U';
-                      return  GestureDetector(
-                        onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                      return GestureDetector(
+                        onTap: () =>
+                            _scaffoldKey.currentState?.openDrawer(),
                         child: Container(
                           width: 42,
                           height: 42,
@@ -990,11 +128,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                           child: const Center(
-                            child: Icon(
-                              Icons.menu,
-                              color: AppColors.darkRed,
-                              size: 22,
-                            ),
+                            child: Icon(Icons.menu,
+                                color: AppColors.darkRed, size: 22),
                           ),
                         ),
                       );
@@ -1002,64 +137,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       return Row(
                         children: [
                           ElevatedButton(
-                            onPressed: () => Get.toNamed(AppRoutes.signup),
+                            onPressed: () =>
+                                Get.toNamed(AppRoutes.signup),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.darkRed,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               minimumSize: const Size(80, 36),
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16),
                             ),
                             child: const Text(
                               'Register',
                               style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
-                          SizedBox(width: 10,),
+                          const SizedBox(width: 10),
                           ElevatedButton(
-                            onPressed: () => Get.toNamed(AppRoutes.login),
+                            onPressed: () =>
+                                Get.toNamed(AppRoutes.login),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 side: const BorderSide(
-                                  color: AppColors.darkRed, // ✅ border color
-                                  width: 1, // optional
-                                ),
+                                    color: AppColors.darkRed, width: 1),
                               ),
                               minimumSize: const Size(80, 36),
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16),
                             ),
                             child: const Text(
                               'Login',
                               style: TextStyle(
-                                color: AppColors.darkRed,
-                                fontWeight: FontWeight.bold,
-                              ),
+                                  color: AppColors.darkRed,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],
                       );
                     }
                   }),
-
                 ],
               ),
             ),
 
-            // ── Body ──────────────────────────────────────────────────
+            // ── Scrollable body ────────────────────────────────────────
             Expanded(
               child: SingleChildScrollView(
+                controller: _scrollCtrl,          // ✅ attach scroll controller
                 keyboardDismissBehavior:
                 ScrollViewKeyboardDismissBehavior.onDrag,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── Search section ─────────────────────────────────
+                    // ── Search section ───────────────────────────────────
                     Container(
                       width: double.infinity,
                       color: AppColors.appBg1,
@@ -1086,7 +221,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       ),
                                     ),
                                     TextSpan(
-                                      text: 'Dream \n Career Job',
+                                      text: 'Dream \nCareer Job',
                                       style: TextStyle(
                                         fontSize: 34,
                                         fontWeight: FontWeight.w800,
@@ -1106,8 +241,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ),
                             const SizedBox(height: 6),
-                            Center(
-                              child: const Text(
+                            const Center(
+                              child: Text(
                                 'Multilevel Jobs for You to Explore',
                                 style: TextStyle(
                                   fontSize: 14,
@@ -1118,7 +253,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             SizedBox(height: sh * 0.025),
                           ],
 
-                          // ── Search card ──────────────────────────────
+                          // ── Search card ────────────────────────────────
                           Container(
                             decoration: BoxDecoration(
                               color: AppColors.white,
@@ -1134,48 +269,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             padding: const EdgeInsets.all(16),
                             child: Column(
                               children: [
-                                // ✅ Skills field bound to controller.searchCtrl
                                 TextField(
                                   controller: controller.searchCtrl,
                                   textInputAction: TextInputAction.next,
                                   style: const TextStyle(
-                                    fontSize: 14,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText: 'Skills, Designations, Companies',
-                                    hintStyle: const TextStyle(
                                       fontSize: 14,
-                                      color: AppColors.textHint,
+                                      color: AppColors.textPrimary),
+                                  decoration: const InputDecoration(
+                                    hintText:
+                                    'Skills, Designations, Companies',
+                                    hintStyle: TextStyle(
+                                        fontSize: 14,
+                                        color: AppColors.textHint),
+                                    prefixIcon: Icon(Icons.search,
+                                        color: AppColors.darkRed,
+                                        size: 30),
+                                    prefixIconConstraints: BoxConstraints(
+                                        minWidth: 40, minHeight: 40),
+                                    enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: AppColors.darkRed),
                                     ),
-
-                                    // ✅ Search Icon
-                                    prefixIcon: const Icon(
-                                      Icons.search,
-                                      color: AppColors.darkRed,
-                                      size: 30,
+                                    focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: AppColors.darkRed),
                                     ),
-
-                                    // ✅ Align text with icon properly
-                                    prefixIconConstraints: const BoxConstraints(
-                                      minWidth: 40,
-                                      minHeight: 40,
-                                    ),
-
-                                    enabledBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: AppColors.darkRed),
-                                    ),
-                                    focusedBorder: const UnderlineInputBorder(
-                                      borderSide: BorderSide(color: AppColors.darkRed),
-                                    ),
-
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
+                                    contentPadding:
+                                    EdgeInsets.symmetric(vertical: 12),
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                // Location field (local ctrl, not in controller)
                                 TextField(
                                   controller: _locationCtrl,
                                   textInputAction: TextInputAction.search,
@@ -1188,20 +311,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     hintStyle: TextStyle(
                                         fontSize: 14,
                                         color: AppColors.textHint),
-                                    prefixIcon: const Icon(
-                                      Icons.location_on_outlined,
-                                      color: AppColors.darkRed,
-                                      size: 30,
-                                    ),
-
-                                    // ✅ Align text with icon properly
-                                    prefixIconConstraints: const BoxConstraints(
-                                      minWidth: 40,
-                                      minHeight: 40,
-                                    ),
+                                    prefixIcon: Icon(
+                                        Icons.location_on_outlined,
+                                        color: AppColors.darkRed,
+                                        size: 30),
+                                    prefixIconConstraints: BoxConstraints(
+                                        minWidth: 40, minHeight: 40),
                                     border: InputBorder.none,
-                                    contentPadding: EdgeInsets.symmetric(
-                                        vertical: 10),
+                                    contentPadding:
+                                    EdgeInsets.symmetric(vertical: 10),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -1210,7 +328,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   height: 48,
                                   child: DecoratedBox(
                                     decoration: BoxDecoration(
-                                      gradient: AppColors.blueGradient, // ✅ use here
+                                      gradient: AppColors.blueGradient,
                                       borderRadius:
                                       BorderRadius.circular(10),
                                     ),
@@ -1242,34 +360,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
 
-                    // ── Stats OR Results ────────────────────────────────
+                    // ── Stats OR Results ──────────────────────────────────
                     if (!_hasSearched)
-                      Center(
-                        child: Container(
-                          width: double.infinity,
-                          color: AppColors.appBg1,
-                          padding: EdgeInsets.symmetric(vertical: sh * 0.04),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center, // ✅ IMPORTANT
-                            children: [
-                              _StatItem(
-                                value: '4+',
-                                label: 'Companies',
-                                valueColor: AppColors.darkRed,
-                              ),
-                              SizedBox(width: sh * 0.07),
-                              _StatItem(
-                                value: '5340+',
-                                label: 'Jobs',
-                                valueColor: AppColors.darkRed,
-                              ),
-                            ],
+                      Obx(() {
+                        if (getstatscontroller.isLoading.value) {
+                          return Padding(
+                            padding: EdgeInsets.only(top: sh * 0.1),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                  color: AppColors.buttonPrimary),
+                            ),
+                          );
+                        }
+
+                        // Get data from the controller (fallback to '0' if null)
+                        final stats = getstatscontroller.statsData.value;
+                        final String totalJobs = stats?.totalJobsCount?.toString() ?? '0';
+                        final String totalCompanies = stats?.totalTrackingCompaniesCount?.toString() ?? '0';
+
+                        return Center(
+                          child: Container(
+                            width: double.infinity,
+                            color: AppColors.appBg1,
+                            padding: EdgeInsets.symmetric(vertical: sh * 0.04),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _StatItem(
+                                  // real data for companies
+                                  value: '$totalCompanies+',
+                                  label: 'Companies',
+                                  valueColor: AppColors.darkRed,
+                                ),
+                                SizedBox(width: sh * 0.07),
+                                _StatItem(
+                                  // real data for jobs
+                                  value: '$totalJobs+',
+                                  label: 'Jobs',
+                                  valueColor: AppColors.darkRed,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      )
+                        );
+                      })
                     else
                       Obx(() {
-                        if (controller.isLoading.value) {
+                        // ── First-page loading spinner ─────────────────
+                        if (getjobcontroller.isLoading.value) {
                           return Padding(
                             padding: EdgeInsets.only(top: sh * 0.1),
                             child: Center(
@@ -1282,7 +420,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Results header
+                            // ── Results header ─────────────────────────
                             Padding(
                               padding: EdgeInsets.fromLTRB(
                                   sw * 0.05, 18, sw * 0.05, 4),
@@ -1300,8 +438,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           ),
                                         ),
                                         TextSpan(
+                                          // ✅ Real total from API
                                           text:
-                                          '${controller.displayedJobs.length}',
+                                          '${getjobcontroller.totalResults.value}',
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.w800,
@@ -1327,7 +466,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         isScrollControlled: true,
                                         backgroundColor: Colors.transparent,
                                         builder: (_) => FilterBottomSheet(
-                                          currentFilter: controller.filter.value,
+                                          currentFilter:
+                                          controller.filter.value,
                                           onApply: controller.applyFilter,
                                         ),
                                       );
@@ -1337,21 +477,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           horizontal: 12, vertical: 8),
                                       decoration: BoxDecoration(
                                         color: AppColors.white,
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: AppColors.border),
+                                        borderRadius:
+                                        BorderRadius.circular(8),
+                                        border: Border.all(
+                                            color: AppColors.border),
                                       ),
                                       child: Obx(() {
-                                        final count = controller.activeFilterCount;
+                                        final count =
+                                            controller.activeFilterCount;
                                         return Row(
                                           children: [
-                                            Icon(Icons.filter_list_rounded,
-                                                size: 16,
-                                                color: count > 0
-                                                    ? AppColors.buttonPrimary
-                                                    : AppColors.textPrimary),
+                                            Icon(
+                                              Icons.filter_list_rounded,
+                                              size: 16,
+                                              color: count > 0
+                                                  ? AppColors.buttonPrimary
+                                                  : AppColors.textPrimary,
+                                            ),
                                             const SizedBox(width: 6),
                                             Text(
-                                              count > 0 ? 'Filters ($count)' : 'Filters',
+                                              count > 0
+                                                  ? 'Filters ($count)'
+                                                  : 'Filters',
                                               style: TextStyle(
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w600,
@@ -1365,34 +512,76 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       }),
                                     ),
                                   ),
-
                                 ],
                               ),
                             ),
 
-                            const SizedBox(height: 12),
+                            // ✅ Page indicator  e.g. "Showing 20 of 602"
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                  sw * 0.05, 2, sw * 0.05, 8),
+                              child: Obx(() => Text(
+                                'Showing ${getjobcontroller.alljobs.length} '
+                                    'of ${getjobcontroller.totalResults.value}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary,
+                                ),
+                              )),
+                            ),
 
-                            // Job cards
-                            ListView.builder(
+                            // ── Job cards ──────────────────────────────
+                            Obx(() => ListView.builder(
                               shrinkWrap: true,
                               physics:
                               const NeverScrollableScrollPhysics(),
                               padding: EdgeInsets.symmetric(
                                   horizontal: sw * 0.04),
                               itemCount:
-                              controller.displayedJobs.length,
+                              getjobcontroller.alljobs.length,
                               itemBuilder: (_, i) {
                                 final job =
-                                controller.displayedJobs[i];
+                                getjobcontroller.alljobs[i];
                                 return JobCard(
                                   job: job,
                                   onTap: () => controller
                                       .navigateToJobDetail(job),
                                 );
                               },
-                            ),
+                            )),
 
-                            const SizedBox(height: 24),
+                            // ✅ Bottom: paginating spinner OR end message
+                            Obx(() {
+                              if (getjobcontroller.isPaginating.value) {
+                                return const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 20),
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                        color: AppColors.buttonPrimary),
+                                  ),
+                                );
+                              }
+
+                              if (!getjobcontroller.hasMore &&
+                                  getjobcontroller.alljobs.isNotEmpty) {
+                                return const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 20),
+                                  child: Center(
+                                    child: Text(
+                                      '✓ All jobs loaded',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              return const SizedBox(height: 24);
+                            }),
                           ],
                         );
                       }),
@@ -1460,8 +649,8 @@ class _SideDrawer extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 20, vertical: 18),
+              padding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               child: Row(
                 children: [
                   Obx(() {
@@ -1514,7 +703,7 @@ class _SideDrawer extends StatelessWidget {
                     )),
                   ),
                   GestureDetector(
-                    onTap: () =>Navigator.of(context).pop(),
+                    onTap: () => Navigator.of(context).pop(),
                     child: const Icon(Icons.close,
                         color: AppColors.textSecondary, size: 22),
                   ),
@@ -1600,8 +789,7 @@ class _DrawerItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding:
-        const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Row(
           children: [
             Icon(icon, size: 22, color: iconColor),
@@ -1620,870 +808,3 @@ class _DrawerItem extends StatelessWidget {
     );
   }
 }
-
-///
-//
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import '../../../Utils/colors.dart';
-// import '../../../routes/app_routes.dart';
-// import '../Controller/Dashboard_Controller.dart';
-// import '../Controller/Get_Job_Controller.dart';
-// import '../model/job_model/Job_Model.dart';
-// import 'widget/filter_sheet.dart';
-// import 'widget/job_card.dart';
-//
-// class DashboardScreen extends StatefulWidget {
-//   const DashboardScreen({super.key});
-//
-//   @override
-//   State<DashboardScreen> createState() => _DashboardScreenState();
-// }
-//
-// class _DashboardScreenState extends State<DashboardScreen> {
-//   final _scaffoldKey = GlobalKey<ScaffoldState>();
-//   final _locationCtrl = TextEditingController();
-//
-//   bool _hasSearched = false;
-//
-//   late final DashboardController controller;
-//   late final GetJobController jobController;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     controller = Get.find<DashboardController>();
-//     jobController = Get.put(GetJobController());
-//
-//     controller.searchCtrl.addListener(() {
-//       if (controller.searchCtrl.text.isEmpty && _hasSearched) {
-//         setState(() => _hasSearched = false);
-//       }
-//     });
-//   }
-//
-//   @override
-//   void dispose() {
-//     _locationCtrl.dispose();
-//     super.dispose();
-//   }
-//
-//   void _search() {
-//     FocusScope.of(context).unfocus();
-//
-//     if (controller.searchCtrl.text.trim().isEmpty &&
-//         _locationCtrl.text.trim().isEmpty) {
-//       setState(() => _hasSearched = false);
-//       return;
-//     }
-//
-//     // ✅ Call real API
-//     jobController.getJobs(
-//       query: controller.searchCtrl.text.trim(),
-//       location: _locationCtrl.text.trim(),
-//       page: 1,
-//     );
-//
-//     setState(() => _hasSearched = true);
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final sw = MediaQuery.of(context).size.width;
-//     final sh = MediaQuery.of(context).size.height;
-//
-//     return Obx(() => Scaffold(
-//       key: _scaffoldKey,
-//       backgroundColor: AppColors.appBg1,
-//       drawer: controller.isLoggedIn.value
-//           ? _SideDrawer(controller: controller)
-//           : null,
-//       body: SafeArea(
-//         child: Column(
-//           children: [
-//             // ── Top bar ────────────────────────────────────────
-//             Container(
-//               color: AppColors.white,
-//               padding: EdgeInsets.symmetric(
-//                   horizontal: sw * 0.05, vertical: 8),
-//               child: Row(
-//                 children: [
-//                   Image.asset(
-//                     'assets/logo.png',
-//                     fit: BoxFit.cover,
-//                     height: 60,
-//                     width: 100,
-//                   ),
-//                   const Spacer(),
-//                   Obx(() {
-//                     if (controller.isLoggedIn.value) {
-//                       return GestureDetector(
-//                         onTap: () =>
-//                             _scaffoldKey.currentState?.openDrawer(),
-//                         child: Container(
-//                           width: 42,
-//                           height: 42,
-//                           decoration: BoxDecoration(
-//                             color: Colors.white,
-//                             shape: BoxShape.circle,
-//                             boxShadow: [
-//                               BoxShadow(
-//                                 color: Colors.black.withOpacity(0.1),
-//                                 blurRadius: 6,
-//                                 offset: const Offset(0, 3),
-//                               ),
-//                             ],
-//                           ),
-//                           child: const Center(
-//                             child: Icon(
-//                               Icons.menu,
-//                               color: AppColors.darkRed,
-//                               size: 22,
-//                             ),
-//                           ),
-//                         ),
-//                       );
-//                     } else {
-//                       return Row(
-//                         children: [
-//                           ElevatedButton(
-//                             onPressed: () =>
-//                                 Get.toNamed(AppRoutes.signup),
-//                             style: ElevatedButton.styleFrom(
-//                               backgroundColor: AppColors.darkRed,
-//                               shape: RoundedRectangleBorder(
-//                                 borderRadius: BorderRadius.circular(20),
-//                               ),
-//                               minimumSize: const Size(80, 36),
-//                               padding: const EdgeInsets.symmetric(
-//                                   horizontal: 16),
-//                             ),
-//                             child: const Text(
-//                               'Register',
-//                               style: TextStyle(
-//                                 color: Colors.white,
-//                                 fontWeight: FontWeight.bold,
-//                               ),
-//                             ),
-//                           ),
-//                           const SizedBox(width: 10),
-//                           ElevatedButton(
-//                             onPressed: () =>
-//                                 Get.toNamed(AppRoutes.login),
-//                             style: ElevatedButton.styleFrom(
-//                               backgroundColor: AppColors.white,
-//                               shape: RoundedRectangleBorder(
-//                                 borderRadius: BorderRadius.circular(20),
-//                                 side: const BorderSide(
-//                                   color: AppColors.darkRed,
-//                                   width: 1,
-//                                 ),
-//                               ),
-//                               minimumSize: const Size(80, 36),
-//                               padding: const EdgeInsets.symmetric(
-//                                   horizontal: 16),
-//                             ),
-//                             child: const Text(
-//                               'Login',
-//                               style: TextStyle(
-//                                 color: AppColors.darkRed,
-//                                 fontWeight: FontWeight.bold,
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       );
-//                     }
-//                   }),
-//                 ],
-//               ),
-//             ),
-//
-//             // ── Body ──────────────────────────────────────────
-//             Expanded(
-//               child: SingleChildScrollView(
-//                 keyboardDismissBehavior:
-//                 ScrollViewKeyboardDismissBehavior.onDrag,
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     // ── Search section ─────────────────────────
-//                     Container(
-//                       width: double.infinity,
-//                       color: AppColors.appBg1,
-//                       padding: EdgeInsets.fromLTRB(
-//                         sw * 0.05,
-//                         _hasSearched ? sh * 0.02 : sh * 0.03,
-//                         sw * 0.05,
-//                         _hasSearched ? sh * 0.02 : sh * 0.035,
-//                       ),
-//                       child: Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         children: [
-//                           if (!_hasSearched) ...[
-//                             Center(
-//                               child: RichText(
-//                                 text: const TextSpan(
-//                                   children: [
-//                                     TextSpan(
-//                                       text: 'Get Your ',
-//                                       style: TextStyle(
-//                                         fontSize: 34,
-//                                         fontWeight: FontWeight.w800,
-//                                         color: AppColors.textPrimary,
-//                                       ),
-//                                     ),
-//                                     TextSpan(
-//                                       text: 'Dream \n Career Job',
-//                                       style: TextStyle(
-//                                         fontSize: 34,
-//                                         fontWeight: FontWeight.w800,
-//                                         color: AppColors.darkRed,
-//                                       ),
-//                                     ),
-//                                     TextSpan(
-//                                       text: ' Now',
-//                                       style: TextStyle(
-//                                         fontSize: 34,
-//                                         fontWeight: FontWeight.w800,
-//                                         color: AppColors.textPrimary,
-//                                       ),
-//                                     ),
-//                                   ],
-//                                 ),
-//                               ),
-//                             ),
-//                             const SizedBox(height: 6),
-//                             const Center(
-//                               child: Text(
-//                                 'Multilevel Jobs for You to Explore',
-//                                 style: TextStyle(
-//                                   fontSize: 14,
-//                                   color: AppColors.textSecondary,
-//                                 ),
-//                               ),
-//                             ),
-//                             SizedBox(height: sh * 0.025),
-//                           ],
-//
-//                           // ── Search card ──────────────────────
-//                           Container(
-//                             decoration: BoxDecoration(
-//                               color: AppColors.white,
-//                               borderRadius: BorderRadius.circular(16),
-//                               boxShadow: [
-//                                 BoxShadow(
-//                                   color:
-//                                   Colors.black.withOpacity(0.07),
-//                                   blurRadius: 20,
-//                                   offset: const Offset(0, 4),
-//                                 ),
-//                               ],
-//                             ),
-//                             padding: const EdgeInsets.all(16),
-//                             child: Column(
-//                               children: [
-//                                 TextField(
-//                                   controller: controller.searchCtrl,
-//                                   textInputAction: TextInputAction.next,
-//                                   style: const TextStyle(
-//                                       fontSize: 14,
-//                                       color: AppColors.textPrimary),
-//                                   decoration: const InputDecoration(
-//                                     hintText:
-//                                     'Skills, Designations, Companies',
-//                                     hintStyle: TextStyle(
-//                                         fontSize: 14,
-//                                         color: AppColors.textHint),
-//                                     prefixIcon: Icon(
-//                                       Icons.search,
-//                                       color: AppColors.darkRed,
-//                                       size: 30,
-//                                     ),
-//                                     prefixIconConstraints: BoxConstraints(
-//                                       minWidth: 40,
-//                                       minHeight: 40,
-//                                     ),
-//                                     enabledBorder: UnderlineInputBorder(
-//                                       borderSide: BorderSide(
-//                                           color: AppColors.darkRed),
-//                                     ),
-//                                     focusedBorder: UnderlineInputBorder(
-//                                       borderSide: BorderSide(
-//                                           color: AppColors.darkRed),
-//                                     ),
-//                                     contentPadding: EdgeInsets.symmetric(
-//                                         vertical: 12),
-//                                   ),
-//                                 ),
-//                                 const SizedBox(height: 4),
-//                                 TextField(
-//                                   controller: _locationCtrl,
-//                                   textInputAction: TextInputAction.search,
-//                                   onSubmitted: (_) => _search(),
-//                                   style: const TextStyle(
-//                                       fontSize: 14,
-//                                       color: AppColors.textPrimary),
-//                                   decoration: const InputDecoration(
-//                                     hintText: 'Location',
-//                                     hintStyle: TextStyle(
-//                                         fontSize: 14,
-//                                         color: AppColors.textHint),
-//                                     prefixIcon: Icon(
-//                                       Icons.location_on_outlined,
-//                                       color: AppColors.darkRed,
-//                                       size: 30,
-//                                     ),
-//                                     prefixIconConstraints: BoxConstraints(
-//                                       minWidth: 40,
-//                                       minHeight: 40,
-//                                     ),
-//                                     border: InputBorder.none,
-//                                     contentPadding: EdgeInsets.symmetric(
-//                                         vertical: 10),
-//                                   ),
-//                                 ),
-//                                 const SizedBox(height: 8),
-//                                 SizedBox(
-//                                   width: double.infinity,
-//                                   height: 48,
-//                                   child: DecoratedBox(
-//                                     decoration: BoxDecoration(
-//                                       gradient: AppColors.blueGradient,
-//                                       borderRadius:
-//                                       BorderRadius.circular(10),
-//                                     ),
-//                                     child: ElevatedButton(
-//                                       onPressed: _search,
-//                                       style: ElevatedButton.styleFrom(
-//                                         backgroundColor:
-//                                         Colors.transparent,
-//                                         shadowColor: Colors.transparent,
-//                                         shape: RoundedRectangleBorder(
-//                                           borderRadius:
-//                                           BorderRadius.circular(10),
-//                                         ),
-//                                       ),
-//                                       child: const Text(
-//                                         'Search Job',
-//                                         style: TextStyle(
-//                                           fontSize: 15,
-//                                           fontWeight: FontWeight.w600,
-//                                           color: Colors.white,
-//                                         ),
-//                                       ),
-//                                     ),
-//                                   ),
-//                                 ),
-//                               ],
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//
-//                     // ── Stats OR Results ────────────────────────
-//                     if (!_hasSearched)
-//                       Center(
-//                         child: Container(
-//                           width: double.infinity,
-//                           color: AppColors.appBg1,
-//                           padding: EdgeInsets.symmetric(
-//                               vertical: sh * 0.04),
-//                           child: Row(
-//                             mainAxisAlignment: MainAxisAlignment.center,
-//                             children: [
-//                               _StatItem(
-//                                 value: '4+',
-//                                 label: 'Companies',
-//                                 valueColor: AppColors.darkRed,
-//                               ),
-//                               SizedBox(width: sh * 0.07),
-//                               _StatItem(
-//                                 value: '5340+',
-//                                 label: 'Jobs',
-//                                 valueColor: AppColors.darkRed,
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                       )
-//                     else
-//                       Obx(() {
-//                         // ── Loading ─────────────────────────────
-//                         if (jobController.isLoading.value) {
-//                           return Padding(
-//                             padding: EdgeInsets.only(top: sh * 0.1),
-//                             child: Center(
-//                               child: CircularProgressIndicator(
-//                                   color: AppColors.buttonPrimary),
-//                             ),
-//                           );
-//                         }
-//
-//                         // ── Error ───────────────────────────────
-//                         if (jobController.errorMessage.value
-//                             .isNotEmpty &&
-//                             jobController.allJobs.isEmpty) {
-//                           return Padding(
-//                             padding:
-//                             EdgeInsets.only(top: sh * 0.08),
-//                             child: Center(
-//                               child: Column(
-//                                 children: [
-//                                   const Icon(
-//                                       Icons.error_outline_rounded,
-//                                       size: 48,
-//                                       color: AppColors.textMuted),
-//                                   const SizedBox(height: 12),
-//                                   Text(
-//                                     jobController
-//                                         .errorMessage.value,
-//                                     textAlign: TextAlign.center,
-//                                     style: const TextStyle(
-//                                         fontSize: 14,
-//                                         color:
-//                                         AppColors.textSecondary),
-//                                   ),
-//                                 ],
-//                               ),
-//                             ),
-//                           );
-//                         }
-//
-//                         // ── Empty ───────────────────────────────
-//                         if (jobController.allJobs.isEmpty) {
-//                           return Padding(
-//                             padding:
-//                             EdgeInsets.only(top: sh * 0.08),
-//                             child: Center(
-//                               child: Column(
-//                                 children: [
-//                                   const Icon(
-//                                       Icons.search_off_rounded,
-//                                       size: 48,
-//                                       color: AppColors.textMuted),
-//                                   const SizedBox(height: 12),
-//                                   const Text(
-//                                     'No jobs found.\nTry a different keyword.',
-//                                     textAlign: TextAlign.center,
-//                                     style: TextStyle(
-//                                         fontSize: 14,
-//                                         color:
-//                                         AppColors.textSecondary),
-//                                   ),
-//                                 ],
-//                               ),
-//                             ),
-//                           );
-//                         }
-//
-//                         // ── Results ─────────────────────────────
-//                         return Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             // Results header
-//                             Padding(
-//                               padding: EdgeInsets.fromLTRB(
-//                                   sw * 0.05, 18, sw * 0.05, 4),
-//                               child: Row(
-//                                 children: [
-//                                   RichText(
-//                                     text: TextSpan(
-//                                       children: [
-//                                         const TextSpan(
-//                                           text: 'We found ',
-//                                           style: TextStyle(
-//                                             fontSize: 18,
-//                                             fontWeight: FontWeight.w700,
-//                                             color: AppColors.textPrimary,
-//                                           ),
-//                                         ),
-//                                         TextSpan(
-//                                           text:
-//                                           '${jobController.totalResults.toString()}',
-//                                           style: const TextStyle(
-//                                             fontSize: 18,
-//                                             fontWeight: FontWeight.w800,
-//                                             color: AppColors.darkRed,
-//                                           ),
-//                                         ),
-//                                         const TextSpan(
-//                                           text: ' Matches\nfor you.',
-//                                           style: TextStyle(
-//                                             fontSize: 18,
-//                                             fontWeight: FontWeight.w700,
-//                                             color: AppColors.textPrimary,
-//                                           ),
-//                                         ),
-//                                       ],
-//                                     ),
-//                                   ),
-//                                   const Spacer(),
-//                                   GestureDetector(
-//                                     onTap: () {
-//                                       showModalBottomSheet(
-//                                         context: context,
-//                                         isScrollControlled: true,
-//                                         backgroundColor:
-//                                         Colors.transparent,
-//                                         builder: (_) => FilterBottomSheet(
-//                                           currentFilter:
-//                                           controller.filter.value,
-//                                           onApply:
-//                                           controller.applyFilter,
-//                                         ),
-//                                       );
-//                                     },
-//                                     child: Container(
-//                                       padding:
-//                                       const EdgeInsets.symmetric(
-//                                           horizontal: 12,
-//                                           vertical: 8),
-//                                       decoration: BoxDecoration(
-//                                         color: AppColors.white,
-//                                         borderRadius:
-//                                         BorderRadius.circular(8),
-//                                         border: Border.all(
-//                                             color: AppColors.border),
-//                                       ),
-//                                       child: Obx(() {
-//                                         final count = controller
-//                                             .activeFilterCount;
-//                                         return Row(
-//                                           children: [
-//                                             Icon(
-//                                                 Icons
-//                                                     .filter_list_rounded,
-//                                                 size: 16,
-//                                                 color: count > 0
-//                                                     ? AppColors
-//                                                     .buttonPrimary
-//                                                     : AppColors
-//                                                     .textPrimary),
-//                                             const SizedBox(width: 6),
-//                                             Text(
-//                                               count > 0
-//                                                   ? 'Filters ($count)'
-//                                                   : 'Filters',
-//                                               style: TextStyle(
-//                                                 fontSize: 13,
-//                                                 fontWeight:
-//                                                 FontWeight.w600,
-//                                                 color: count > 0
-//                                                     ? AppColors
-//                                                     .buttonPrimary
-//                                                     : AppColors
-//                                                     .textPrimary,
-//                                               ),
-//                                             ),
-//                                           ],
-//                                         );
-//                                       }),
-//                                     ),
-//                                   ),
-//                                 ],
-//                               ),
-//                             ),
-//
-//                             const SizedBox(height: 12),
-//
-//                             // ✅ Job cards from API
-//                             ListView.builder(
-//                               shrinkWrap: true,
-//                               physics:
-//                               const NeverScrollableScrollPhysics(),
-//                               padding: EdgeInsets.symmetric(
-//                                   horizontal: sw * 0.04),
-//                               itemCount: jobController.allJobs.length,
-//                               itemBuilder: (_, i) {
-//                                 final apiJob =
-//                                 jobController.allJobs[i];
-//
-//                                 // ✅ Map API Job → JobModel
-//                                 final jobModel = JobModel(
-//                                   id: apiJob.id,
-//                                   title: apiJob.jobTitle,
-//                                   company: apiJob.companyName,
-//                                   location: apiJob.locationNames
-//                                       .isNotEmpty
-//                                       ? apiJob.locationNames.first
-//                                       : apiJob.location,
-//                                   experience:
-//                                   '${apiJob.minRequiredExperience} - ${apiJob.maxRequiredExperience} Yrs',
-//                                   jobType: apiJob.jobTypes.isNotEmpty
-//                                       ? apiJob.jobTypes.first
-//                                       : apiJob.employmentType,
-//                                   workLocation: apiJob.locationType,
-//                                   level: apiJob.seniorityLevel,
-//                                   industry:
-//                                   apiJob.industrySectors.isNotEmpty
-//                                       ? apiJob.industrySectors.first
-//                                       : '',
-//                                   salary: apiJob.minSalary != null &&
-//                                       apiJob.maxSalary != null
-//                                       ? '${apiJob.minSalary} - ${apiJob.maxSalary}'
-//                                       '${apiJob.salaryCurrency != null ? ' ${apiJob.salaryCurrency}' : ''}'
-//                                       : 'Not disclosed',
-//                                   postedDate: apiJob.postedDate,
-//                                   description:
-//                                   apiJob.highlight.isNotEmpty
-//                                       ? apiJob.highlight
-//                                       : 'No description available.',
-//                                   skills: apiJob.requiredSkills,
-//                                   tags: [
-//                                     if (apiJob
-//                                         .seniorityLevel.isNotEmpty)
-//                                       apiJob.seniorityLevel,
-//                                     if (apiJob.locationType.isNotEmpty)
-//                                       apiJob.locationType,
-//                                     if (apiJob
-//                                         .industrySectors.isNotEmpty)
-//                                       apiJob.industrySectors.first,
-//                                   ],
-//                                   education: apiJob
-//                                       .requiredEducation.isNotEmpty
-//                                       ? apiJob.requiredEducation.first
-//                                       : '',
-//                                   logoText: apiJob.companyName.isNotEmpty
-//                                       ? apiJob.companyName[0]
-//                                       .toUpperCase()
-//                                       : 'J',
-//                                 );
-//
-//                                 return JobCard(
-//                                   job: jobModel,
-//                                   onTap: () => controller
-//                                       .navigateToJobDetail(jobModel),
-//                                 );
-//                               },
-//                             ),
-//
-//                             const SizedBox(height: 24),
-//                           ],
-//                         );
-//                       }),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     ));
-//   }
-// }
-//
-// // ── Stat item ─────────────────────────────────────────────────────────────────
-//
-// class _StatItem extends StatelessWidget {
-//   final String value;
-//   final String label;
-//   final Color valueColor;
-//
-//   const _StatItem({
-//     required this.value,
-//     required this.label,
-//     required this.valueColor,
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: [
-//         Text(
-//           value,
-//           style: TextStyle(
-//             fontSize: 36,
-//             fontWeight: FontWeight.w800,
-//             color: valueColor,
-//           ),
-//         ),
-//         const SizedBox(height: 4),
-//         Text(
-//           label,
-//           style: const TextStyle(
-//             fontSize: 15,
-//             fontWeight: FontWeight.w500,
-//             color: AppColors.textPrimary,
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
-//
-// // ── Side Drawer ───────────────────────────────────────────────────────────────
-//
-// class _SideDrawer extends StatelessWidget {
-//   final DashboardController controller;
-//   const _SideDrawer({required this.controller});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Drawer(
-//       backgroundColor: AppColors.white,
-//       child: SafeArea(
-//         child: Column(
-//           children: [
-//             Padding(
-//               padding: const EdgeInsets.symmetric(
-//                   horizontal: 20, vertical: 18),
-//               child: Row(
-//                 children: [
-//                   Obx(() {
-//                     final initial = controller.userName.value.isNotEmpty
-//                         ? controller.userName.value[0].toUpperCase()
-//                         : 'U';
-//                     return Container(
-//                       width: 46,
-//                       height: 46,
-//                       decoration: const BoxDecoration(
-//                         color: AppColors.darkRed,
-//                         shape: BoxShape.circle,
-//                       ),
-//                       child: Center(
-//                         child: Text(
-//                           initial,
-//                           style: const TextStyle(
-//                             color: Colors.white,
-//                             fontWeight: FontWeight.w700,
-//                             fontSize: 18,
-//                           ),
-//                         ),
-//                       ),
-//                     );
-//                   }),
-//                   const SizedBox(width: 14),
-//                   Expanded(
-//                     child: Obx(() => Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Text(
-//                           controller.userName.value,
-//                           style: const TextStyle(
-//                             fontSize: 15,
-//                             fontWeight: FontWeight.w700,
-//                             color: AppColors.textPrimary,
-//                           ),
-//                         ),
-//                         const SizedBox(height: 2),
-//                         Text(
-//                           controller.userName.value,
-//                           style: const TextStyle(
-//                             fontSize: 12,
-//                             color: AppColors.textSecondary,
-//                           ),
-//                           maxLines: 1,
-//                           overflow: TextOverflow.ellipsis,
-//                         ),
-//                       ],
-//                     )),
-//                   ),
-//                   GestureDetector(
-//                     onTap: () => Navigator.of(context).pop(),
-//                     child: const Icon(Icons.close,
-//                         color: AppColors.textSecondary, size: 22),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//
-//             const Divider(height: 1, color: AppColors.border),
-//
-//             _DrawerItem(
-//               icon: Icons.speed_outlined,
-//               label: 'Dashboard',
-//               onTap: () {
-//                 Navigator.of(context).pop();
-//                 Get.toNamed(AppRoutes.sideDashboard);
-//               },
-//             ),
-//             _DrawerItem(
-//               icon: Icons.person_outline_rounded,
-//               label: 'Profile',
-//               onTap: () {
-//                 Navigator.of(context).pop();
-//                 Get.toNamed(AppRoutes.myprofile);
-//               },
-//             ),
-//             _DrawerItem(
-//               icon: Icons.bookmark_outline_rounded,
-//               label: 'Saved Jobs',
-//               onTap: () {
-//                 Navigator.of(context).pop();
-//                 Get.toNamed(AppRoutes.savedJobs);
-//               },
-//             ),
-//             _DrawerItem(
-//               icon: Icons.description_outlined,
-//               label: 'My Resume',
-//               onTap: () {
-//                 Navigator.of(context).pop();
-//                 Get.toNamed(AppRoutes.myresume);
-//               },
-//             ),
-//             _DrawerItem(
-//               icon: Icons.search_rounded,
-//               label: 'Search',
-//               onTap: () => Navigator.of(context).pop(),
-//             ),
-//
-//             const Divider(height: 1, color: AppColors.border),
-//
-//             _DrawerItem(
-//               icon: Icons.logout_rounded,
-//               label: 'Logout',
-//               labelColor: AppColors.textRed,
-//               iconColor: AppColors.textRed,
-//               onTap: controller.logout,
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-// // ── Drawer item ───────────────────────────────────────────────────────────────
-//
-// class _DrawerItem extends StatelessWidget {
-//   final IconData icon;
-//   final String label;
-//   final VoidCallback onTap;
-//   final Color iconColor;
-//   final Color labelColor;
-//
-//   const _DrawerItem({
-//     required this.icon,
-//     required this.label,
-//     required this.onTap,
-//     this.iconColor = AppColors.textPrimary,
-//     this.labelColor = AppColors.textPrimary,
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return InkWell(
-//       onTap: onTap,
-//       child: Container(
-//         padding:
-//         const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-//         child: Row(
-//           children: [
-//             Icon(icon, size: 22, color: iconColor),
-//             const SizedBox(width: 16),
-//             Text(
-//               label,
-//               style: TextStyle(
-//                 fontSize: 15,
-//                 fontWeight: FontWeight.w500,
-//                 color: labelColor,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
