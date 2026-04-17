@@ -691,7 +691,7 @@ class _SideDrawer extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          controller.userName.value,
+                          controller.userEmail.value,
                           style: const TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondary,

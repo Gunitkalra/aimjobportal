@@ -147,6 +147,7 @@ import 'Get_Job_Controller.dart';  // ← import job controller
 class DashboardController extends GetxController {
   final searchCtrl  = TextEditingController();
   final userName    = 'there'.obs;
+  final userEmail    = ''.obs;
   final isLoggedIn  = false.obs;
   final isLoading   = false.obs;
   final _prefs      = SharedPrefHelper();
@@ -198,7 +199,9 @@ class DashboardController extends GetxController {
       }
       isLoggedIn.value = true;
       final name = await _prefs.get('name') ?? 'there';
+      final email = await _prefs.get('userEmail') ?? 'there';
       userName.value = name.toString().split(' ').first;
+      userEmail.value= email.toString();
     } else {
       isLoggedIn.value = false;
       userName.value   = 'Guest';

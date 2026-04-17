@@ -1,7 +1,11 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 import '../../../Utils/colors.dart';
+import '../controller/getmyresume_Controller.dart';
+import '../controller/uploadresume_Controller.dart';
 
 class MyResumeScreen extends StatefulWidget {
   const MyResumeScreen({super.key});
@@ -11,14 +15,13 @@ class MyResumeScreen extends StatefulWidget {
 }
 
 class _MyResumeScreenState extends State<MyResumeScreen> {
-  // Mock state — replace with real controller/API
-  final bool _hasResume = true;
-  final String _resumeName = 'Arpan Bhattacharjee.pdf';
-  final String _uploadedOn = 'Mar 29, 2026 at 05:31 AM';
-  final bool _parsingComplete = true;
+  final _resumeController = Get.put(GetMyResumeController());
+  final _uploadController = Get.put(UploadResumeController());
+
 
   String? _selectedFileName;
   String? _selectedFileSize;
+  String? _selectedFilePath;
   bool _isUploading = false;
 
   Future<void> _pickFile() async {
@@ -42,19 +45,25 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
       setState(() {
         _selectedFileName = file.name;
         _selectedFileSize = sizeStr;
+        _selectedFilePath = file.path;
       });
     }
   }
 
   Future<void> _uploadAndParse() async {
-    if (_selectedFileName == null) return;
+    if (_selectedFileName == null || _selectedFilePath == null) return;
     setState(() => _isUploading = true);
-    // TODO: call real upload API
-    await Future.delayed(const Duration(seconds: 2));
-    setState(() => _isUploading = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Resume uploaded & parsing started!')),
-    );
+    
+    await _uploadController.uploadResume(_selectedFilePath!);
+    
+    if (mounted) {
+      setState(() {
+        _isUploading = false;
+        _selectedFileName = null;
+        _selectedFileSize = null;
+        _selectedFilePath = null;
+      });
+    }
   }
 
   @override
@@ -82,7 +91,20 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
         ),
 
       ),
-      body: SingleChildScrollView(
+      body: Obx(() {
+        if (_resumeController.isLoading.value && _resumeController.resumeData.value == null) {
+          return const Center(child: CircularProgressIndicator(color: AppColors.darkRed));
+        }
+
+        final resumeData = _resumeController.resumeData.value?.data;
+        final bool hasResume = resumeData != null;
+        final String resumeName = resumeData?.fileName ?? '';
+        final String uploadedOn = resumeData?.uploadedAt != null 
+            ? DateFormat('MMM dd, yyyy \'at\' hh:mm a').format(resumeData!.uploadedAt!.toLocal())
+            : '';
+        final bool parsingComplete = resumeData?.parsedAt != null;
+
+        return SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: sw * 0.04, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,7 +115,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
             const SizedBox(height: 16),
 
             // ── Current Resume ──────────────────────────────────────
-            if (_hasResume) ...[
+            if (hasResume) ...[
               _SectionCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,7 +142,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                               color: AppColors.darkRed, size: 36),
                           const SizedBox(height: 8),
                           Text(
-                            _resumeName,
+                            resumeName,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -130,7 +152,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Uploaded on $_uploadedOn',
+                            'Uploaded on $uploadedOn',
                             style: const TextStyle(
                               fontSize: 12,
                               color: AppColors.textMuted,
@@ -147,8 +169,18 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: IconButton(
-                              onPressed: () {
-                                // TODO: download resume
+                              onPressed: () async {
+                                final urlString = resumeData?.downloadUrl;
+                                if (urlString != null && urlString.isNotEmpty) {
+                                  final uri = Uri.parse(urlString);
+                                  if (await canLaunchUrl(uri)) {
+                                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Could not launch download link'))
+                                    );
+                                  }
+                                }
                               },
                               icon: const Icon(Icons.download_rounded,
                                   color: AppColors.textSecondary, size: 20),
@@ -161,7 +193,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                     const SizedBox(height: 14),
 
                     // Parsing status
-                    if (_parsingComplete)
+                    if (parsingComplete)
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
@@ -497,7 +529,8 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
             const SizedBox(height: 16),
           ],
         ),
-      ),
+      );
+      }),
     );
   }
 }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../../../Utils/colors.dart';
+import '../controller/getProfile_Controller.dart';
+import '../controller/updatepersonalinfo_controller.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -11,30 +14,29 @@ class MyProfileScreen extends StatefulWidget {
 
 class _MyProfileScreenState extends State<MyProfileScreen> {
   // ── Personal Info ──────────────────────────────────────────────
-  final _nameCtrl       = TextEditingController(text: 'Arpan Bhattacharjee');
-  final _mobileCtrl     = TextEditingController(text: '7679330631');
-  final _genderCtrl     = TextEditingController(text: 'Male');
-  final _dobCtrl        = TextEditingController(text: 'Not specified');
-  final _emailCtrl      = TextEditingController(text: 'targetyou@gmail.com');
+  final _nameCtrl       = TextEditingController(text: 'N/A');
+  final _mobileCtrl     = TextEditingController(text: 'N/A');
+  final _genderCtrl     = TextEditingController(text: 'N/A');
+  final _dobCtrl        = TextEditingController(text: 'N/A');
+  final _emailCtrl      = TextEditingController(text: 'N/A');
 
   // ── Job Details ────────────────────────────────────────────────
-  final _designationCtrl  = TextEditingController(text: 'BPO L2 Agent');
-  final _ctcCtrl          = TextEditingController(text: 'Not specified');
-  final _expCtrl          = TextEditingController(text: '11 Years');
-  final _locationCtrl     = TextEditingController(text: 'Asansol, India');
-  final _noticePeriodCtrl = TextEditingController(text: 'Not specified');
-  final _industryCtrl     = TextEditingController(text: 'Not specified');
-  final _departmentCtrl   = TextEditingController(text: 'Not specified');
-  final _jobTypeCtrl      = TextEditingController(text: 'Not specified');
+  final _designationCtrl  = TextEditingController(text: 'N/A');
+  final _ctcCtrl          = TextEditingController(text: 'N/A');
+  final _expCtrl          = TextEditingController(text: 'N/A');
+  final _locationCtrl     = TextEditingController(text: 'N/A');
+  final _noticePeriodCtrl = TextEditingController(text: 'N/A');
+  final _industryCtrl     = TextEditingController(text: 'N/A');
+  final _departmentCtrl   = TextEditingController(text: 'N/A');
+  final _jobTypeCtrl      = TextEditingController(text: 'N/A');
 
   // ── Profile Summary ────────────────────────────────────────────
   final _summaryCtrl = TextEditingController(
-    text: 'Quality-focused professional with a career in ensuring product and process excellence. Skilled in identifying defects, improving processes, and collaborating with cross-functional teams to enhance quality standards. Committed to delivering reliable and high-quality outcomes through rigorous testing and analysis.',
-  );
+    text: 'N/A' );
 
   // ── Skills ─────────────────────────────────────────────────────
-  final _skillsCtrl    = TextEditingController(text: 'Quality Monitoring & Auditing, Analytical Thinking, Attention to Detail, Communication Skills');
-  final _languagesCtrl = TextEditingController(text: 'Not specified');
+  final _skillsCtrl    = TextEditingController(text: 'N/A');
+  final _languagesCtrl = TextEditingController(text: 'N/A');
 
   // ── Work Experience list ───────────────────────────────────────
   late List<WorkExpEntry> _workEntries;
@@ -53,23 +55,65 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   bool _editEdu      = false;
 
   late Map<TextEditingController, String> _snapshots;
+  late final GetProfileController _profileController;
+  late final UpdatePersonalInformationController _updatePersonalInfoController;
 
   @override
   void initState() {
     super.initState();
-    _workEntries = [
-      WorkExpEntry(
-        company:  'Startek (Aegis)',
-        position: 'BPO L2 Agent',
-        duration: 'Jun 2021 – Jul 2022',
-        description: 'As a BPO L2 agent worked with a client like Zomato, responsibilities included handling inbound customer queries, managing sensitive cases, and coordinating with internal teams.',
-      ),
-    ];
-    _eduEntries = [
-      EduEntry(degree: '10th',       institute: 'State Board',                                      level: '10th'),
-      EduEntry(degree: '12th',       institute: 'State Board',                                      level: '12th'),
-      EduEntry(degree: 'Graduation', institute: 'Narula Institute of technology and engineering',   level: 'Graduation'),
-    ];
+    
+    _profileController = Get.put(GetProfileController());
+    _updatePersonalInfoController = Get.put(UpdatePersonalInformationController());
+    
+    _workEntries = [];
+    _eduEntries = [];
+    
+    ever(_profileController.profileData, (profile) {
+      if (profile?.data != null) {
+        final data = profile!.data!;
+        
+        _nameCtrl.text = data.personalInfo?.fullName ?? '';
+        _mobileCtrl.text = data.personalInfo?.mobileNumber ?? '';
+        _genderCtrl.text = data.personalInfo?.gender ?? '';
+        _dobCtrl.text = data.personalInfo?.dateOfBirth != null 
+            ? DateFormat('yyyy-MM-dd').format(data.personalInfo!.dateOfBirth!) 
+            : 'Not specified';
+        _emailCtrl.text = data.email ?? '';
+        
+        _designationCtrl.text = data.jobDetails?.currentDesignation ?? 'Not specified';
+        _ctcCtrl.text = data.jobDetails?.ctc?.toString() ?? 'Not specified';
+        _expCtrl.text = '${data.jobDetails?.totalExperience ?? 0} Years';
+        _locationCtrl.text = data.jobDetails?.currentLocation ?? 'Not specified';
+        _noticePeriodCtrl.text = '${data.jobDetails?.noticePeriod ?? 0} Days';
+        _industryCtrl.text = data.jobDetails?.industry ?? 'Not specified';
+        _departmentCtrl.text = data.jobDetails?.department ?? 'Not specified';
+        _jobTypeCtrl.text = data.jobDetails?.jobTypes.join(', ') ?? 'Not specified';
+        
+        _summaryCtrl.text = data.profileSummary ?? '';
+        
+        _skillsCtrl.text = data.skillsLanguages?.skills.join(', ') ?? 'Not specified';
+        _languagesCtrl.text = data.skillsLanguages?.languages.join(', ') ?? 'Not specified';
+        
+        _workEntries = data.workExperience.map((w) {
+            final start = w.startDate != null ? DateFormat('MMM yyyy').format(w.startDate!) : "";
+            final end = w.endDate != null ? DateFormat('MMM yyyy').format(w.endDate!) : "Present";
+            return WorkExpEntry(
+              company: w.company ?? '',
+              position: w.position ?? '',
+              duration: "$start – $end",
+              description: w.description ?? '',
+            );
+        }).toList();
+
+        _eduEntries = data.education.map((e) => EduEntry(
+          degree: e.degree ?? '',
+          institute: e.institutionName ?? '',
+          level: e.level ?? '',
+        )).toList();
+        
+        if (mounted) setState((){});
+      }
+    });
   }
 
   @override
@@ -159,7 +203,13 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary)),
       ),
-      body: SingleChildScrollView(
+      body: Obx(() {
+        if (_profileController.isLoading.value && _profileController.profileData.value == null) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.darkRed),
+          );
+        }
+        return SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: sw * 0.04, vertical: 16),
         child: Column(
           children: [
@@ -175,7 +225,19 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   [_nameCtrl, _mobileCtrl, _genderCtrl, _dobCtrl, _emailCtrl]),
               onCancel: () => _cancelEdit((v) => _editPersonal = v,
                   [_nameCtrl, _mobileCtrl, _genderCtrl, _dobCtrl, _emailCtrl]),
-              onSave: () => _saveEdit((v) => _editPersonal = v),
+              onSave: () async {
+                final dateParsing = DateTime.tryParse(_dobCtrl.text);
+                final isoDate = dateParsing != null 
+                    ? "${DateFormat('yyyy-MM-dd').format(dateParsing)}T00:00:00Z" 
+                    : "";
+                await _updatePersonalInfoController.updatePersonalInfo(
+                  fullName: _nameCtrl.text,
+                  mobileNumber: _mobileCtrl.text,
+                  gender: _genderCtrl.text,
+                  dateOfBirth: isoDate,
+                );
+                _saveEdit((v) => _editPersonal = v);
+              },
               viewChild: _InfoGrid(rows: [
                 _InfoRow('Full Name',      _nameCtrl.text),
                 _InfoRow('Mobile Number',  _mobileCtrl.text),
@@ -188,7 +250,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 _EditField('Mobile Number',  _mobileCtrl, inputType: TextInputType.phone),
                 _EditField('Gender',         _genderCtrl),
                 _EditField('Date of Birth',  _dobCtrl),
-                _EditField('Email Address',  _emailCtrl, inputType: TextInputType.emailAddress),
+                _EditField('Email Address',  _emailCtrl, inputType: TextInputType.emailAddress, enabled: false),
               ]),
             ),
             const SizedBox(height: 12),
@@ -391,7 +453,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             const SizedBox(height: 16),
           ],
         ),
-      ),
+      );
+      }),
     );
   }
 
@@ -1242,7 +1305,8 @@ class _EditField {
   final String label;
   final TextEditingController ctrl;
   final TextInputType inputType;
-  _EditField(this.label, this.ctrl, {this.inputType = TextInputType.text});
+  final bool enabled;
+  _EditField(this.label, this.ctrl, {this.inputType = TextInputType.text, this.enabled = true});
 }
 
 class _EditGrid extends StatelessWidget {
@@ -1265,8 +1329,9 @@ class _EditGrid extends StatelessWidget {
             TextFormField(
               controller: f.ctrl,
               keyboardType: f.inputType,
-              style: const TextStyle(
-                  fontSize: 13, color: AppColors.textPrimary),
+              enabled: f.enabled,
+              style: TextStyle(
+                  fontSize: 13, color: f.enabled ? AppColors.textPrimary : AppColors.textMuted),
               decoration: _inputDeco(),
             ),
           ],
@@ -1311,20 +1376,20 @@ class _AvatarHeader extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Container(
-            width: 72, height: 72,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.25),
-              border: Border.all(
-                  color: Colors.white.withOpacity(0.5), width: 2.5),
-            ),
-            child: const Center(
-              child: Text('A',
-                  style: TextStyle(color: Colors.white,
-                      fontWeight: FontWeight.w800, fontSize: 30)),
-            ),
-          ),
+          // Container(
+          //   width: 72, height: 72,
+          //   decoration: BoxDecoration(
+          //     shape: BoxShape.circle,
+          //     color: Colors.white.withOpacity(0.25),
+          //     border: Border.all(
+          //         color: Colors.white.withOpacity(0.5), width: 2.5),
+          //   ),
+          //   child: const Center(
+          //     child: Text('A',
+          //         style: TextStyle(color: Colors.white,
+          //             fontWeight: FontWeight.w800, fontSize: 30)),
+          //   ),
+          // ),
           const SizedBox(height: 12),
           const Text('My Profile',
               style: TextStyle(color: Colors.white,

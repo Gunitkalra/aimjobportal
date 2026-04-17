@@ -303,6 +303,7 @@ import '../../../Utils/constraint.dart';
 import '../../../Utils/shared_prehelper.dart';
 import '../../../routes/app_routes.dart';
 import '../model/Login_Model.dart';
+import '../model/RefreshToken_Model.dart';
 import '../model/sendOtpModel.dart';
 import '../model/verifyOtpModel.dart';
 
@@ -519,6 +520,67 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
+
+
+  ///refresh
+  Future<String?> refreshAuthToken() async {
+    try {
+      // 1. Get current refresh token from Prefs
+      final storedRefreshToken = await _prefs.get('refreshToken');
+
+      if (storedRefreshToken == null || storedRefreshToken.isEmpty) {
+        logout(); // Force logout if no refresh token exists
+        return null;
+      }
+
+      final url = Uri.parse("https://aurore-nonappendent-ares.ngrok-free.dev/api/v1/auth/refresh");
+
+      final body = {
+        "refreshToken": storedRefreshToken,
+      };
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'X-API-Key': XApikeys,
+      };
+
+      print("Refreshing Token → $url");
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final refreshRes = RefreshTokenResponseModel.fromJson(json.decode(response.body));
+
+        if (refreshRes.success == true && refreshRes.data != null) {
+          final data = refreshRes.data!;
+
+          // 2. Overwrite SharedPreferences with fresh data
+          await _prefs.save('accessToken', data.accessToken ?? "");
+          await _prefs.save('refreshToken', data.refreshToken ?? "");
+          await _prefs.save('tokenType', data.tokenType ?? "");
+          await _prefs.save('userId', data.user?.id ?? "");
+          await _prefs.save('userEmail', data.user?.email ?? "");
+          await _prefs.save('name', data.user?.name ?? "");
+          await _prefs.save('isProfileComplete', data.user?.isProfileComplete ?? false);
+
+          print("Token refreshed successfully!");
+          return data.accessToken;
+        }
+      }
+
+      // If refresh fails (e.g., refresh token expired), log the user out
+      logout();
+      return null;
+
+    } catch (e) {
+      print("Refresh Token Error: $e");
+      return null;
+    }
+  }
+
 
   // ── Signup (Placeholder/Fallback) ─────────────────────────────────────────
   Future<void> signup() async {
