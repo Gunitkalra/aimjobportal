@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../Utils/constant_utils.dart'; // Ensure XApikeys is here
 import '../../../Utils/constraint.dart';
+import '../../../api/apilist.dart';
 import '../model/getstats/getstatsModel.dart';     // Ensure showToastFail is here
 // Import your model file path here
 // import '../model/stats_model.dart';
@@ -25,7 +26,7 @@ class GetStatsController extends GetxController {
     try {
       isLoading.value = true;
 
-      final url = Uri.parse("https://correct-dogs-rent-virtue.trycloudflare.com/api/stats");
+      final url = Uri.parse("${ApiList.baseUrl1}/stats");
 
       final headers = {
         'Content-Type': 'application/json',

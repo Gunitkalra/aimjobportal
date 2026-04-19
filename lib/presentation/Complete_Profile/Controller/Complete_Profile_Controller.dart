@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:aimjobs/api/apilist.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -108,7 +109,7 @@ class CompleteProfileController extends GetxController {
     isLoading.value = true;
 
     try {
-      final url = Uri.parse("https://aurore-nonappendent-ares.ngrok-free.dev/api/v1/auth/complete-profile");
+      final url = Uri.parse("${ApiList.baseUrl}/v1/auth/complete-profile");
 
       // Get the token saved during registration/login
       final token = await _prefs.get('accessToken') ?? '';

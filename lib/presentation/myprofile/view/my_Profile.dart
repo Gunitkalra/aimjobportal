@@ -4,6 +4,11 @@ import 'package:intl/intl.dart';
 import '../../../Utils/colors.dart';
 import '../controller/getProfile_Controller.dart';
 import '../controller/updatepersonalinfo_controller.dart';
+import '../controller/updatejobdetail_controller.dart';
+import '../controller/updateprofilesummary_controller.dart';
+import '../controller/updateskills_language_controller.dart';
+import '../controller/updateworkexperience_controller.dart';
+import '../controller/updateeducation_controller.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -29,6 +34,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   final _industryCtrl     = TextEditingController(text: 'N/A');
   final _departmentCtrl   = TextEditingController(text: 'N/A');
   final _jobTypeCtrl      = TextEditingController(text: 'N/A');
+  final _prefredlocationCtrl      = TextEditingController(text: 'N/A');
 
   // ── Profile Summary ────────────────────────────────────────────
   final _summaryCtrl = TextEditingController(
@@ -57,6 +63,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   late Map<TextEditingController, String> _snapshots;
   late final GetProfileController _profileController;
   late final UpdatePersonalInformationController _updatePersonalInfoController;
+  late final UpdateJobDetailController _updateJobDetailController;
+  late final UpdateProfileSummaryController _updateProfileSummaryController;
+  late final UpdateSkillsLanguageController _updateSkillsLanguageController;
+  late final UpdateWorkExperienceController _updateWorkExperienceController;
+  late final UpdateEducationController _updateEducationController;
 
   @override
   void initState() {
@@ -64,6 +75,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     
     _profileController = Get.put(GetProfileController());
     _updatePersonalInfoController = Get.put(UpdatePersonalInformationController());
+    _updateJobDetailController = Get.put(UpdateJobDetailController());
+    _updateProfileSummaryController = Get.put(UpdateProfileSummaryController());
+    _updateSkillsLanguageController = Get.put(UpdateSkillsLanguageController());
+    _updateWorkExperienceController = Get.put(UpdateWorkExperienceController());
+    _updateEducationController = Get.put(UpdateEducationController());
     
     _workEntries = [];
     _eduEntries = [];
@@ -88,6 +104,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         _industryCtrl.text = data.jobDetails?.industry ?? 'Not specified';
         _departmentCtrl.text = data.jobDetails?.department ?? 'Not specified';
         _jobTypeCtrl.text = data.jobDetails?.jobTypes.join(', ') ?? 'Not specified';
+        _prefredlocationCtrl.text = data.jobDetails?.preferredLocations.join(', ') ?? 'Not specified';
         
         _summaryCtrl.text = data.profileSummary ?? '';
         
@@ -121,7 +138,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     for (final c in [
       _nameCtrl, _mobileCtrl, _genderCtrl, _dobCtrl, _emailCtrl,
       _designationCtrl, _ctcCtrl, _expCtrl, _locationCtrl,
-      _noticePeriodCtrl, _industryCtrl, _departmentCtrl, _jobTypeCtrl,
+      _noticePeriodCtrl, _industryCtrl, _departmentCtrl, _jobTypeCtrl, _prefredlocationCtrl,
       _summaryCtrl, _skillsCtrl, _languagesCtrl,
     ]) c.dispose();
     for (final e in _workEntries) e.dispose();
@@ -221,15 +238,30 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               icon: Icons.person_outline_rounded,
               title: 'Personal Information',
               isEditing: _editPersonal,
+              isLoading: _updatePersonalInfoController.isLoading,
               onEdit: () => _startEdit((v) => _editPersonal = v,
                   [_nameCtrl, _mobileCtrl, _genderCtrl, _dobCtrl, _emailCtrl]),
               onCancel: () => _cancelEdit((v) => _editPersonal = v,
                   [_nameCtrl, _mobileCtrl, _genderCtrl, _dobCtrl, _emailCtrl]),
               onSave: () async {
-                final dateParsing = DateTime.tryParse(_dobCtrl.text);
-                final isoDate = dateParsing != null 
+                DateTime? dateParsing;
+                final rawDate = _dobCtrl.text.trim();
+                
+                if (rawDate.isNotEmpty && rawDate != 'Not specified') {
+                  dateParsing = DateTime.tryParse(rawDate);
+                  // Fallback for DD-MM-YYYY or DD/MM/YYYY
+                  if (dateParsing == null) {
+                      String safeStr = rawDate.replaceAll('/', '-');
+                      final parts = safeStr.split('-');
+                      if (parts.length == 3 && parts[0].length <= 2 && parts[2].length == 4) {
+                        dateParsing = DateTime.tryParse('${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}');
+                      }
+                  }
+                }
+                
+                final String? isoDate = dateParsing != null 
                     ? "${DateFormat('yyyy-MM-dd').format(dateParsing)}T00:00:00Z" 
-                    : "";
+                    : null;
                 await _updatePersonalInfoController.updatePersonalInfo(
                   fullName: _nameCtrl.text,
                   mobileNumber: _mobileCtrl.text,
@@ -260,22 +292,49 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               icon: Icons.work_outline_rounded,
               title: 'Job Details',
               isEditing: _editJob,
+              isLoading: _updateJobDetailController.isLoading,
               onEdit: () => _startEdit((v) => _editJob = v, [
                 _designationCtrl, _ctcCtrl, _expCtrl, _locationCtrl,
-                _noticePeriodCtrl, _industryCtrl, _departmentCtrl, _jobTypeCtrl,
+                _noticePeriodCtrl, _industryCtrl, _departmentCtrl, _jobTypeCtrl, _prefredlocationCtrl,
               ]),
               onCancel: () => _cancelEdit((v) => _editJob = v, [
                 _designationCtrl, _ctcCtrl, _expCtrl, _locationCtrl,
-                _noticePeriodCtrl, _industryCtrl, _departmentCtrl, _jobTypeCtrl,
+                _noticePeriodCtrl, _industryCtrl, _departmentCtrl, _jobTypeCtrl, _prefredlocationCtrl,
               ]),
-              onSave: () => _saveEdit((v) => _editJob = v),
+              onSave: () async {
+                final cleanCtc = _ctcCtrl.text.replaceAll(RegExp(r'[^0-9]'), '');
+                final int ctcVal = int.tryParse(cleanCtc) ?? 0;
+                
+                final cleanExp = _expCtrl.text.replaceAll(RegExp(r'[^0-9]'), '');
+                final int expVal = int.tryParse(cleanExp) ?? 0;
+                
+                final cleanNotice = _noticePeriodCtrl.text.replaceAll(RegExp(r'[^0-9]'), '');
+                final int noticeVal = int.tryParse(cleanNotice) ?? 0;
+                
+                final jobTypesList = _jobTypeCtrl.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+                
+                final preferredLocList = _prefredlocationCtrl.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+                
+                await _updateJobDetailController.updateJobDetails(
+                  currentDesignation: _designationCtrl.text,
+                  ctc: ctcVal,
+                  totalExperience: expVal,
+                  noticePeriod: noticeVal,
+                  preferredLocations: preferredLocList,
+                  currentLocation: _locationCtrl.text,
+                  industry: _industryCtrl.text,
+                  department: _departmentCtrl.text,
+                  jobTypes: jobTypesList,
+                );
+                _saveEdit((v) => _editJob = v);
+              },
               viewChild: _InfoGrid(rows: [
                 _InfoRow('Designation',        _designationCtrl.text),
                 _InfoRow('Current CTC',        _ctcCtrl.text),
                 _InfoRow('Total Experience',   _expCtrl.text),
                 _InfoRow('Current Location',   _locationCtrl.text),
                 _InfoRow('Notice Period',      _noticePeriodCtrl.text),
-                _InfoRow('Preferred Locations','Not specified'),
+                _InfoRow('Preferred Locations',_prefredlocationCtrl.text),
                 _InfoRow('Industry',           _industryCtrl.text),
                 _InfoRow('Department',         _departmentCtrl.text),
                 _InfoRow('Job Type',           _jobTypeCtrl.text),
@@ -286,6 +345,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 _EditField('Total Experience', _expCtrl),
                 _EditField('Current Location', _locationCtrl),
                 _EditField('Notice Period',    _noticePeriodCtrl),
+                _EditField('Preferred Locations', _prefredlocationCtrl),
                 _EditField('Industry',         _industryCtrl),
                 _EditField('Department',       _departmentCtrl),
                 _EditField('Job Type',         _jobTypeCtrl),
@@ -298,9 +358,15 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               icon: Icons.article_outlined,
               title: 'Profile Summary',
               isEditing: _editSummary,
+              isLoading: _updateProfileSummaryController.isLoading,
               onEdit: () => _startEdit((v) => _editSummary = v, [_summaryCtrl]),
               onCancel: () => _cancelEdit((v) => _editSummary = v, [_summaryCtrl]),
-              onSave: () => _saveEdit((v) => _editSummary = v),
+              onSave: () async {
+                await _updateProfileSummaryController.updateProfileSummary(
+                  summary: _summaryCtrl.text,
+                );
+                _saveEdit((v) => _editSummary = v);
+              },
               viewChild: Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(_summaryCtrl.text,
@@ -317,11 +383,21 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               icon: Icons.lightbulb_outline_rounded,
               title: 'Skills & Languages',
               isEditing: _editSkills,
+              isLoading: _updateSkillsLanguageController.isLoading,
               onEdit: () => _startEdit(
                       (v) => _editSkills = v, [_skillsCtrl, _languagesCtrl]),
               onCancel: () => _cancelEdit(
                       (v) => _editSkills = v, [_skillsCtrl, _languagesCtrl]),
-              onSave: () => _saveEdit((v) => _editSkills = v),
+              onSave: () async {
+                final rawSkills = _skillsCtrl.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+                final rawLangs = _languagesCtrl.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+                
+                await _updateSkillsLanguageController.updateSkillsAndLanguages(
+                  skills: rawSkills,
+                  languages: rawLangs,
+                );
+                _saveEdit((v) => _editSkills = v);
+              },
               viewChild: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -362,9 +438,56 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               icon: Icons.business_center_outlined,
               title: 'Work Experience',
               isEditing: _editWork,
+              isLoading: _updateWorkExperienceController.isLoading,
               onEdit: _startWorkEdit,
               onCancel: _cancelWorkEdit,
-              onSave: _saveWorkEdit,
+              onSave: () async {
+                 final List<Map<String,dynamic>> experiences = [];
+                 for(final e in _workEntries) {
+                    final durationStr = e.durationCtrl.text;
+                    DateTime? startDate;
+                    DateTime? endDate;
+                    bool isCurrentJob = false;
+                    
+                    String safeDur = durationStr.replaceAll('–', '-');
+                    if (safeDur.contains('-')) {
+                        final parts = safeDur.split('-').map((p)=>p.trim()).toList();
+                        if (parts.length == 2) {
+                            print("Parsing Start Date string: '${parts[0]}'");
+                            try {
+                                startDate = DateTime.tryParse(parts[0]) ?? DateFormat('MMM yyyy').parseLoose(parts[0]);
+                            } catch (_) {
+                                try { startDate = DateFormat('MMMM yyyy').parseLoose(parts[0]); } catch (_) {}
+                            }
+                            
+                            print("Parsing End Date string: '${parts[1]}'");
+                            if (parts[1].toLowerCase() == 'present') {
+                                isCurrentJob = true;
+                            } else {
+                                try {
+                                    endDate = DateTime.tryParse(parts[1]) ?? DateFormat('MMM yyyy').parseLoose(parts[1]);
+                                } catch (_) {
+                                    try { endDate = DateFormat('MMMM yyyy').parseLoose(parts[1]); } catch (_) {}
+                                }
+                            }
+                            print("Parsed Start: $startDate, Parsed End: $endDate");
+                        }
+                    }
+
+                    experiences.add({
+                        "company": e.companyCtrl.text,
+                        "position": e.positionCtrl.text,
+                        "startDate": startDate != null ? "${DateFormat('yyyy-MM').format(startDate)}-01T00:00:00Z" : null,
+                        "endDate": endDate != null ? "${DateFormat('yyyy-MM').format(endDate)}-01T00:00:00Z" : null,
+                        "description": e.descCtrl.text,
+                        "isCurrentJob": isCurrentJob,
+                    });
+                 }
+                 
+                 print("Submitting Payload: $experiences");
+                 await _updateWorkExperienceController.updateWorkExperience(workExperiences: experiences);
+                 _saveWorkEdit();
+              },
               onAdd: _addWorkEntry,
               addLabel: '+ Add Work Experience',
               viewChild: Column(
@@ -402,9 +525,21 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               icon: Icons.school_outlined,
               title: 'Education',
               isEditing: _editEdu,
+              isLoading: _updateEducationController.isLoading,
               onEdit: _startEduEdit,
               onCancel: _cancelEduEdit,
-              onSave: _saveEduEdit,
+              onSave: () async {
+                 final List<Map<String,dynamic>> educations = [];
+                 for(final e in _eduEntries) {
+                    educations.add({
+                        "level": e.levelCtrl.text,
+                        "institutionName": e.instCtrl.text,
+                        "degree": e.degreeCtrl.text,
+                    });
+                 }
+                 await _updateEducationController.updateEducation(educationList: educations);
+                 _saveEduEdit();
+              },
               onAdd: _addEduEntry,
               addLabel: '+ Add Education',
               viewChild: Column(
@@ -566,10 +701,12 @@ class _MultiEntryCard extends StatelessWidget {
   final String addLabel;
   final Widget viewChild;
   final Widget editChild;
+  final RxBool? isLoading;
 
   const _MultiEntryCard({
     required this.icon, required this.title,
     required this.isEditing,
+    this.isLoading,
     required this.onEdit, required this.onCancel, required this.onSave,
     required this.onAdd, required this.addLabel,
     required this.viewChild, required this.editChild,
@@ -733,10 +870,11 @@ class _MultiEntryCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(10)),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
-                            child: const Text('Save Changes',
-                                style: TextStyle(fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white)),
+                            child: isLoading != null 
+                              ? Obx(() => isLoading!.value 
+                                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                : const Text('Save Changes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)))
+                              : const Text('Save Changes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)),
                           ),
                         ),
                       ),
@@ -1098,12 +1236,14 @@ class _ProfileCard extends StatelessWidget {
   final bool isEditing;
   final VoidCallback onEdit, onCancel, onSave;
   final Widget viewChild, editChild;
+  final RxBool? isLoading;
 
   const _ProfileCard({
     required this.icon, required this.title,
     required this.isEditing,
     required this.onEdit, required this.onCancel, required this.onSave,
     required this.viewChild, required this.editChild,
+    this.isLoading,
   });
 
   @override
@@ -1224,10 +1364,11 @@ class _ProfileCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(10)),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
-                            child: const Text('Save Changes',
-                                style: TextStyle(fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white)),
+                            child: isLoading != null 
+                              ? Obx(() => isLoading!.value 
+                                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                : const Text('Save Changes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)))
+                              : const Text('Save Changes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)),
                           ),
                         ),
                       ),

@@ -1,46 +1,54 @@
 import 'dart:convert';
 import 'package:aimjobs/api/apilist.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import '../../../Utils/constant_utils.dart';
 import '../../../Utils/constraint.dart';
 import '../../../Utils/shared_prehelper.dart';
 import '../../Login/model/RefreshToken_Model.dart';
-import '../model/UploadResume_Model.dart';
-import 'getmyresume_Controller.dart';
+import '../model/updateEducation_Model.dart';
+import 'getProfile_Controller.dart';
 
-class UploadResumeController extends GetxController {
+class UpdateEducationController extends GetxController {
   final isLoading = false.obs;
   final _prefs = SharedPrefHelper();
 
-  Future<void> uploadResume(String filePath) async {
+  Future<void> updateEducation({
+    required List<Map<String, dynamic>> educationList,
+  }) async {
     try {
       isLoading.value = true;
-      final url = Uri.parse("${ApiList.baseUrl}/v1/resume/upload");
+      final url = Uri.parse("${ApiList.baseUrl}/v1/profile/education");
 
       String? token = await _prefs.get('accessToken');
 
-      var request = http.MultipartRequest('POST', url)
-        ..headers['Authorization'] = 'Bearer $token'
-        ..headers['X-API-Key'] = XApikeys
-        ..files.add(await http.MultipartFile.fromPath('file', filePath));
+      final bodyData = {
+        "educationList": educationList,
+      };
 
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
+      var response = await http.patch(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'X-API-Key': XApikeys,
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(bodyData),
+      );
 
       // Handle 400 or 401 Unauthorized / Token Expired
       if (response.statusCode == 401 || response.statusCode == 400) {
         final newToken = await _refreshTokenAndSave();
         if (newToken != null && newToken.isNotEmpty) {
-          // Retry request
-          var retryRequest = http.MultipartRequest('POST', url)
-            ..headers['Authorization'] = 'Bearer $newToken'
-            ..headers['X-API-Key'] = XApikeys
-            ..files.add(await http.MultipartFile.fromPath('file', filePath));
-
-          var retryStreamedResponse = await retryRequest.send();
-          response = await http.Response.fromStream(retryStreamedResponse);
+          response = await http.patch(
+            url,
+            headers: {
+              'Authorization': 'Bearer $newToken',
+              'X-API-Key': XApikeys,
+              'Content-Type': 'application/json',
+            },
+            body: json.encode(bodyData),
+          );
         } else {
           showToastFail("Session expired. Please log in again.");
           return;
@@ -48,23 +56,24 @@ class UploadResumeController extends GetxController {
       }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final res = UploadResumeResponseModel.fromJson(json.decode(response.body));
+        final res = UpdateEducationResponseModel.fromJson(json.decode(response.body));
         if (res.success == true) {
-          showToastSuccess(res.message ?? "Resume uploaded successfully");
+          showToastSuccess("Education updated successfully.");
           
-          // Refresh the resume view
-          if (Get.isRegistered<GetMyResumeController>()) {
-            Get.find<GetMyResumeController>().fetchResume();
+          if (Get.isRegistered<GetProfileController>()) {
+            Get.find<GetProfileController>().fetchProfile();
           }
         } else {
-          showToastFail(res.message ?? "Failed to upload resume");
+          showToastFail(res.message ?? "Failed to update education.");
         }
+      } else if (response.statusCode == 400) {
+        print("EDUCATION API 400 ERROR: ${response.body}");
+        showToastFail("Validation Error: ${response.body}");
       } else {
-        final body = jsonDecode(response.body);
-        showToastFail(body['message'] ?? "Failed to upload resume");
+        showToastFail("Error: ${response.statusCode}");
       }
     } catch (e) {
-      print("Upload Resume Error: $e");
+      print("Update Education Error: $e");
       showToastFail("Connection error.");
     } finally {
       isLoading.value = false;

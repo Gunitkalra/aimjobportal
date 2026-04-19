@@ -99,6 +99,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../Utils/constant_utils.dart';
 import '../../../Utils/constraint.dart';
+import '../../../api/apilist.dart';
 import '../model/job_model/Get_Job_Model.dart';
 import '../model/job_model/Job_Model.dart';
 import '../model/job_model/job_Filter.dart';
@@ -181,7 +182,7 @@ class GetAllJobsController extends GetxController {
       }
 
       final url = Uri.parse(
-        "https://correct-dogs-rent-virtue.trycloudflare.com/api/jobs",
+        "${ApiList.baseUrl1}/jobs",
       ).replace(queryParameters: params);
 
       final headers = {

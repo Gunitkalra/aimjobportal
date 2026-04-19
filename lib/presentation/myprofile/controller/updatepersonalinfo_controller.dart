@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:aimjobs/api/apilist.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -17,11 +18,11 @@ class UpdatePersonalInformationController extends GetxController {
     required String fullName,
     required String mobileNumber,
     required String gender,
-    required String dateOfBirth,
+    required String? dateOfBirth,
   }) async {
     try {
       isLoading.value = true;
-      final url = Uri.parse("https://aurore-nonappendent-ares.ngrok-free.dev/api/v1/profile/personal");
+      final url = Uri.parse("${ApiList.baseUrl}/v1/profile/personal");
 
       String? token = await _prefs.get('accessToken');
 
@@ -91,7 +92,7 @@ class UpdatePersonalInformationController extends GetxController {
         return null;
       }
 
-      final url = Uri.parse("https://aurore-nonappendent-ares.ngrok-free.dev/api/v1/auth/refresh");
+      final url = Uri.parse("${ApiList.baseUrl}/v1/auth/refresh");
       final body = {"refreshToken": storedRefreshToken};
       final headers = {
         'Content-Type': 'application/json',

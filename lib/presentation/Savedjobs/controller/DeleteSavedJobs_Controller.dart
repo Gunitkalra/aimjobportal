@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:aimjobs/api/apilist.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import '../../../Utils/constant_utils.dart';
@@ -15,7 +16,7 @@ class DeleteSavedJobsController extends GetxController {
   Future<void> deleteJob(String jobId) async {
     try {
       isLoading.value = true;
-      final url = Uri.parse("https://aurore-nonappendent-ares.ngrok-free.dev/api/v1/saved-jobs/$jobId");
+      final url = Uri.parse("${ApiList.baseUrl}/v1/saved-jobs/$jobId");
 
       String? token = await _prefs.get('accessToken');
 
@@ -76,7 +77,7 @@ class DeleteSavedJobsController extends GetxController {
         return null;
       }
 
-      final url = Uri.parse("https://aurore-nonappendent-ares.ngrok-free.dev/api/v1/auth/refresh");
+      final url = Uri.parse("${ApiList.baseUrl}/v1/auth/refresh");
       final body = {"refreshToken": storedRefreshToken};
       final headers = {
         'Content-Type': 'application/json',
