@@ -165,9 +165,9 @@ class JobDetails {
   factory JobDetails.fromJson(Map<String, dynamic> json){
     return JobDetails(
       currentDesignation: json["currentDesignation"],
-      ctc: json["ctc"],
-      totalExperience: json["totalExperience"],
-      noticePeriod: json["noticePeriod"],
+      ctc: json["ctc"] != null ? (json["ctc"] as num).toInt() : null,
+      totalExperience: json["totalExperience"] != null ? (json["totalExperience"] as num).toInt() : null,
+      noticePeriod: json["noticePeriod"] != null ? (json["noticePeriod"] as num).toInt() : null,
       preferredLocations: json["preferredLocations"] == null ? [] : List<String>.from(json["preferredLocations"]!.map((x) => x)),
       currentLocation: json["currentLocation"],
       industry: json["industry"],
