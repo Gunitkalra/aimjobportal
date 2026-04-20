@@ -10,6 +10,7 @@ import '../../../Utils/constraint.dart';
 import '../../../Utils/shared_prehelper.dart';
 import '../../../api/apilist.dart';
 import '../../../routes/app_routes.dart';
+import '../../dashboard/Controller/Dashboard_Controller.dart';
 import '../model/Login_Model.dart';
 import '../model/RefreshToken_Model.dart';
 import '../model/sendOtpModel.dart';
@@ -206,6 +207,17 @@ class AuthController extends GetxController {
           showToastSuccess(loginRes.message ?? "Login successful!");
 
           // ── Check navigation logic ─────────────────────────────────────────
+          showToastSuccess(loginRes.message ?? "Login successful!");
+
+// ── Update DashboardController state if it's already alive ─────────
+          if (Get.isRegistered<DashboardController>()) {
+            final dashCtrl = Get.find<DashboardController>();
+            dashCtrl.isLoggedIn.value = true;
+            dashCtrl.userName.value = (data.user?.name ?? '').split(' ').first;
+            dashCtrl.userEmail.value = data.user?.email ?? '';
+          }
+
+// ── Check navigation logic ─────────────────────────────────────────
           final bool isComplete = data.user?.isProfileComplete ?? false;
 
           if (isComplete) {
