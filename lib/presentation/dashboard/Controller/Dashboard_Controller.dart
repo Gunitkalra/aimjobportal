@@ -161,7 +161,7 @@ class DashboardController extends GetxController {
   void onInit() {
     super.onInit();
     _jobCtrl = Get.find<GetAllJobsController>();
-    _loadUser();
+    loadUser();
     searchCtrl.addListener(() {
       searchQuery.value = searchCtrl.text;
     });
@@ -189,7 +189,7 @@ class DashboardController extends GetxController {
   //     userName.value   = 'Guest';
   //   }
   // }
-  Future<void> _loadUser() async {
+  Future<void> loadUser() async {
     final token = await _prefs.get('accessToken');          // ✅ was 'token'
     if (token != null && token.toString().isNotEmpty) {
       final profileCompleted = await _prefs.get('isProfileComplete') ?? false; // ✅ was 'profileCompleted'

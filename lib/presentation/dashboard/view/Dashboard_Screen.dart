@@ -31,7 +31,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     controller = Get.find<DashboardController>();
-getstatscontroller.fetchStats();
+    controller.loadUser();
+    getstatscontroller.fetchStats();
     // Reset to home when search bar is cleared
     controller.searchCtrl.addListener(() {
       if (controller.searchCtrl.text.isEmpty && _hasSearched) {
@@ -213,29 +214,22 @@ getstatscontroller.fetchStats();
                                 text: const TextSpan(
                                   children: [
                                     TextSpan(
-                                      text: 'Get Your ',
+                                      text: 'Find Jobs Faster with ',
                                       style: TextStyle(
                                         fontSize: 34,
                                         fontWeight: FontWeight.w800,
-                                        color: AppColors.textPrimary,
+                                        color: AppColors.black,
                                       ),
                                     ),
                                     TextSpan(
-                                      text: 'Dream \nCareer Job',
+                                      text: 'AI',
                                       style: TextStyle(
                                         fontSize: 34,
                                         fontWeight: FontWeight.w800,
                                         color: AppColors.darkRed,
                                       ),
                                     ),
-                                    TextSpan(
-                                      text: ' Now',
-                                      style: TextStyle(
-                                        fontSize: 34,
-                                        fontWeight: FontWeight.w800,
-                                        color: AppColors.textPrimary,
-                                      ),
-                                    ),
+
                                   ],
                                 ),
                               ),
@@ -243,7 +237,8 @@ getstatscontroller.fetchStats();
                             const SizedBox(height: 6),
                             const Center(
                               child: Text(
-                                'Multilevel Jobs for You to Explore',
+                                'Jobs From Multiple Company Career Pages-All In One Place',
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: AppColors.textSecondary,
@@ -277,13 +272,13 @@ getstatscontroller.fetchStats();
                                       color: AppColors.textPrimary),
                                   decoration: const InputDecoration(
                                     hintText:
-                                    'Skills, Designations, Companies',
+                                    'Job title,Skills,Company name',
                                     hintStyle: TextStyle(
                                         fontSize: 14,
                                         color: AppColors.textHint),
-                                    prefixIcon: Icon(Icons.search,
-                                        color: AppColors.darkRed,
-                                        size: 30),
+                                    // prefixIcon: Icon(Icons.search,
+                                    //     color: AppColors.darkRed,
+                                    //     size: 30),
                                     prefixIconConstraints: BoxConstraints(
                                         minWidth: 40, minHeight: 40),
                                     enabledBorder: UnderlineInputBorder(
@@ -311,10 +306,10 @@ getstatscontroller.fetchStats();
                                     hintStyle: TextStyle(
                                         fontSize: 14,
                                         color: AppColors.textHint),
-                                    prefixIcon: Icon(
-                                        Icons.location_on_outlined,
-                                        color: AppColors.darkRed,
-                                        size: 30),
+                                    // prefixIcon: Icon(
+                                    //     Icons.location_on_outlined,
+                                    //     color: AppColors.darkRed,
+                                    //     size: 30),
                                     prefixIconConstraints: BoxConstraints(
                                         minWidth: 40, minHeight: 40),
                                     border: InputBorder.none,
@@ -328,7 +323,8 @@ getstatscontroller.fetchStats();
                                   height: 48,
                                   child: DecoratedBox(
                                     decoration: BoxDecoration(
-                                      gradient: AppColors.blueGradient,
+                                      // gradient: AppColors.blueGradient,
+                                      color: AppColors.darkRed,
                                       borderRadius:
                                       BorderRadius.circular(10),
                                     ),

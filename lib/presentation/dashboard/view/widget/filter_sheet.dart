@@ -24,9 +24,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   final List<String> _jobTypes = [
     'Full-Time', 'Part-Time', 'Contractor', 'Freelance', 'Intern', 'Permanent'
   ];
-  final List<String> _workLocations = ['Hybrid', 'Remote', 'On-site'];
+  final List<String> _workLocations = ['Hybrid', 'Remote',];
   final List<String> _experiences = [
-    'Entry Level', 'Mid Level', 'Senior', 'Lead', 'Director', 'Executive'
+    'Entry Level', 'Mid Level', 'Senior Level', 'Manager', 'Director', 'Executive'
   ];
   final List<String> _postedDates = [
     'Today', 'This week', 'Last 2 weeks', 'This month', 'Any time'
@@ -112,31 +112,31 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 24),
-                  _SectionTitle(title: 'Job Type'),
-                  const SizedBox(height: 14),
-                  _ChipGrid(
+                  const SizedBox(height: 16),
+                  _MultiSelectDropdown(
+                    title: 'Job Type',
                     items: _jobTypes,
-                    selected: _filter.jobTypes,
-                    onTap: (v) => _toggleItem(_filter.jobTypes, v),
+                    selectedItems: _filter.jobTypes,
+                    onToggle: (v) => _toggleItem(_filter.jobTypes, v),
                   ),
-                  const SizedBox(height: 28),
-                  _SectionTitle(title: 'Work Location'),
-                  const SizedBox(height: 14),
-                  _ChipGrid(
+                  const SizedBox(height: 20),
+                  
+                  _MultiSelectDropdown(
+                    title: 'Work Location',
                     items: _workLocations,
-                    selected: _filter.workLocations,
-                    onTap: (v) => _toggleItem(_filter.workLocations, v),
+                    selectedItems: _filter.workLocations,
+                    onToggle: (v) => _toggleItem(_filter.workLocations, v),
                   ),
-                  const SizedBox(height: 28),
-                  _SectionTitle(title: 'Experience'),
-                  const SizedBox(height: 14),
-                  _ChipGrid(
+                  const SizedBox(height: 20),
+                  
+                  _MultiSelectDropdown(
+                    title: 'Experience',
                     items: _experiences,
-                    selected: _filter.experiences,
-                    onTap: (v) => _toggleItem(_filter.experiences, v),
+                    selectedItems: _filter.experiences,
+                    onToggle: (v) => _toggleItem(_filter.experiences, v),
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 24),
+                  
                   _SectionTitle(title: 'Salary'),
                   const SizedBox(height: 8),
                   Center(
@@ -153,10 +153,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   ),
                   SliderTheme(
                     data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: AppColors.darkRed,
+                      activeTrackColor: AppColors.textRed,
                       inactiveTrackColor: AppColors.appBg5,
                       thumbColor: AppColors.darkRed,
-                      overlayColor: AppColors.lightRed.withOpacity(0.2),
+                      overlayColor: AppColors.white,
                       trackHeight: 4,
                       thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
                     ),
@@ -168,43 +168,13 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       onChanged: (v) => setState(() => _filter.salary = v),
                     ),
                   ),
-                  // const SizedBox(height: 20),
-                  // _SectionTitle(title: 'Distance'),
-                  // const SizedBox(height: 8),
-                  // Center(
-                  //   child: Text(
-                  //     '${_filter.distance.toInt()} km',
-                  //     style: const TextStyle(
-                  //       fontSize: 16,
-                  //       fontWeight: FontWeight.w600,
-                  //       color: AppColors.darkRed,
-                  //     ),
-                  //   ),
-                  // ),
-                  // SliderTheme(
-                  //   data: SliderTheme.of(context).copyWith(
-                  //     activeTrackColor: AppColors.darkRed,
-                  //     inactiveTrackColor: AppColors.appBg5,
-                  //     thumbColor: AppColors.darkRed,
-                  //     overlayColor: AppColors.lightRed.withOpacity(0.2),
-                  //     trackHeight: 4,
-                  //     thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
-                  //   ),
-                  //   child: Slider(
-                  //     value: _filter.distance,
-                  //     min: 0,
-                  //     max: 200,
-                  //     divisions: 200,
-                  //     onChanged: (v) => setState(() => _filter.distance = v),
-                  //   ),
-                  // ),
-                  const SizedBox(height: 28),
-                  _SectionTitle(title: 'Posted date'),
-                  const SizedBox(height: 14),
-                  _ChipGrid(
+                  const SizedBox(height: 24),
+                  
+                  _MultiSelectDropdown(
+                    title: 'Any time',
                     items: _postedDates,
-                    selected: _filter.postedDates,
-                    onTap: (v) => _toggleItem(_filter.postedDates, v),
+                    selectedItems: _filter.postedDates,
+                    onToggle: (v) => _toggleItem(_filter.postedDates, v),
                     singleSelect: true,
                   ),
                   const SizedBox(height: 32),
@@ -296,106 +266,85 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-class _ChipGrid extends StatefulWidget {
+class _MultiSelectDropdown extends StatefulWidget {
+  final String title;
   final List<String> items;
-  final List<String> selected;
-  final Function(String) onTap;
+  final List<String> selectedItems;
+  final Function(String) onToggle;
   final bool singleSelect;
 
-  const _ChipGrid({
+  const _MultiSelectDropdown({
+    required this.title,
     required this.items,
-    required this.selected,
-    required this.onTap,
+    required this.selectedItems,
+    required this.onToggle,
     this.singleSelect = false,
   });
 
   @override
-  State<_ChipGrid> createState() => _ChipGridState();
+  State<_MultiSelectDropdown> createState() => _MultiSelectDropdownState();
 }
 
-class _ChipGridState extends State<_ChipGrid> {
+class _MultiSelectDropdownState extends State<_MultiSelectDropdown> {
   @override
   Widget build(BuildContext context) {
-    final items = widget.items;
-
-    // Build rows of 2
-    final rows = <List<String>>[];
-    for (int i = 0; i < items.length; i += 2) {
-      rows.add([
-        items[i],
-        if (i + 1 < items.length) items[i + 1],
-      ]);
+    String displayString = widget.title;
+    if (widget.selectedItems.isNotEmpty) {
+      if (widget.singleSelect) {
+        displayString = "${widget.title}: ${widget.selectedItems.first}";
+      } else {
+        displayString = "${widget.title} (${widget.selectedItems.length})";
+      }
     }
 
-    return Column(
-      children: rows.map((row) {
-        // Build chip widgets for this row
-        final rowChildren = <Widget>[];
-        for (int i = 0; i < row.length; i++) {
-          final item       = row[i];
-          final isSelected = widget.selected.contains(item);
-          final isLast     = i == row.length - 1;
-
-          rowChildren.add(
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(right: isLast ? 0 : 12),
-                child: GestureDetector(
-                  onTap: () {
-                    if (widget.singleSelect) {
-                      widget.selected.clear();
-                      if (!isSelected) widget.selected.add(item);
-                    } else {
-                      widget.onTap(item);
-                    }
-                    setState(() {});
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 13),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? const Color(0xFFE8F0FE)
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(
-                        color: isSelected
-                            ? const Color(0xFF1A73E8)
-                            : const Color(0xFFDDDDDD),
-                        width: isSelected ? 1.5 : 1,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        item,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.w400,
-                          color: isSelected
-                              ? const Color(0xFF1A73E8)
-                              : const Color(0xFF333333),
-                        ),
-                      ),
-                    ),
-                  ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          collapsedIconColor: AppColors.textPrimary,
+          iconColor: AppColors.darkRed,
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          title: Text(
+            displayString,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: widget.selectedItems.isNotEmpty ? AppColors.darkRed : AppColors.textPrimary,
+            ),
+          ),
+          children: widget.items.map((item) {
+            final isSelected = widget.selectedItems.contains(item);
+            return CheckboxListTile(
+              dense: true,
+              activeColor: AppColors.darkRed,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              title: Text(
+                item,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected ? AppColors.darkRed : AppColors.textPrimary,
                 ),
               ),
-            ),
-          );
-        }
-
-        // If odd item, fill the second slot so chip takes exactly half width
-        if (row.length == 1) {
-          rowChildren.add(const Expanded(child: SizedBox()));
-        }
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Row(children: rowChildren),
-        );
-      }).toList(),
+              value: isSelected,
+              onChanged: (val) {
+                if (widget.singleSelect) {
+                  widget.selectedItems.clear();
+                  if (val == true) widget.selectedItems.add(item);
+                } else {
+                  widget.onToggle(item);
+                }
+                setState(() {});
+              },
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 }
