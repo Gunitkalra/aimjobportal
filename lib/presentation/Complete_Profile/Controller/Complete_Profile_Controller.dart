@@ -10,7 +10,7 @@ import '../../../Utils/shared_prehelper.dart';
 import '../../../Utils/constant_utils.dart'; // For XApikeys
 import '../../../Utils/constraint.dart';
 import '../model/Completeprofile_Model.dart';     // For showToast helpers
-
+import '../../Login/model/RefreshToken_Model.dart';
 
 class CompleteProfileController extends GetxController {
   final formKey = GlobalKey<FormState>();
@@ -139,6 +139,34 @@ class CompleteProfileController extends GetxController {
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
+      // --- Refresh Token Interceptor ---
+      if (response.statusCode == 401 || response.statusCode == 400) {
+        final newToken = await _refreshTokenAndSave();
+        if (newToken != null && newToken.isNotEmpty) {
+          // Rebuild MultipartRequest because they cannot be reused
+          var newRequest = http.MultipartRequest('POST', url);
+          newRequest.headers.addAll({
+            'Authorization': 'Bearer $newToken',
+            'X-API-Key': XApikeys,
+          });
+          newRequest.fields['fullName'] = nameCtrl.text.trim();
+          newRequest.fields['mobileNumber'] = phoneCtrl.text.trim();
+
+          if (pickedFile.value?.path != null) {
+            newRequest.files.add(await http.MultipartFile.fromPath(
+                'cvfile',
+                pickedFile.value!.path!
+            ));
+          }
+          var newStreamedResponse = await newRequest.send();
+          response = await http.Response.fromStream(newStreamedResponse);
+        } else {
+          Fluttertoast.showToast(msg: "Session expired. Please log in again.");
+          return;
+        }
+      }
+      // ---------------------------------
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         final resModel = CompleteProfileReponseModel.fromJson(json.decode(response.body));
 
@@ -171,5 +199,53 @@ class CompleteProfileController extends GetxController {
 
   void _navigateToDashboard() {
     Get.offAllNamed(AppRoutes.dashboard);
+  }
+
+  Future<String?> _refreshTokenAndSave() async {
+    try {
+      final storedRefreshToken = await _prefs.get('refreshToken');
+
+      if (storedRefreshToken == null || storedRefreshToken.isEmpty) {
+        return null;
+      }
+
+      final url = Uri.parse("${ApiList.baseUrl}/v1/auth/refresh");
+      final body = {"refreshToken": storedRefreshToken};
+      final headers = {
+        'Content-Type': 'application/json',
+        'X-API-Key': XApikeys,
+      };
+
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final refreshRes = RefreshTokenResponseModel.fromJson(json.decode(response.body));
+
+        if (refreshRes.success == true && refreshRes.data != null) {
+          final data = refreshRes.data!;
+
+          await _prefs.save('accessToken', data.accessToken ?? "");
+          await _prefs.save('refreshToken', data.refreshToken ?? "");
+          await _prefs.save('tokenType', data.tokenType ?? "");
+          
+          if (data.user != null) {
+            await _prefs.save('userId', data.user!.id ?? "");
+            await _prefs.save('userEmail', data.user!.email ?? "");
+            await _prefs.save('name', data.user!.name ?? "");
+            await _prefs.save('isProfileComplete', data.user!.isProfileComplete ?? false);
+          }
+
+          return data.accessToken;
+        }
+      }
+      return null;
+    } catch (e) {
+      print("Refresh Token Exception: $e");
+      return null;
+    }
   }
 }

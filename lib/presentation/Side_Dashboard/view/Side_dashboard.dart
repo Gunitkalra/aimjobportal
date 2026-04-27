@@ -1,4 +1,6 @@
 // import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:url_launcher/url_launcher.dart';
 // import 'package:get/get.dart';
 // import '../../../Utils/colors.dart';
 // import '../../dashboard/Controller/Dashboard_Controller.dart';
@@ -1793,6 +1795,32 @@ class _Footer extends StatelessWidget {
   const _Footer();
   @override
   Widget build(BuildContext context) {
-    return const Column(children: [Text('About Us | Privacy Policy | Terms', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)), SizedBox(height: 6), Text('© 2026 Aim Job Techno. All Rights Reserved.', style: TextStyle(fontSize: 11, color: AppColors.textMuted))]);
+    return Column(children: [
+      RichText(
+        text: TextSpan(
+          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          children: [
+            const TextSpan(text: 'About Us | '),
+            TextSpan(
+              text: 'Privacy Policy',
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  launchUrl(Uri.parse('https://aimjobtechno.in/Home/Privacy'));
+                },
+            ),
+            const TextSpan(text: ' | '),
+            TextSpan(
+              text: 'Terms & Conditions',
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  launchUrl(Uri.parse('https://aimjobtechno.in/Home/Terms'));
+                },
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 6),
+      const Text('© 2026 Aim Job Techno. All Rights Reserved.', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+    ]);
   }
 }

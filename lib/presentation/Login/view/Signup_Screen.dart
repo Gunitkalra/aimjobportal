@@ -491,7 +491,9 @@
 //   }
 // }
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
 import '../../../Utils/colors.dart';
 import '../../../Utils/constant_utils.dart';
@@ -792,28 +794,36 @@ class SignupScreen extends GetView<AuthController> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: RichText(
-                          text: const TextSpan(
-                            style: TextStyle(
+                          text: TextSpan(
+                            style: const TextStyle(
                               fontSize: 13,
                               color: _kTextSecondary,
                               height: 1.5,
                             ),
                             children: [
-                              TextSpan(text: 'I agree to the '),
+                              const TextSpan(text: 'I agree to the '),
                               TextSpan(
                                 text: 'Terms of Service',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: AppColors.darkRed,
                                   fontWeight: FontWeight.w600,
                                 ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    launchUrl(Uri.parse('https://aimjobtechno.in/Home/Terms'));
+                                  },
                               ),
-                              TextSpan(text: ' and '),
+                              const TextSpan(text: ' and '),
                               TextSpan(
                                 text: 'Privacy Policy',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: AppColors.darkRed,
                                   fontWeight: FontWeight.w600,
                                 ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    launchUrl(Uri.parse('https://aimjobtechno.in/Home/Privacy'));
+                                  },
                               ),
                             ],
                           ),

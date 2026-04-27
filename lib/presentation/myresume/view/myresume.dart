@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import '../../../Utils/colors.dart';
 import '../controller/getmyresume_Controller.dart';
@@ -774,7 +775,13 @@ class _FooterLink extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        if (text.contains('Privacy')) {
+          launchUrl(Uri.parse('https://aimjobtechno.in/Home/Privacy'));
+        } else if (text.contains('Terms')) {
+          launchUrl(Uri.parse('https://aimjobtechno.in/Home/Terms'));
+        }
+      },
       child: Text(
         text,
         style:
