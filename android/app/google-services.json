@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "557085828050",
+    "project_id": "aimjobsai-6e77c",
+    "storage_bucket": "aimjobsai-6e77c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:557085828050:android:dabc0c2a735922745a1e0b",
+        "android_client_info": {
+          "package_name": "com.aimjobs.ai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "557085828050-i5ek6624p3l7s5j65dvah9o9chn32b74.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aimjobs.ai",
+            "certificate_hash": "9f2418d978819c2d417c212fd8f4f683c17e3bd4"
+          }
+        },
+        {
+          "client_id": "557085828050-t9fi7e43q1hqa6ki265gq3ic9ssn1i81.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUEgBQvhEldQKx81zyVl80MwwF701H7WI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "557085828050-t9fi7e43q1hqa6ki265gq3ic9ssn1i81.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
