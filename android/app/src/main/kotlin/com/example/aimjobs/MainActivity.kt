@@ -1,4 +1,4 @@
-package com.example.aimjobs
+package com.aimjobs.ai
 
 import io.flutter.embedding.android.FlutterActivity
 
