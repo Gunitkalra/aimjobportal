@@ -520,14 +520,89 @@ class SignupScreen extends GetView<AuthController> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: sw * 0.06),
-          child: Form(
-            key: controller.signupFormKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: sh * 0.04),
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: sw * 0.06),
+              child: Column(
+                children: [
+                  SizedBox(height: sh * 0.02),
+                  Container(
+                    color: Colors.white,
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          'assets/logo.png',
+                          fit: BoxFit.cover,
+                          height: 60,
+                          width: 100,
+                        ),
+                        const Spacer(),
+                        Row(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: AppColors.blueGradient,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: ElevatedButton(
+                                onPressed: () => Get.toNamed(AppRoutes.signup),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    side: const BorderSide(color: Colors.transparent, width: 1),
+                                  ),
+                                  fixedSize: const Size(100, 36),
+                                  padding: EdgeInsets.zero,
+                                ),
+                                child: const Text(
+                                  'Register',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            ElevatedButton(
+                              onPressed: () => Get.toNamed(AppRoutes.login),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: const BorderSide(
+                                      color: AppColors.darkRed, width: 1),
+                                ),
+                                fixedSize: const Size(100, 36),
+                                padding: EdgeInsets.zero,
+                              ),
+                              child: const Text(
+                                'Login',
+                                style: TextStyle(
+                                    color: AppColors.darkRed,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: sw * 0.06),
+                child: Form(
+                  key: controller.signupFormKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10),
 
                 // ── Avatar + Header (centred) ──────────────────────────
                 Center(
@@ -635,13 +710,13 @@ class SignupScreen extends GetView<AuthController> {
                   onTap: () => controller.loginWithLinkedIn(),
                 ),
                 const SizedBox(height: 10),
-                _SocialButton(
-                  label: 'Continue with Facebook',
-                  icon: const _FacebookIcon(),
-                  onTap: () => controller.loginWithFacebook(),
-                ),
-
-                SizedBox(height: sh * 0.026),
+                // _SocialButton(
+                //   label: 'Continue with Facebook',
+                //   icon: const _FacebookIcon(),
+                //   onTap: () => controller.loginWithFacebook(),
+                // ),
+                //
+                // SizedBox(height: sh * 0.026),
 
                 // ── "or" divider ───────────────────────────────────────
                 const Row(
@@ -928,7 +1003,9 @@ class SignupScreen extends GetView<AuthController> {
             ),
           ),
         ),
-      ),
+      ),]
+    )
+    )
     );
   }
 

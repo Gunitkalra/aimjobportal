@@ -89,7 +89,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Obx(() => Scaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.appBg1,
-      drawer: controller.isLoggedIn.value
+      endDrawer: controller.isLoggedIn.value
           ? _SideDrawer(controller: controller)
           : null,
       body: SafeArea(
@@ -113,7 +113,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     if (controller.isLoggedIn.value) {
                       return GestureDetector(
                         onTap: () =>
-                            _scaffoldKey.currentState?.openDrawer(),
+                            _scaffoldKey.currentState?.openEndDrawer(),
                         child: Container(
                           width: 42,
                           height: 42,
@@ -210,6 +210,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         children: [
                           if (!_hasSearched) ...[
                             Center(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 10,
+                                      height: 10,
+                                      decoration: const BoxDecoration(
+                                        color: AppColors.darkRed,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Obx(() {
+                                      final stats = getstatscontroller.statsData.value;
+                                      final String totalJobsStr = stats?.totalJobsCount?.toString() ?? '14,000';
+                                      return Text(
+                                        'Over $totalJobsStr+ jobs added this week',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                      );
+                                    }),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Center(
                               child: RichText(
                                 text: const TextSpan(
                                   children: [
@@ -237,7 +274,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             const SizedBox(height: 6),
                             const Center(
                               child: Text(
-                                'Jobs From Multiple Company Career Pages-All In One Place',
+                               'Stop jumping between career pages. Discover top company jobs in one place instantly matched to your skills.',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 14,
@@ -293,31 +330,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     EdgeInsets.symmetric(vertical: 12),
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                TextField(
-                                  controller: _locationCtrl,
-                                  textInputAction: TextInputAction.search,
-                                  onSubmitted: (_) => _search(),
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      color: AppColors.textPrimary),
-                                  decoration: const InputDecoration(
-                                    hintText: 'Location',
-                                    hintStyle: TextStyle(
+                                if (_hasSearched) ...[
+                                  const SizedBox(height: 4),
+                                  TextField(
+                                    controller: _locationCtrl,
+                                    textInputAction: TextInputAction.search,
+                                    onSubmitted: (_) => _search(),
+                                    style: const TextStyle(
                                         fontSize: 14,
-                                        color: AppColors.textHint),
-                                    // prefixIcon: Icon(
-                                    //     Icons.location_on_outlined,
-                                    //     color: AppColors.darkRed,
-                                    //     size: 30),
-                                    prefixIconConstraints: BoxConstraints(
-                                        minWidth: 40, minHeight: 40),
-                                    border: InputBorder.none,
-                                    contentPadding:
-                                    EdgeInsets.symmetric(vertical: 10),
+                                        color: AppColors.textPrimary),
+                                    decoration: const InputDecoration(
+                                      hintText: 'Location',
+                                      hintStyle: TextStyle(
+                                          fontSize: 14,
+                                          color: AppColors.textHint),
+                                      // prefixIcon: Icon(
+                                      //     Icons.location_on_outlined,
+                                      //     color: AppColors.darkRed,
+                                      //     size: 30),
+                                      prefixIconConstraints: BoxConstraints(
+                                          minWidth: 40, minHeight: 40),
+                                      border: InputBorder.none,
+                                      contentPadding:
+                                      EdgeInsets.symmetric(vertical: 10),
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
+                                ],
+                                const SizedBox(height: 12),
                                 SizedBox(
                                   width: double.infinity,
                                   height: 48,
@@ -374,26 +413,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         final String totalJobs = stats?.totalJobsCount?.toString() ?? '0';
                         final String totalCompanies = stats?.totalTrackingCompaniesCount?.toString() ?? '0';
 
-                        return Center(
-                          child: Container(
-                            width: double.infinity,
-                            color: AppColors.appBg1,
-                            padding: EdgeInsets.symmetric(vertical: sh * 0.04),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                        return Container(
+                          width: double.infinity,
+                          margin: EdgeInsets.symmetric(horizontal: sw * 0.05, vertical: sh * 0.02),
+                          padding: EdgeInsets.symmetric(vertical: sh * 0.04),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 20,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Column(
                               children: [
-                                _StatItem(
-                                  // real data for companies
-                                  value: '$totalCompanies+',
-                                  label: 'Companies',
-                                  valueColor: AppColors.darkRed,
+                                Text(
+                                  '$totalJobs+',
+                                  style: const TextStyle(
+                                    fontSize: 42,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.darkRed,
+                                  ),
                                 ),
-                                SizedBox(width: sh * 0.07),
-                                _StatItem(
-                                  // real data for jobs
-                                  value: '$totalJobs+',
-                                  label: 'Jobs',
-                                  valueColor: AppColors.darkRed,
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Jobs',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                  ),
                                 ),
                               ],
                             ),

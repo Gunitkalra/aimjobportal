@@ -736,7 +736,7 @@ class CompleteProfileScreen extends GetView<CompleteProfileController> {
                                   const SizedBox(width: 10),
                                   const Expanded(
                                     child: Text(
-                                      'Our AI will analyze your CV to automatically create your complete professional profile',
+                                      "Let AI turn your resume into a complete professional profile in seconds",
                                       style: TextStyle(
                                         fontSize: 12.5,
                                         color: _kTextSecondary,
@@ -831,7 +831,7 @@ class CompleteProfileScreen extends GetView<CompleteProfileController> {
                             SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'Your information is secure and will only be used to match you with relevant job opportunities.',
+                                'Your information is securely handled and used only to match you with relevant job opportunities.',
                                 style: TextStyle(
                                   fontSize: 11.5,
                                   color: _kTextSecondary,
