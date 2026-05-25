@@ -209,6 +209,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (!_hasSearched) ...[
+                            const SizedBox(height: 20),
                             Center(
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -236,8 +237,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         'Over $totalJobsStr+ jobs added this week',
                                         style: const TextStyle(
                                           fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.textPrimary,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.black,
                                         ),
                                       );
                                     }),
@@ -253,7 +254,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     TextSpan(
                                       text: 'Find Jobs Faster with ',
                                       style: TextStyle(
-                                        fontSize: 34,
+                                        fontSize: 30,
                                         fontWeight: FontWeight.w800,
                                         color: AppColors.black,
                                       ),
@@ -261,17 +262,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     TextSpan(
                                       text: 'AI',
                                       style: TextStyle(
-                                        fontSize: 34,
+                                        fontSize: 30,
                                         fontWeight: FontWeight.w800,
                                         color: AppColors.darkRed,
                                       ),
                                     ),
-
                                   ],
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 6),
+                            SizedBox(height: sh * 0.02),
                             const Center(
                               child: Text(
                                'Stop jumping between career pages. Discover top company jobs in one place instantly matched to your skills.',
@@ -282,7 +282,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: sh * 0.025),
+                            SizedBox(height: sh * 0.05),
                           ],
 
                           // ── Search card ────────────────────────────────
@@ -313,9 +313,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     hintStyle: TextStyle(
                                         fontSize: 14,
                                         color: AppColors.textHint),
-                                    // prefixIcon: Icon(Icons.search,
-                                    //     color: AppColors.darkRed,
-                                    //     size: 30),
+                                    prefixIcon: Icon(Icons.search,
+                                        color: AppColors.textHint,
+                                        size: 30),
                                     prefixIconConstraints: BoxConstraints(
                                         minWidth: 40, minHeight: 40),
                                     enabledBorder: UnderlineInputBorder(
@@ -344,10 +344,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       hintStyle: TextStyle(
                                           fontSize: 14,
                                           color: AppColors.textHint),
-                                      // prefixIcon: Icon(
-                                      //     Icons.location_on_outlined,
-                                      //     color: AppColors.darkRed,
-                                      //     size: 30),
+                                      prefixIcon: Icon(
+                                          Icons.location_on_outlined,
+                                          color: AppColors.textHint,
+                                          size: 30),
                                       prefixIconConstraints: BoxConstraints(
                                           minWidth: 40, minHeight: 40),
                                       border: InputBorder.none,

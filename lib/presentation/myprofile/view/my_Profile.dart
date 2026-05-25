@@ -93,7 +93,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         _mobileCtrl.text = data.personalInfo?.mobileNumber ?? '';
         _genderCtrl.text = data.personalInfo?.gender ?? '';
         _dobCtrl.text = data.personalInfo?.dateOfBirth != null 
-            ? DateFormat('yyyy-MM-dd').format(data.personalInfo!.dateOfBirth!) 
+            ? DateFormat('d MMM yyyy').format(data.personalInfo!.dateOfBirth!) 
             : 'Not specified';
         _emailCtrl.text = data.email ?? '';
         
@@ -113,12 +113,14 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         _languagesCtrl.text = data.skillsLanguages?.languages.join(', ') ?? 'Not specified';
         
         _workEntries = data.workExperience.map((w) {
-            final start = w.startDate != null ? DateFormat('MMM yyyy').format(w.startDate!) : "";
-            final end = w.endDate != null ? DateFormat('MMM yyyy').format(w.endDate!) : "Present";
+            final start = w.startDate != null ? DateFormat('d MMM yyyy').format(w.startDate!) : "";
+            final end = w.endDate != null ? DateFormat('d MMM yyyy').format(w.endDate!) : "";
             return WorkExpEntry(
               company: w.company ?? '',
               position: w.position ?? '',
-              duration: "$start – $end",
+              startDate: start,
+              endDate: end,
+              isCurrentJob: w.isCurrentJob ?? (w.endDate == null),
               description: w.description ?? '',
             );
         }).toList();
@@ -231,7 +233,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         padding: EdgeInsets.symmetric(horizontal: sw * 0.04, vertical: 16),
         child: Column(
           children: [
-            _AvatarHeader(),
+            _AvatarHeader(name: _nameCtrl.text),
             const SizedBox(height: 16),
 
             // Personal Information
@@ -250,6 +252,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 
                 if (rawDate.isNotEmpty && rawDate != 'Not specified') {
                   dateParsing = DateTime.tryParse(rawDate);
+                  if (dateParsing == null) {
+                      try {
+                        dateParsing = DateFormat('d MMM yyyy').parseLoose(rawDate);
+                      } catch (_) {}
+                  }
                   // Fallback for DD-MM-YYYY or DD/MM/YYYY
                   if (dateParsing == null) {
                       String safeStr = rawDate.replaceAll('/', '-');
@@ -273,17 +280,17 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               },
               viewChild: _InfoGrid(rows: [
                 _InfoRow('Full Name',      _nameCtrl.text),
-                _InfoRow('Mobile Number',  _mobileCtrl.text),
+                _InfoRow('Mobile Number',  _mobileCtrl.text, isLink: true),
                 _InfoRow('Gender',         _genderCtrl.text),
                 _InfoRow('Date of Birth',  _dobCtrl.text),
                 _InfoRow('Email Address',  _emailCtrl.text, isVerified: true),
               ]),
               editChild: _EditGrid(fields: [
-                _EditField('Full Name',      _nameCtrl),
-                _EditField('Mobile Number',  _mobileCtrl, inputType: TextInputType.phone),
-                _EditField('Gender',         _genderCtrl),
-                _EditField('Date of Birth',  _dobCtrl),
-                _EditField('Email Address',  _emailCtrl, inputType: TextInputType.emailAddress, enabled: false),
+                _EditField('Full Name *',      _nameCtrl, helpText: 'Letters and spaces only, 2-100 characters'),
+                _EditField('Mobile Number *',  _mobileCtrl, inputType: TextInputType.phone, helpText: '10-digit number starting with 6, 7, 8, or 9'),
+                _EditField('Gender',         _genderCtrl, isDropdown: true, dropdownItems: ['Male', 'Female', 'Other']),
+                _EditField('Date of Birth',  _dobCtrl, isDateField: true, helpText: 'You must be 18-70 years old'),
+                // _EditField('Email Address',  _emailCtrl, inputType: TextInputType.emailAddress, enabled: false),
               ]),
             ),
             const SizedBox(height: 12),
@@ -330,26 +337,27 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 _saveEdit((v) => _editJob = v);
               },
               viewChild: _InfoGrid(rows: [
-                _InfoRow('Designation',        _designationCtrl.text),
+                _InfoRow('Current Designation', _designationCtrl.text),
                 _InfoRow('Current CTC',        _ctcCtrl.text),
                 _InfoRow('Total Experience',   _expCtrl.text),
-                _InfoRow('Current Location',   _locationCtrl.text),
                 _InfoRow('Notice Period',      _noticePeriodCtrl.text),
-                _InfoRow('Preferred Locations',_prefredlocationCtrl.text),
+                _InfoRow('Current Location',   _locationCtrl.text),
+                _InfoRow('Preferred Locations',_prefredlocationCtrl.text, isMuted: _prefredlocationCtrl.text == 'Not specified'),
                 _InfoRow('Industry',           _industryCtrl.text),
                 _InfoRow('Department',         _departmentCtrl.text),
                 _InfoRow('Job Type',           _jobTypeCtrl.text),
               ]),
               editChild: _EditGrid(fields: [
-                _EditField('Designation',      _designationCtrl),
-                _EditField('Current CTC',      _ctcCtrl),
-                _EditField('Total Experience', _expCtrl),
-                _EditField('Current Location', _locationCtrl),
-                _EditField('Notice Period',    _noticePeriodCtrl),
-                _EditField('Preferred Locations', _prefredlocationCtrl),
-                _EditField('Industry',         _industryCtrl),
-                _EditField('Department',       _departmentCtrl),
-                _EditField('Job Type',         _jobTypeCtrl),
+                _EditField('Current Designation (Job Title)', _designationCtrl, helpText: '2-100 characters'),
+                _EditField('Current CTC (in Lakhs)',      _ctcCtrl, helpText: '0-999.99 lakhs', hintText: 'e.g., 15.5'),
+                _EditField('Total Experience (in Years)', _expCtrl, helpText: '0-50 years'),
+                _EditField('Notice Period (in Days)',    _noticePeriodCtrl, helpText: '0-365 days', hintText: 'e.g., 30'),
+                _EditField('Current Location', _locationCtrl, helpText: '2-100 characters'),
+                _EditField('Preferred Locations', _prefredlocationCtrl, helpText: 'Max 4 locations, 2-50 characters each', hintText: 'Type and press Enter', suffixIcon: Padding(padding: const EdgeInsets.all(8), child: CircleAvatar(radius: 12, backgroundColor: AppColors.appBg7, child: const Icon(Icons.add, size: 16, color: AppColors.darkRed)))),
+                _EditField('Industry',         _industryCtrl, isDropdown: true, dropdownItems: ['Select Industry', 'Information Technology', 'Banking & Finance', 'Automotive', 'Manufacturing', 'Healthcare', 'Pharmaceuticals & Biotech', 'Retail & E-Commerce', 'Consulting', 'Telecommunications', 'Energy & Utilities', 'Education', 'Media & Entertainment', 'Government & Public Sector', 'Logistics & Supply Chain', 'Real Estate', 'Hospitality & Travel', 'Non-Profit', 'Legal', 'Agriculture', 'Other']),
+                _EditField('Department',       _departmentCtrl, isDropdown: true, dropdownItems: ['Select Department', 'Engineering', 'Software Development', 'Information Technology', 'Data and Analytics', 'DevOps and Infrastructure', 'Security', 'Research and Development', 'Quality Assurance', 'IT Support', 'Design', 'Creative and Art Services', 'User Experience', 'Project and Program Management', 'Product Management', 'Operations', 'Logistics']),
+                _EditField('Department',       _departmentCtrl, isDropdown: true, dropdownItems: ['Select Department', 'Engineering', 'Software Development', 'Information Technology', 'Data and Analytics', 'DevOps and Infrastructure', 'Security', 'Research and Development', 'Quality Assurance', 'IT Support', 'Design', 'Creative and Art Services', 'User Experience', 'Project and Program Management', 'Product Management', 'Operations', 'Logistics']),
+                _EditField('Job Type',         _jobTypeCtrl, isCheckboxes: true, checkboxItems: ['Permanent', 'Full-Time', 'Part-Time', 'Contractor', 'Freelance', 'Intern']),
               ]),
             ),
             const SizedBox(height: 12),
@@ -368,14 +376,26 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 );
                 _saveEdit((v) => _editSummary = v);
               },
-              viewChild: Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(_summaryCtrl.text,
-                    style: const TextStyle(fontSize: 13,
-                        color: AppColors.textSecondary, height: 1.6)),
+              viewChild: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    width: 120,
+                    child: Text('Professional Summary',
+                        style: TextStyle(fontSize: 13,
+                            color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(_summaryCtrl.text,
+                        style: const TextStyle(fontSize: 13,
+                            color: AppColors.textPrimary, height: 1.6, fontWeight: FontWeight.w600)),
+                  ),
+                ],
               ),
-              editChild: _buildTextField(_summaryCtrl,
-                  label: 'Professional Summary', maxLines: 6),
+              editChild: _EditGrid(fields: [
+                _EditField('Professional Summary', _summaryCtrl, helpText: '10-2000 characters', maxLines: 6),
+              ]),
             ),
             const SizedBox(height: 12),
 
@@ -399,38 +419,57 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 );
                 _saveEdit((v) => _editSkills = v);
               },
-              viewChild: Column(
+                viewChild: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Skills',
-                      style: TextStyle(fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary)),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8, runSpacing: 8,
-                    children: _skillsCtrl.text.split(',')
-                        .map((s) => _SkillChip(label: s.trim())).toList(),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(
+                        width: 120,
+                        child: Text('Skills',
+                            style: TextStyle(fontSize: 13,
+                                color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Wrap(
+                          spacing: 8, runSpacing: 8,
+                          children: _skillsCtrl.text.split(',')
+                              .map((s) => s.trim())
+                              .where((s) => s.isNotEmpty)
+                              .map((s) => _SkillChip(label: s))
+                              .toList(),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 14),
-                  const Text('Languages',
-                      style: TextStyle(fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary)),
-                  const SizedBox(height: 4),
-                  Text(_languagesCtrl.text,
-                      style: const TextStyle(
-                          fontSize: 13, color: AppColors.textSecondary)),
-                ],
-              ),
-              editChild: Column(
-                children: [
-                  _buildTextField(_skillsCtrl,
-                      label: 'Skills (comma separated)', maxLines: 3),
                   const SizedBox(height: 12),
-                  _buildTextField(_languagesCtrl, label: 'Languages'),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(
+                        width: 120,
+                        child: Text('Known Languages',
+                            style: TextStyle(fontSize: 13,
+                                color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(_languagesCtrl.text.isEmpty ? 'Not specified' : _languagesCtrl.text,
+                            style: TextStyle(fontSize: 13,
+                                color: (_languagesCtrl.text.isEmpty || _languagesCtrl.text == 'Not specified') ? AppColors.textMuted : AppColors.textPrimary,
+                                fontStyle: (_languagesCtrl.text.isEmpty || _languagesCtrl.text == 'Not specified') ? FontStyle.italic : FontStyle.normal,
+                                fontWeight: (_languagesCtrl.text.isEmpty || _languagesCtrl.text == 'Not specified') ? FontWeight.w500 : FontWeight.w600)),
+                      ),
+                    ],
+                  ),
                 ],
               ),
+              editChild: _EditGrid(fields: [
+                _EditField('Skills', _skillsCtrl, hintText: 'e.g. Flutter, Dart, Firebase', helpText: 'Max 10 skills, separate with commas (each 2-50 characters)'),
+                _EditField('Known Languages', _languagesCtrl, hintText: 'e.g., English, Hindi, Tamil', helpText: 'Max 10 languages, separate with commas (each 2-30 characters)'),
+              ]),
             ),
             const SizedBox(height: 12),
 
@@ -445,43 +484,30 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               onSave: () async {
                  final List<Map<String,dynamic>> experiences = [];
                  for(final e in _workEntries) {
-                    final durationStr = e.durationCtrl.text;
                     DateTime? startDate;
                     DateTime? endDate;
-                    bool isCurrentJob = false;
                     
-                    String safeDur = durationStr.replaceAll('–', '-');
-                    if (safeDur.contains('-')) {
-                        final parts = safeDur.split('-').map((p)=>p.trim()).toList();
-                        if (parts.length == 2) {
-                            print("Parsing Start Date string: '${parts[0]}'");
-                            try {
-                                startDate = DateTime.tryParse(parts[0]) ?? DateFormat('MMM yyyy').parseLoose(parts[0]);
-                            } catch (_) {
-                                try { startDate = DateFormat('MMMM yyyy').parseLoose(parts[0]); } catch (_) {}
-                            }
-                            
-                            print("Parsing End Date string: '${parts[1]}'");
-                            if (parts[1].toLowerCase() == 'present') {
-                                isCurrentJob = true;
-                            } else {
-                                try {
-                                    endDate = DateTime.tryParse(parts[1]) ?? DateFormat('MMM yyyy').parseLoose(parts[1]);
-                                } catch (_) {
-                                    try { endDate = DateFormat('MMMM yyyy').parseLoose(parts[1]); } catch (_) {}
-                                }
-                            }
-                            print("Parsed Start: $startDate, Parsed End: $endDate");
+                    try {
+                        startDate = DateFormat('d MMM yyyy').parseLoose(e.startDateCtrl.text);
+                    } catch (_) {
+                        try { startDate = DateFormat('MMM yyyy').parseLoose(e.startDateCtrl.text); } catch (_) {}
+                    }
+                    
+                    if (!e.isCurrentJob.value && e.endDateCtrl.text.isNotEmpty) {
+                        try {
+                            endDate = DateFormat('d MMM yyyy').parseLoose(e.endDateCtrl.text);
+                        } catch (_) {
+                            try { endDate = DateFormat('MMM yyyy').parseLoose(e.endDateCtrl.text); } catch (_) {}
                         }
                     }
 
                     experiences.add({
                         "company": e.companyCtrl.text,
                         "position": e.positionCtrl.text,
-                        "startDate": startDate != null ? "${DateFormat('yyyy-MM').format(startDate)}-01T00:00:00Z" : null,
-                        "endDate": endDate != null ? "${DateFormat('yyyy-MM').format(endDate)}-01T00:00:00Z" : null,
+                        "startDate": startDate != null ? "${DateFormat('yyyy-MM-dd').format(startDate)}T00:00:00Z" : null,
+                        "endDate": endDate != null ? "${DateFormat('yyyy-MM-dd').format(endDate)}T00:00:00Z" : null,
                         "description": e.descCtrl.text,
-                        "isCurrentJob": isCurrentJob,
+                        "isCurrentJob": e.isCurrentJob.value,
                     });
                  }
                  
@@ -500,23 +526,59 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     child: _WorkExpViewCard(
                       company:     entry.companyCtrl.text,
                       position:    entry.positionCtrl.text,
-                      duration:    entry.durationCtrl.text,
+                      duration:    entry.isCurrentJob.value 
+                          ? "${entry.startDateCtrl.text} - Present" 
+                          : "${entry.startDateCtrl.text} - ${entry.endDateCtrl.text}",
                       description: entry.descCtrl.text,
                     ),
                   );
                 }).toList(),
               ),
               editChild: Column(
-                children: _workEntries.asMap().entries.map((e) {
-                  final i     = e.key;
-                  final entry = e.value;
-                  return _WorkExpEditCard(
-                    entry: entry,
-                    index: i,
-                    total: _workEntries.length,
-                    onRemove: () => _removeWorkEntry(i),
-                  );
-                }).toList(),
+                children: [
+                  ..._workEntries.asMap().entries.map((e) {
+                    final i     = e.key;
+                    final entry = e.value;
+                    return _WorkExpEditCard(
+                      entry: entry,
+                      index: i,
+                      total: _workEntries.length,
+                      onRemove: () => _removeWorkEntry(i),
+                    );
+                  }).toList(),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: InkWell(
+                      onTap: _addWorkEntry,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppColors.darkRed,
+                            width: 1.0,
+                            style: BorderStyle.solid,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.add_circle_outline_rounded,
+                                size: 18, color: AppColors.darkRed),
+                            const SizedBox(width: 8),
+                            const Text('Add Work Experience',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.darkRed)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 12),
@@ -621,28 +683,37 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 class WorkExpEntry {
   final TextEditingController companyCtrl;
   final TextEditingController positionCtrl;
-  final TextEditingController durationCtrl;
+  final TextEditingController startDateCtrl;
+  final TextEditingController endDateCtrl;
+  final RxBool isCurrentJob;
   final TextEditingController descCtrl;
 
   WorkExpEntry({
     String company = '', String position = '',
-    String duration = '', String description = '',
+    String startDate = '', String endDate = '',
+    bool isCurrentJob = false,
+    String description = '',
   })  : companyCtrl  = TextEditingController(text: company),
         positionCtrl = TextEditingController(text: position),
-        durationCtrl = TextEditingController(text: duration),
+        startDateCtrl = TextEditingController(text: startDate),
+        endDateCtrl  = TextEditingController(text: endDate),
+        isCurrentJob = RxBool(isCurrentJob),
         descCtrl     = TextEditingController(text: description);
 
   WorkExpEntry clone() => WorkExpEntry(
     company:     companyCtrl.text,
     position:    positionCtrl.text,
-    duration:    durationCtrl.text,
+    startDate:   startDateCtrl.text,
+    endDate:     endDateCtrl.text,
+    isCurrentJob: isCurrentJob.value,
     description: descCtrl.text,
   );
 
   void dispose() {
     companyCtrl.dispose();
     positionCtrl.dispose();
-    durationCtrl.dispose();
+    startDateCtrl.dispose();
+    endDateCtrl.dispose();
     descCtrl.dispose();
   }
 }
@@ -715,74 +786,60 @@ class _MultiEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+    return Container(
+      clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: isEditing
-            ? Border.all(color: AppColors.darkRed.withOpacity(0.3), width: 1.5)
-            : Border.all(color: Colors.transparent),
-        boxShadow: [
-          BoxShadow(
-            color: isEditing
-                ? AppColors.darkRed.withOpacity(0.08)
-                : Colors.black.withOpacity(0.04),
-            blurRadius: isEditing ? 16 : 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Container(
-                  width: 34, height: 34,
-                  decoration: BoxDecoration(
-                    color: AppColors.darkRed.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(9),
-                  ),
-                  child: Icon(icon, color: AppColors.darkRed, size: 18),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(title,
-                      style: const TextStyle(fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary)),
-                ),
-                if (!isEditing)
-                  GestureDetector(
-                    onTap: onEdit,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: AppColors.darkRed.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit_outlined,
-                              size: 13, color: AppColors.darkRed),
-                          const SizedBox(width: 4),
-                          Text('Edit',
-                              style: TextStyle(fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.darkRed)),
-                        ],
-                      ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(width: 4, color: AppColors.darkRed),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 34, height: 34,
+                          decoration: BoxDecoration(
+                            color: AppColors.darkRed.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                          child: Icon(icon, color: AppColors.darkRed, size: 18),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(title,
+                              style: const TextStyle(fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary)),
+                        ),
+                        if (!isEditing)
+                          GestureDetector(
+                            onTap: onEdit,
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit,
+                                    size: 14, color: AppColors.darkRed),
+                                const SizedBox(width: 4),
+                                Text('Edit',
+                                    style: TextStyle(fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.darkRed)),
+                              ],
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-              ],
-            ),
-          ),
 
           const Divider(height: 1, color: Color(0xFFEEEEEE)),
 
@@ -809,23 +866,23 @@ class _MultiEntryCard extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppColors.darkRed.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: AppColors.darkRed.withOpacity(0.25),
-                          width: 1.5,
+                          color: AppColors.darkRed,
+                          width: 1.0,
                           style: BorderStyle.solid,
                         ),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.add_circle_outline_rounded,
+                          const Icon(Icons.add_circle_outline_rounded,
                               size: 18, color: AppColors.darkRed),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 8),
                           Text(addLabel,
-                              style: TextStyle(
-                                  fontSize: 13,
+                              style: const TextStyle(
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.darkRed)),
                         ],
@@ -836,56 +893,51 @@ class _MultiEntryCard extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // ── Cancel / Save ────────────────────────────────
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: onCancel,
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(
-                                color: AppColors.darkRed, width: 1.5),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                          child: Text('Cancel',
-                              style: TextStyle(fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.darkRed)),
-                        ),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.darkRed,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: onSave,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 50),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 2,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: AppColors.blueGradient,
-                            borderRadius: BorderRadius.circular(10),
+                      child: isLoading != null 
+                        ? Obx(() => isLoading!.value 
+                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+                                SizedBox(width: 8),
+                                Text('Save', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white)),
+                              ],
+                            ))
+                        : const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+                              SizedBox(width: 8),
+                              Text('Save', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white)),
+                            ],
                           ),
-                          child: ElevatedButton(
-                            onPressed: onSave,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                            ),
-                            child: isLoading != null 
-                              ? Obx(() => isLoading!.value 
-                                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                : const Text('Save Changes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)))
-                              : const Text('Save Changes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-        ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -902,67 +954,14 @@ class _WorkExpViewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final initial = company.isNotEmpty ? company[0].toUpperCase() : 'C';
     return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7F8FA),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFEEEEEE)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 38, height: 38,
-                decoration: BoxDecoration(
-                    color: AppColors.darkRed,
-                    borderRadius: BorderRadius.circular(8)),
-                child: Center(
-                    child: Text(initial,
-                        style: const TextStyle(color: Colors.white,
-                            fontWeight: FontWeight.w800, fontSize: 16))),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(company.isEmpty ? 'Company' : company,
-                        style: const TextStyle(fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary)),
-                    Text(position.isEmpty ? 'Position' : position,
-                        style: const TextStyle(
-                            fontSize: 12, color: AppColors.textSecondary)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (duration.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(Icons.calendar_today_outlined,
-                    size: 13, color: AppColors.textMuted),
-                const SizedBox(width: 4),
-                Text(duration,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.textMuted)),
-              ],
-            ),
-          ],
-          if (description.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(description,
-                style: const TextStyle(fontSize: 12,
-                    color: AppColors.textSecondary, height: 1.5)),
-          ],
-        ],
-      ),
+      margin: const EdgeInsets.only(bottom: 8),
+      child: _InfoGrid(rows: [
+        _InfoRow('Company', company.isEmpty ? 'Not specified' : company, isMuted: company.isEmpty),
+        _InfoRow('Position', position.isEmpty ? 'Not specified' : position, isMuted: position.isEmpty),
+        _InfoRow('Duration', duration.trim() == '-' ? 'Not specified' : duration, isMuted: duration.trim() == '-'),
+        _InfoRow('Description', description.isEmpty ? 'Not specified' : description, isMuted: description.isEmpty),
+      ]),
     );
   }
 }
@@ -984,9 +983,8 @@ class _WorkExpEditCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F8FA),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFE0E0E0)),
       ),
@@ -994,75 +992,132 @@ class _WorkExpEditCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Entry header
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  gradient: AppColors.blueGradient,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text('Experience ${index + 1}',
-                    style: const TextStyle(fontSize: 12,
-                        fontWeight: FontWeight.w700, color: Colors.white)),
-              ),
-              const Spacer(),
-              if (total > 1)
-                GestureDetector(
-                  onTap: onRemove,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                          color: Colors.red.shade200, width: 1),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.delete_outline_rounded,
-                            size: 13, color: Colors.red.shade600),
-                        const SizedBox(width: 4),
-                        Text('Remove',
-                            style: TextStyle(fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.red.shade600)),
-                      ],
-                    ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Text('Experience ${index + 1}',
+                    style: const TextStyle(fontSize: 14,
+                        fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                const Spacer(),
+                if (total > 1)
+                  GestureDetector(
+                    onTap: onRemove,
+                    child: const Icon(Icons.delete_outline_rounded,
+                          size: 20, color: Colors.red),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
-          _labeledField('Company',     entry.companyCtrl,  hint: 'e.g. Tata Consultancy'),
-          const SizedBox(height: 10),
-          _labeledField('Position',    entry.positionCtrl, hint: 'e.g. Software Engineer'),
-          const SizedBox(height: 10),
-          _labeledField('Duration',    entry.durationCtrl, hint: 'e.g. Jan 2020 – Mar 2022'),
-          const SizedBox(height: 10),
-          _labeledField('Description', entry.descCtrl,     hint: 'Describe your role...', maxLines: 3),
+          const Divider(height: 1, color: Color(0xFFE0E0E0)),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _labeledField(context, 'Company Name *', entry.companyCtrl,  hint: 'e.g. Assa Technology'),
+                const SizedBox(height: 12),
+                _labeledField(context, 'Position *',    entry.positionCtrl, hint: 'e.g. Junior Flutter Developer'),
+                const SizedBox(height: 12),
+                _labeledField(context, 'Start Date *',  entry.startDateCtrl, hint: 'e.g. 1 Jan 2024', isDate: true),
+                const SizedBox(height: 12),
+                Obx(() => _labeledField(context, 'End Date',      entry.endDateCtrl, hint: 'e.g. 1 Mar 2024', isDate: true, enabled: !entry.isCurrentJob.value)),
+                const SizedBox(height: 12),
+                Obx(() => Row(
+                  children: [
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: Checkbox(
+                        value: entry.isCurrentJob.value,
+                        onChanged: (val) {
+                          entry.isCurrentJob.value = val ?? false;
+                          if (val == true) {
+                            entry.endDateCtrl.clear();
+                          }
+                        },
+                        activeColor: AppColors.darkRed,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                        side: const BorderSide(color: Color(0xFFBDBDBD)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text('Currently working here',
+                        style: TextStyle(fontSize: 13, color: AppColors.textPrimary)),
+                  ],
+                )),
+                const SizedBox(height: 12),
+                const Text('Description',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                const SizedBox(height: 5),
+                TextFormField(
+                  controller: entry.descCtrl,
+                  maxLines: 3,
+                  style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                  decoration: _inputDeco(hint: 'Describe your role...'),
+                ),
+                const SizedBox(height: 4),
+                const Text('Max 500 characters',
+                    style: TextStyle(fontSize: 11, color: AppColors.textHint)),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _labeledField(String label, TextEditingController ctrl,
-      {String? hint, int maxLines = 1}) {
+  Widget _labeledField(BuildContext context, String label, TextEditingController ctrl,
+      {String? hint, bool isDate = false, bool enabled = true}) {
+    final bool hasAsterisk = label.endsWith('*');
+    final String cleanLabel = hasAsterisk ? label.substring(0, label.length - 1).trim() : label;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary)),
-        const SizedBox(height: 5),
-        TextFormField(
-          controller: ctrl,
-          maxLines: maxLines,
-          style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
-          decoration: _inputDeco(hint: hint),
+        RichText(
+          text: TextSpan(
+            text: cleanLabel,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+            children: [
+              if (hasAsterisk)
+                const TextSpan(text: ' *', style: TextStyle(color: Colors.red)),
+            ],
+          ),
         ),
+        const SizedBox(height: 5),
+        if (isDate)
+          TextFormField(
+            controller: ctrl,
+            enabled: enabled,
+            readOnly: true,
+            onTap: enabled ? () async {
+              DateTime? initialDate;
+              try {
+                if (ctrl.text.isNotEmpty) {
+                  initialDate = DateFormat('d MMM yyyy').parseLoose(ctrl.text);
+                }
+              } catch (_) {}
+              
+              DateTime? picked = await showDatePicker(
+                context: context,
+                initialDate: initialDate ?? DateTime.now(),
+                firstDate: DateTime(1950),
+                lastDate: DateTime(2100),
+              );
+              if (picked != null) {
+                ctrl.text = DateFormat('d MMM yyyy').format(picked);
+              }
+            } : null,
+            style: TextStyle(fontSize: 13, color: enabled ? AppColors.textPrimary : AppColors.textMuted),
+            decoration: _inputDeco(hint: hint),
+          )
+        else
+          TextFormField(
+            controller: ctrl,
+            enabled: enabled,
+            style: TextStyle(fontSize: 13, color: enabled ? AppColors.textPrimary : AppColors.textMuted),
+            decoration: _inputDeco(hint: hint),
+          ),
       ],
     );
   }
@@ -1249,73 +1304,59 @@ class _ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+    return Container(
+      clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: isEditing
-            ? Border.all(color: AppColors.darkRed.withOpacity(0.3), width: 1.5)
-            : Border.all(color: Colors.transparent),
-        boxShadow: [
-          BoxShadow(
-            color: isEditing
-                ? AppColors.darkRed.withOpacity(0.08)
-                : Colors.black.withOpacity(0.04),
-            blurRadius: isEditing ? 16 : 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Container(
-                  width: 34, height: 34,
-                  decoration: BoxDecoration(
-                    color: AppColors.darkRed.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(9),
-                  ),
-                  child: Icon(icon, color: AppColors.darkRed, size: 18),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(title,
-                      style: const TextStyle(fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary)),
-                ),
-                if (!isEditing)
-                  GestureDetector(
-                    onTap: onEdit,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: AppColors.darkRed.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit_outlined,
-                              size: 13, color: AppColors.darkRed),
-                          const SizedBox(width: 4),
-                          Text('Edit',
-                              style: TextStyle(fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.darkRed)),
-                        ],
-                      ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(width: 4, color: AppColors.darkRed),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 34, height: 34,
+                          decoration: BoxDecoration(
+                            color: AppColors.darkRed.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                          child: Icon(icon, color: AppColors.darkRed, size: 18),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(title,
+                              style: const TextStyle(fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary)),
+                        ),
+                        if (!isEditing)
+                          GestureDetector(
+                            onTap: onEdit,
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit,
+                                    size: 14, color: AppColors.darkRed),
+                                const SizedBox(width: 4),
+                                Text('Edit',
+                                    style: TextStyle(fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.darkRed)),
+                              ],
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-              ],
-            ),
-          ),
           const Divider(height: 1, color: Color(0xFFEEEEEE)),
           AnimatedCrossFade(
             duration: const Duration(milliseconds: 280),
@@ -1330,56 +1371,78 @@ class _ProfileCard extends StatelessWidget {
                 children: [
                   editChild,
                   const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: onCancel,
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(
-                                color: AppColors.darkRed, width: 1.5),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                          child: Text('Cancel',
-                              style: TextStyle(fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.darkRed)),
-                        ),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.darkRed,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: onSave,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 50),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 2,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: AppColors.blueGradient,
-                            borderRadius: BorderRadius.circular(10),
+                      child: isLoading != null 
+                        ? Obx(() => isLoading!.value 
+                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+                                SizedBox(width: 8),
+                                Text('Save', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white)),
+                              ],
+                            ))
+                        : const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+                              SizedBox(width: 8),
+                              Text('Save', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white)),
+                            ],
                           ),
-                          child: ElevatedButton(
-                            onPressed: onSave,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                            ),
-                            child: isLoading != null 
-                              ? Obx(() => isLoading!.value 
-                                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                : const Text('Save Changes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)))
-                              : const Text('Save Changes', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white)),
-                          ),
-                        ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFE0E0E0)),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: onCancel,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 50),
                       ),
-                    ],
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.cancel_outlined, color: AppColors.textSecondary, size: 18),
+                          SizedBox(width: 8),
+                          Text('Cancel', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-        ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1390,7 +1453,9 @@ class _ProfileCard extends StatelessWidget {
 class _InfoRow {
   final String label, value;
   final bool isVerified;
-  _InfoRow(this.label, this.value, {this.isVerified = false});
+  final bool isLink;
+  final bool isMuted;
+  _InfoRow(this.label, this.value, {this.isVerified = false, this.isLink = false, this.isMuted = false});
 }
 
 class _InfoGrid extends StatelessWidget {
@@ -1406,31 +1471,35 @@ class _InfoGrid extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: 140,
+              width: 120,
               child: Text(r.label,
-                  style: const TextStyle(fontSize: 12,
-                      color: AppColors.textMuted, fontWeight: FontWeight.w500)),
+                  style: const TextStyle(fontSize: 13,
+                      color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
             ),
+            const Text(' :   ', style: TextStyle(fontSize: 13, color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
             Expanded(
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Flexible(child: Text(r.value,
-                      style: const TextStyle(fontSize: 13,
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w500))),
+                  Text(r.value,
+                      style: TextStyle(fontSize: 13,
+                          fontStyle: r.isMuted ? FontStyle.italic : FontStyle.normal,
+                          color: r.isMuted ? AppColors.textMuted : (r.isLink ? AppColors.darkRed : AppColors.textPrimary),
+                          decoration: r.isLink ? TextDecoration.underline : null,
+                          fontWeight: r.isMuted ? FontWeight.w500 : FontWeight.w600)),
                   if (r.isVerified) ...[
-                    const SizedBox(width: 6),
+                    const SizedBox(height: 4),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE8F5E9),
-                        borderRadius: BorderRadius.circular(4),
+                        color: AppColors.darkRed.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Text('Verified',
-                          style: TextStyle(fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF2E7D32))),
+                          style: TextStyle(fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.darkRed)),
                     ),
                   ],
                 ],
@@ -1448,7 +1517,16 @@ class _EditField {
   final TextEditingController ctrl;
   final TextInputType inputType;
   final bool enabled;
-  _EditField(this.label, this.ctrl, {this.inputType = TextInputType.text, this.enabled = true});
+  final bool isDateField;
+  final String? helpText;
+  final String? hintText;
+  final bool isDropdown;
+  final List<String>? dropdownItems;
+  final bool isCheckboxes;
+  final List<String>? checkboxItems;
+  final Widget? suffixIcon;
+  final int maxLines;
+  _EditField(this.label, this.ctrl, {this.inputType = TextInputType.text, this.enabled = true, this.isDateField = false, this.helpText, this.hintText, this.isDropdown = false, this.dropdownItems, this.isCheckboxes = false, this.checkboxItems, this.suffixIcon, this.maxLines = 1});
 }
 
 class _EditGrid extends StatelessWidget {
@@ -1458,27 +1536,102 @@ class _EditGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: fields.map((f) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(f.label,
-                style: const TextStyle(fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary)),
-            const SizedBox(height: 6),
-            TextFormField(
-              controller: f.ctrl,
-              keyboardType: f.inputType,
-              enabled: f.enabled,
-              style: TextStyle(
-                  fontSize: 13, color: f.enabled ? AppColors.textPrimary : AppColors.textMuted),
-              decoration: _inputDeco(),
-            ),
-          ],
-        ),
-      )).toList(),
+      children: fields.map((f) {
+        final bool hasAsterisk = f.label.endsWith('*');
+        final String cleanLabel = hasAsterisk ? f.label.substring(0, f.label.length - 1).trim() : f.label;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RichText(
+                text: TextSpan(
+                  text: cleanLabel,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                  children: [
+                    if (hasAsterisk)
+                      const TextSpan(text: ' *', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 6),
+              if (f.isDropdown)
+                DropdownButtonFormField<String>(
+                  value: f.dropdownItems?.contains(f.ctrl.text) == true ? f.ctrl.text : (f.dropdownItems?.isNotEmpty == true ? f.dropdownItems!.first : null),
+                  items: f.dropdownItems?.map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary)))).toList(),
+                  onChanged: f.enabled ? (val) {
+                    if (val != null) f.ctrl.text = val;
+                  } : null,
+                  decoration: _inputDeco(),
+                  icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textSecondary),
+                )
+              else if (f.isCheckboxes && f.checkboxItems != null)
+                Column(
+                  children: f.checkboxItems!.map((item) {
+                    return StatefulBuilder(builder: (context, setState) {
+                      final currentItems = f.ctrl.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+                      final isChecked = currentItems.contains(item);
+                      return Row(
+                        children: [
+                          Checkbox(
+                            value: isChecked,
+                            onChanged: (val) {
+                              if (val == true) {
+                                currentItems.add(item);
+                              } else {
+                                currentItems.remove(item);
+                              }
+                              f.ctrl.text = currentItems.join(', ');
+                              setState(() {});
+                            },
+                            activeColor: AppColors.darkRed,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                            side: const BorderSide(color: Color(0xFFBDBDBD)),
+                          ),
+                          Text(item, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary)),
+                        ],
+                      );
+                    });
+                  }).toList(),
+                )
+              else if (f.isDateField)
+                TextFormField(
+                  controller: f.ctrl,
+                  readOnly: true,
+                  onTap: () async {
+                    DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) {
+                      f.ctrl.text = DateFormat('d MMM yyyy').format(picked);
+                    }
+                  },
+                  style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                  decoration: _inputDeco(hint: 'Select Date'),
+                )
+              else
+                TextFormField(
+                  controller: f.ctrl,
+                  keyboardType: f.inputType,
+                  enabled: f.enabled,
+                  maxLines: f.maxLines,
+                  style: TextStyle(
+                      fontSize: 13, color: f.enabled ? AppColors.textPrimary : AppColors.textMuted),
+                  decoration: _inputDeco(hint: f.hintText).copyWith(
+                    suffixIcon: f.suffixIcon,
+                  ),
+                ),
+              if (f.helpText != null) ...[
+                const SizedBox(height: 4),
+                Text(f.helpText!, style: const TextStyle(fontSize: 11, color: AppColors.textHint)),
+              ],
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 }
@@ -1493,7 +1646,7 @@ class _SkillChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: AppColors.darkRed.withOpacity(0.07),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
             color: AppColors.darkRed.withOpacity(0.2), width: 1),
       ),
@@ -1507,40 +1660,55 @@ class _SkillChip extends StatelessWidget {
 // ── Avatar Header ─────────────────────────────────────────────────────────────
 
 class _AvatarHeader extends StatelessWidget {
+  final String name;
+  const _AvatarHeader({Key? key, required this.name}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+      clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
-        gradient: AppColors.blueGradient,
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
       ),
-      child: Column(
-        children: [
-          // Container(
-          //   width: 72, height: 72,
-          //   decoration: BoxDecoration(
-          //     shape: BoxShape.circle,
-          //     color: Colors.white.withOpacity(0.25),
-          //     border: Border.all(
-          //         color: Colors.white.withOpacity(0.5), width: 2.5),
-          //   ),
-          //   child: const Center(
-          //     child: Text('A',
-          //         style: TextStyle(color: Colors.white,
-          //             fontWeight: FontWeight.w800, fontSize: 30)),
-          //   ),
-          // ),
-          const SizedBox(height: 12),
-          const Text('My Profile',
-              style: TextStyle(color: Colors.white,
-                  fontWeight: FontWeight.w800, fontSize: 20)),
-          const SizedBox(height: 4),
-          const Text('View and manage your professional information',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4)),
-        ],
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(width: 4, color: AppColors.darkRed),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 55, height: 55,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.darkRed,
+                      ),
+                      child: Center(
+                        child: Text(name.isNotEmpty ? name[0].toUpperCase() : 'U',
+                            style: const TextStyle(color: Colors.white,
+                                fontWeight: FontWeight.w600, fontSize: 20)),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(name.toUpperCase(),
+                        style: const TextStyle(color: Colors.black,
+                            fontWeight: FontWeight.w800, fontSize: 16)),
+                    const SizedBox(height: 4),
+                    const Text('View and manage your professional information',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 12, )),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
