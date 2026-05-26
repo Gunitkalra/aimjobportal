@@ -1805,7 +1805,7 @@ class _Footer extends StatelessWidget {
               text: 'Privacy Policy',
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
-                  launchUrl(Uri.parse('https://aimjobtechno.in/Home/Privacy'));
+                  launchUrl(Uri.parse('https://www.aimjobs.ai/Home/Privacy'));
                 },
             ),
             const TextSpan(text: ' | '),
@@ -1813,7 +1813,7 @@ class _Footer extends StatelessWidget {
               text: 'Terms & Conditions',
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
-                  launchUrl(Uri.parse('https://aimjobtechno.in/Home/Terms'));
+                  launchUrl(Uri.parse('https://www.aimjobs.ai/Home/Terms'));
                 },
             ),
           ],

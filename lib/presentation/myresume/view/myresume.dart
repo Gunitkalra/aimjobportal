@@ -1,7 +1,7 @@
+import 'dart:ui' show PathMetric;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import '../../../Utils/colors.dart';
@@ -54,9 +54,9 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
   Future<void> _uploadAndParse() async {
     if (_selectedFileName == null || _selectedFilePath == null) return;
     setState(() => _isUploading = true);
-    
+
     await _uploadController.uploadResume(_selectedFilePath!);
-    
+
     if (mounted) {
       setState(() {
         _isUploading = false;
@@ -72,7 +72,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
     final sw = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F3F7),
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -90,7 +90,6 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
             color: AppColors.textPrimary,
           ),
         ),
-
       ),
       body: Obx(() {
         if (_resumeController.isLoading.value && _resumeController.resumeData.value == null) {
@@ -100,169 +99,73 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
         final resumeData = _resumeController.resumeData.value?.data;
         final bool hasResume = resumeData != null;
         final String resumeName = resumeData?.fileName ?? '';
-        final String uploadedOn = resumeData?.uploadedAt != null 
+        final String uploadedOn = resumeData?.uploadedAt != null
             ? DateFormat('MMM dd, yyyy \'at\' hh:mm a').format(resumeData!.uploadedAt!.toLocal())
             : '';
         final bool parsingComplete = resumeData?.parsedAt != null;
 
         return SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: sw * 0.04, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Hero banner ─────────────────────────────────────────
-            _HeroBanner(),
+          padding: EdgeInsets.symmetric(horizontal: sw * 0.04, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Hero banner ─────────────────────────────────────────
+              _HeroBanner(),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
-            // ── Current Resume ──────────────────────────────────────
-            if (hasResume) ...[
-              _SectionCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _SectionHeader(
-                      icon: Icons.description_outlined,
-                      iconColor: AppColors.textSecondary,
-                      label: 'Current Resume',
-                    ),
-                    const SizedBox(height: 14),
-
-                    // PDF file card
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF9F9F9),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFEEEEEE)),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(Icons.picture_as_pdf_rounded,
-                              color: AppColors.darkRed, size: 36),
-                          const SizedBox(height: 8),
-                          Text(
-                            resumeName,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Uploaded on $uploadedOn',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textMuted,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          // Download button
-                          Container(
-                            width: 100,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: const Color(0xFFDDDDDD), width: 1.5),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: IconButton(
-                              onPressed: () async {
-                                final urlString = resumeData?.downloadUrl;
-                                if (urlString != null && urlString.isNotEmpty) {
-                                  final uri = Uri.parse(urlString);
-                                  if (await canLaunchUrl(uri)) {
-                                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Could not launch download link'))
-                                    );
-                                  }
-                                }
-                              },
-                              icon: const Icon(Icons.download_rounded,
-                                  color: AppColors.textSecondary, size: 20),
-                            ),
-                          ),
-                        ],
+              // ── Current Resume ──────────────────────────────────────
+              if (hasResume) ...[
+                Row(
+                  children: const [
+                    Icon(Icons.description_outlined, color: AppColors.textSecondary, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'Current Resume',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
                       ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 12),
 
-                    const SizedBox(height: 14),
-
-                    // Parsing status
-                    if (parsingComplete)
+                // Resume file card
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFEEEEEE)),
+                  ),
+                  child: Column(
+                    children: [
+                      // Word doc icon representation
                       Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
+                        width: 32,
+                        height: 40,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF0FFF4),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                              color: const Color(0xFFB2DFDB), width: 1),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: const Color(0xFF1274b8), width: 2),
                         ),
-                        child: Column(
+                        child: Stack(
                           children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF2ECC71),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.check_rounded,
-                                  color: Colors.white, size: 24),
-                            ),
-                            const SizedBox(height: 10),
-                            const Text(
-                              'Parsing Complete',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            const Text(
-                              'Your profile has been updated with\ninformation extracted from your resume.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: AppColors.textSecondary,
-                                height: 1.4,
-                              ),
-                            ),
-                            const SizedBox(height: 14),
-                            SizedBox(
-                              height: 40,
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  gradient: AppColors.blueGradient,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: ElevatedButton.icon(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
-                                    shadowColor: Colors.transparent,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(10)),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20),
-                                  ),
-                                  icon: const Icon(Icons.person_outline_rounded,
-                                      color: Colors.white, size: 16),
-                                  label: const Text(
-                                    'View Profile',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
+                            Positioned(
+                              left: 4,
+                              top: 10,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                                color: const Color(0xFF1274b8),
+                                child: const Text(
+                                  'W',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ),
@@ -270,267 +173,366 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                           ],
                         ),
                       ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 16),
-            ],
-
-            // ── Upload New Resume ───────────────────────────────────
-            _SectionCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _SectionHeader(
-                    icon: Icons.upload_rounded,
-                    iconColor: AppColors.darkRed,
-                    label: 'Upload New Resume',
+                      const SizedBox(height: 12),
+                      Text(
+                        resumeName,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Uploaded on $uploadedOn',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Download button
+                      GestureDetector(
+                        onTap: () async {
+                          final urlString = resumeData.downloadUrl;
+                          if (urlString != null && urlString.isNotEmpty) {
+                            final uri = Uri.parse(urlString);
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(uri, mode: LaunchMode.externalApplication);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Could not launch download link'))
+                              );
+                            }
+                          }
+                        },
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppColors.lightRed, width: 0.5),
+                          ),
+                          child: const Icon(
+                            Icons.download_rounded,
+                            color:AppColors.lightRed,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
+                ),
 
-                  // Warning notice
+                const SizedBox(height: 16),
+
+                // Parsing status
+                if (parsingComplete) ...[
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFFBEB),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                          color: const Color(0xFFFFE082), width: 1),
+                      color: AppColors.appBg2.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFD1FAE5)),
                     ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Icon(Icons.info_outline_rounded,
-                            size: 16, color: Color(0xFFF59E0B)),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Uploading a new resume will replace your current one and trigger a new AI parsing.',
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF046307),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.check, color: Colors.white, size: 20),
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Parsing Complete',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Your profile has been updated with information\nextracted from your resume.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        ElevatedButton.icon(
+                          onPressed: () => Get.back(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:Color(0xFF046307),
+                            // backgroundColor:AppColors.textDarkGreen.withOpacity(0.9) ,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          ),
+                          icon: const Icon(Icons.person_outline_rounded, size: 16,color:Colors.white,),
+                          label: const Text(
+                            'View Profile',
                             style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF92400E),
-                              height: 1.4,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 20),
+                ],
+              ],
 
-                  const SizedBox(height: 16),
+              // ── Upload New Resume ───────────────────────────────────
+              Row(
+                children: const [
+                  Icon(Icons.cloud_upload_outlined, color: AppColors.textSecondary, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Upload New Resume',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
 
-                  // Drop zone
-                  GestureDetector(
-                    onTap: _pickFile,
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 28),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: _selectedFileName != null
-                              ? AppColors.darkRed
-                              : const Color(0xFFCCCCCC),
-                          width: 1.5,
-                          style: BorderStyle.solid,
+              // Warning notice
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFBEB),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFFFE082), width: 1),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFFF59E0B)),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Uploading a new resume will replace your current one and trigger a new AI parsing.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF92400E),
+                          height: 1.4,
                         ),
                       ),
-                      child: _selectedFileName != null
-                          ? _SelectedFilePreview(
-                        name: _selectedFileName!,
-                        size: _selectedFileSize ?? '',
-                        onRemove: () => setState(() {
-                          _selectedFileName = null;
-                          _selectedFileSize = null;
-                        }),
-                      )
-                          : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.cloud_upload_outlined,
-                              size: 44,
-                              color: AppColors.darkRed.withOpacity(0.7)),
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Drag & drop your resume here',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Drop zone
+              GestureDetector(
+                onTap: _pickFile,
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: _selectedFileName != null
+                        ? Border.all(color: AppColors.darkRed, width: 1.5)
+                        : null,
+                  ),
+                  child: _selectedFileName != null
+                      ? _SelectedFilePreview(
+                          name: _selectedFileName!,
+                          size: _selectedFileSize ?? '',
+                          onRemove: () => setState(() {
+                            _selectedFileName = null;
+                            _selectedFileSize = null;
+                            _selectedFilePath = null;
+                          }),
+                        )
+                      : CustomPaint(
+                          painter: _DashedRectPainter(
+                            color: const Color(0xFFCCCCCC),
+                            strokeWidth: 1.5,
+                            gap: 6.0,
+                            radius: 12.0,
                           ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'or',
-                            style: TextStyle(
-                                fontSize: 13,
-                                color: AppColors.textMuted),
-                          ),
-                          const SizedBox(height: 12),
-                          SizedBox(
-                            height: 40,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                color: AppColors.darkRed,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: ElevatedButton(
-                                onPressed: _pickFile,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                      BorderRadius.circular(10)),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 24),
-                                ),
-                                child: const Text(
-                                  'Browse Files',
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 28),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.cloud_upload_outlined,
+                                    size: 44,
+                                    color: AppColors.darkRed.withOpacity(0.7)),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  'Drag & drop your resume here',
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.white,
+                                    color: AppColors.textPrimary,
                                   ),
                                 ),
-                              ),
+                                const SizedBox(height: 4),
+                                const Text(
+                                  'or',
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textMuted),
+                                ),
+                                const SizedBox(height: 12),
+                                SizedBox(
+                                  height: 40,
+                                  child: ElevatedButton(
+                                    onPressed: _pickFile,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.darkRed,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10)),
+                                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                                    ),
+                                    child: const Text(
+                                      'Browse Files',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  'Supported formats: PDF, DOC, DOCX (Max 5MB)',
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.textMuted),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Supported formats: PDF, DOC, DOCX (Max 5MB)',
-                            style: TextStyle(
-                                fontSize: 11,
-                                color: AppColors.textMuted),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // Upload & Parse button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: _selectedFileName != null
-                            ? AppColors.blueGradient
-                            : const LinearGradient(
-                            colors: [Color(0xFFCCCCCC), Color(0xFFCCCCCC)]),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ElevatedButton.icon(
-                        onPressed:
-                        _selectedFileName != null ? _uploadAndParse : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          disabledBackgroundColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
                         ),
-                        icon: _isUploading
-                            ? const SizedBox(
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Upload & Parse button
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: _selectedFileName != null ? _uploadAndParse : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.darkRed,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: AppColors.darkRed.withOpacity(0.6),
+                    disabledForegroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  icon: _isUploading
+                      ? const SizedBox(
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
                               strokeWidth: 2,
                               color: Colors.white),
                         )
-                            : const Icon(Icons.upload_rounded,
-                            color: Colors.white, size: 18),
-                        label: Text(
-                          _isUploading ? 'Uploading...' : 'Upload & Parse Resume',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+                      : const Icon(Icons.upload_rounded, color: Colors.white, size: 18),
+                  label: Text(
+                    _isUploading ? 'Uploading...' : 'Upload & Parse Resume',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // ── AI-Powered Features ─────────────────────────────────
+              Row(
+                children: const [
+                  Icon(Icons.smart_toy_outlined, color: AppColors.darkRed, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'AI-Powered Features',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 12),
+              _AiFeatureTile(
+                icon: Icons.person_outline_rounded,
+                label: 'Auto-Fill Profile',
+                description: 'Automatically extract and fill your professional details',
+              ),
+              const SizedBox(height: 12),
+              _AiFeatureTile(
+                icon: Icons.work_outline_rounded,
+                label: 'Work Experience',
+                description: 'Parse your employment history and job titles',
+              ),
+              const SizedBox(height: 12),
+              _AiFeatureTile(
+                icon: Icons.school_outlined,
+                label: 'Education',
+                description: 'Extract your educational qualifications',
+              ),
+              const SizedBox(height: 12),
+              _AiFeatureTile(
+                icon: Icons.bolt_outlined,
+                label: 'Skills Detection',
+                description: 'Identify your technical and soft skills',
+              ),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 30),
 
-            // ── AI-Powered Features ─────────────────────────────────
-            _SectionCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              // ── Footer ──────────────────────────────────────────────
+              Column(
                 children: [
-                  _SectionHeader(
-                    icon: Icons.auto_awesome_rounded,
-                    iconColor: AppColors.darkRed,
-                    label: 'AI-Powered Features',
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _FooterLink('About Us'),
+                      const _FooterDivider(),
+                      _FooterLink('Privacy Policy'),
+                      const _FooterDivider(),
+                      _FooterLink('Terms & Conditions'),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  _AiFeatureTile(
-                    icon: Icons.person_search_rounded,
-                    label: 'Auto-Fill Profile',
-                    description:
-                    'Automatically extract and fill your professional details',
-                  ),
-                  const Divider(height: 24, color: Color(0xFFEEEEEE)),
-                  _AiFeatureTile(
-                    icon: Icons.work_outline_rounded,
-                    label: 'Work Experience',
-                    description:
-                    'Parse your employment history and job titles',
-                  ),
-                  const Divider(height: 24, color: Color(0xFFEEEEEE)),
-                  _AiFeatureTile(
-                    icon: Icons.school_outlined,
-                    label: 'Education',
-                    description:
-                    'Extract your educational qualifications',
-                  ),
-                  const Divider(height: 24, color: Color(0xFFEEEEEE)),
-                  _AiFeatureTile(
-                    icon: Icons.bolt_rounded,
-                    label: 'Skills Detection',
-                    description:
-                    'Identify your technical and soft skills',
+                  const SizedBox(height: 6),
+                  const Text(
+                    '© 2026 Aim Job Techno. All Rights Reserved.',
+                    style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                   ),
                 ],
               ),
-            ),
 
-            const SizedBox(height: 20),
-
-            // ── Footer ──────────────────────────────────────────────
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _FooterLink('About Us'),
-                    const _FooterDivider(),
-                    _FooterLink('Privacy Policy'),
-                    const _FooterDivider(),
-                    _FooterLink('Terms & Conditions'),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  '© 2026 Aim Job Techno. All Rights Reserved.',
-                  style: TextStyle(fontSize: 11, color: AppColors.textMuted),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-          ],
-        ),
-      );
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
       }),
     );
   }
@@ -591,61 +593,6 @@ class _HeroBanner extends StatelessWidget {
   }
 }
 
-// ── Section Card ──────────────────────────────────────────────────────────────
-
-class _SectionCard extends StatelessWidget {
-  final Widget child;
-  const _SectionCard({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: child,
-    );
-  }
-}
-
-// ── Section Header ────────────────────────────────────────────────────────────
-
-class _SectionHeader extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String label;
-  const _SectionHeader(
-      {required this.icon, required this.iconColor, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, color: iconColor, size: 20),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 // ── Selected File Preview ─────────────────────────────────────────────────────
 
 class _SelectedFilePreview extends StatelessWidget {
@@ -657,8 +604,13 @@ class _SelectedFilePreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
+      ),
       child: Row(
         children: [
           Container(
@@ -668,7 +620,7 @@ class _SelectedFilePreview extends StatelessWidget {
               color: AppColors.darkRed.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.picture_as_pdf_rounded,
+            child: const Icon(Icons.description_outlined,
                 color: AppColors.darkRed, size: 24),
           ),
           const SizedBox(width: 12),
@@ -686,6 +638,7 @@ class _SelectedFilePreview extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: 2),
                 Text(size,
                     style: const TextStyle(
                         fontSize: 12, color: AppColors.textMuted)),
@@ -717,53 +670,106 @@ class _AiFeatureTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final String description;
-  const _AiFeatureTile(
-      {required this.icon,
-        required this.label,
-        required this.description});
+  const _AiFeatureTile({
+    required this.icon,
+    required this.label,
+    required this.description,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: AppColors.darkRed.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(12),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFEEEEEE)),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: AppColors.darkRed, size: 28),
+          const SizedBox(height: 12),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+            textAlign: TextAlign.center,
           ),
-          child: Icon(icon, color: AppColors.darkRed, size: 24),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                description,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                  height: 1.4,
-                ),
-              ),
-            ],
+          const SizedBox(height: 6),
+          Text(
+            description,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.textSecondary,
+              height: 1.4,
+            ),
+            textAlign: TextAlign.center,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
+}
+
+// ── Dashed Rect Painter ───────────────────────────────────────────────────────
+
+class _DashedRectPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double gap;
+  final double radius;
+
+  _DashedRectPainter({
+    this.color = const Color(0xFFCCCCCC),
+    this.strokeWidth = 1.5,
+    this.gap = 6.0,
+    this.radius = 12.0,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final path = Path()
+      ..addRRect(RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        Radius.circular(radius),
+      ));
+
+    final dashPath = _buildDashPath(path, gap);
+    canvas.drawPath(dashPath, paint);
+  }
+
+  Path _buildDashPath(Path source, double gap) {
+    final Path dest = Path();
+    for (final PathMetric metric in source.computeMetrics()) {
+      double distance = 0.0;
+      bool draw = true;
+      while (distance < metric.length) {
+        final double len = gap;
+        if (draw) {
+          dest.addPath(
+            metric.extractPath(distance, distance + len),
+            Offset.zero,
+          );
+        }
+        distance += len;
+        draw = !draw;
+      }
+    }
+    return dest;
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 // ── Footer ────────────────────────────────────────────────────────────────────
@@ -777,9 +783,9 @@ class _FooterLink extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (text.contains('Privacy')) {
-          launchUrl(Uri.parse('https://aimjobtechno.in/Home/Privacy'));
+          launchUrl(Uri.parse('https://www.aimjobs.ai/Home/Privacy'));
         } else if (text.contains('Terms')) {
-          launchUrl(Uri.parse('https://aimjobtechno.in/Home/Terms'));
+          launchUrl(Uri.parse('https://www.aimjobs.ai/Home/Terms'));
         }
       },
       child: Text(

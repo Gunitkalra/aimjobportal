@@ -516,7 +516,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                  _saveWorkEdit();
               },
               onAdd: _addWorkEntry,
-              addLabel: '+ Add Work Experience',
+              addLabel: 'Add Work Experience',
               viewChild: Column(
                 children: _workEntries.asMap().entries.map((e) {
                   final entry = e.value;
@@ -546,38 +546,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       onRemove: () => _removeWorkEntry(i),
                     );
                   }).toList(),
-                  const SizedBox(height: 12),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: InkWell(
-                      onTap: _addWorkEntry,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: AppColors.darkRed,
-                            width: 1.0,
-                            style: BorderStyle.solid,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.add_circle_outline_rounded,
-                                size: 18, color: AppColors.darkRed),
-                            const SizedBox(width: 8),
-                            const Text('Add Work Experience',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.darkRed)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -604,18 +572,26 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                  _saveEduEdit();
               },
               onAdd: _addEduEntry,
-              addLabel: '+ Add Education',
+              addLabel: 'Add Education',
               viewChild: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: _eduEntries.asMap().entries.map((e) {
                   final entry = e.value;
-                  return Padding(
-                    padding: EdgeInsets.only(
-                        bottom: e.key < _eduEntries.length - 1 ? 10 : 0),
-                    child: _EduViewCard(
-                      degree:    entry.degreeCtrl.text,
-                      institute: entry.instCtrl.text,
-                      level:     entry.levelCtrl.text,
-                    ),
+                  final isLast = e.key == _eduEntries.length - 1;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _InfoGrid(rows: [
+                        _InfoRow('Education', entry.levelCtrl.text),
+                        _InfoRow('Degree', entry.degreeCtrl.text),
+                        _InfoRow('University/Board', entry.instCtrl.text),
+                      ]),
+                      if (!isLast) ...[
+                        const SizedBox(height: 12),
+                        const Divider(height: 1, color: Color(0xFFEEEEEE)),
+                        const SizedBox(height: 16),
+                      ],
+                    ],
                   );
                 }).toList(),
               ),
@@ -860,32 +836,34 @@ class _MultiEntryCard extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   // ── Add button ───────────────────────────────────
-                  GestureDetector(
-                    onTap: onAdd,
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: AppColors.darkRed,
-                          width: 1.0,
-                          style: BorderStyle.solid,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: onAdd,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppColors.darkRed,
+                            width: 1.0,
+                            style: BorderStyle.solid,
+                          ),
                         ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.add_circle_outline_rounded,
-                              size: 18, color: AppColors.darkRed),
-                          const SizedBox(width: 8),
-                          Text(addLabel,
-                              style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.darkRed)),
-                        ],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.add_circle_outline_rounded,
+                                size: 18, color: AppColors.darkRed),
+                            const SizedBox(width: 8),
+                            Text(addLabel,
+                                style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.darkRed)),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -927,6 +905,33 @@ class _MultiEntryCard extends StatelessWidget {
                               Text('Save', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white)),
                             ],
                           ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFE0E0E0)),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: onCancel,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 50),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.cancel_outlined, color: AppColors.textSecondary, size: 18),
+                          SizedBox(width: 8),
+                          Text('Cancel', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -1123,66 +1128,6 @@ class _WorkExpEditCard extends StatelessWidget {
   }
 }
 
-// ── Education – view card ─────────────────────────────────────────────────────
-
-class _EduViewCard extends StatelessWidget {
-  final String degree, institute, level;
-  const _EduViewCard(
-      {required this.degree, required this.institute, required this.level});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7F8FA),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFEEEEEE)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36, height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.darkRed.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(Icons.school_outlined,
-                color: AppColors.darkRed, size: 18),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(degree.isEmpty ? 'Degree' : degree,
-                    style: const TextStyle(fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary)),
-                const SizedBox(height: 2),
-                Text(institute.isEmpty ? 'Institution / Board' : institute,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.textSecondary)),
-              ],
-            ),
-          ),
-          if (level.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: AppColors.darkRed.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(level,
-                  style: TextStyle(fontSize: 11,
-                      fontWeight: FontWeight.w600, color: AppColors.darkRed)),
-            ),
-        ],
-      ),
-    );
-  }
-}
 
 // ── Education – edit card ─────────────────────────────────────────────────────
 
@@ -1193,12 +1138,27 @@ class _EduEditCard extends StatelessWidget {
   final VoidCallback onRemove;
 
   const _EduEditCard({
-    required this.entry, required this.index,
-    required this.total, required this.onRemove,
+    required this.entry,
+    required this.index,
+    required this.total,
+    required this.onRemove,
   });
 
   @override
   Widget build(BuildContext context) {
+    final List<String> educationLevels = [
+      '10th',
+      '12th',
+      'Graduation',
+      'Post Graduation',
+      'Doctorate',
+      'Diploma',
+    ];
+
+    if (entry.levelCtrl.text.isEmpty) {
+      entry.levelCtrl.text = '10th';
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(14),
@@ -1212,73 +1172,119 @@ class _EduEditCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  gradient: AppColors.blueGradient,
-                  borderRadius: BorderRadius.circular(6),
+              Text(
+                'Education ${index + 1}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
                 ),
-                child: Text('Education ${index + 1}',
-                    style: const TextStyle(fontSize: 12,
-                        fontWeight: FontWeight.w700, color: Colors.white)),
               ),
               const Spacer(),
               if (total > 1)
                 GestureDetector(
                   onTap: onRemove,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                          color: Colors.red.shade200, width: 1),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.delete_outline_rounded,
-                            size: 13, color: Colors.red.shade600),
-                        const SizedBox(width: 4),
-                        Text('Remove',
-                            style: TextStyle(fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.red.shade600)),
-                      ],
-                    ),
+                  child: const Icon(
+                    Icons.delete_outline_rounded,
+                    size: 20,
+                    color: Colors.red,
                   ),
                 ),
             ],
           ),
           const SizedBox(height: 12),
-          _labeledField('Degree / Level', entry.degreeCtrl,
-              hint: 'e.g. B.Tech, 10th, MBA'),
-          const SizedBox(height: 10),
-          _labeledField('Institution / Board', entry.instCtrl,
-              hint: 'e.g. State Board, IIT Delhi'),
-          const SizedBox(height: 10),
-          _labeledField('Label (shown as badge)', entry.levelCtrl,
-              hint: 'e.g. Graduation, 12th'),
+          const Divider(height: 1, color: Color(0xFFE0E0E0)),
+          const SizedBox(height: 12),
+          _labeledField(
+            context,
+            'Education Level *',
+            entry.levelCtrl,
+            isDropdown: true,
+            dropdownItems: educationLevels,
+          ),
+          const SizedBox(height: 12),
+          _labeledField(
+            context,
+            'University/College *',
+            entry.instCtrl,
+            hint: 'e.g. State Board, IIT Delhi',
+          ),
+          const SizedBox(height: 12),
+          _labeledField(
+            context,
+            'Degree *',
+            entry.degreeCtrl,
+            hint: 'e.g. B.Tech, MBA',
+          ),
         ],
       ),
     );
   }
 
-  Widget _labeledField(String label, TextEditingController ctrl,
-      {String? hint}) {
+  Widget _labeledField(
+    BuildContext context,
+    String label,
+    TextEditingController ctrl, {
+    String? hint,
+    bool isDropdown = false,
+    List<String>? dropdownItems,
+  }) {
+    final bool hasAsterisk = label.endsWith('*');
+    final String cleanLabel = hasAsterisk ? label.substring(0, label.length - 1).trim() : label;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary)),
-        const SizedBox(height: 5),
-        TextFormField(
-          controller: ctrl,
-          style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
-          decoration: _inputDeco(hint: hint),
+        RichText(
+          text: TextSpan(
+            text: cleanLabel,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
+            ),
+            children: [
+              if (hasAsterisk)
+                const TextSpan(
+                  text: ' *',
+                  style: TextStyle(color: Colors.red),
+                ),
+            ],
+          ),
         ),
+        const SizedBox(height: 5),
+        if (isDropdown && dropdownItems != null)
+          DropdownButtonFormField<String>(
+            value: dropdownItems.contains(ctrl.text) ? ctrl.text : (dropdownItems.isNotEmpty ? dropdownItems.first : null),
+            items: dropdownItems
+                .map((e) => DropdownMenuItem(
+                      value: e,
+                      child: Text(
+                        e,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ))
+                .toList(),
+            onChanged: (val) {
+              if (val != null) ctrl.text = val;
+            },
+            decoration: _inputDeco(),
+            icon: const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: AppColors.textSecondary,
+            ),
+          )
+        else
+          TextFormField(
+            controller: ctrl,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textPrimary,
+            ),
+            decoration: _inputDeco(hint: hint),
+          ),
       ],
     );
   }
@@ -1723,9 +1729,9 @@ class _FooterLink extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
     onTap: () {
       if (text.contains('Privacy')) {
-        launchUrl(Uri.parse('https://aimjobtechno.in/Home/Privacy'));
+        launchUrl(Uri.parse('https://www.aimjobs.ai/Home/Privacy'));
       } else if (text.contains('Terms')) {
-        launchUrl(Uri.parse('https://aimjobtechno.in/Home/Terms'));
+        launchUrl(Uri.parse('https://www.aimjobs.ai/Home/Terms'));
       }
     },
     child: Text(text,

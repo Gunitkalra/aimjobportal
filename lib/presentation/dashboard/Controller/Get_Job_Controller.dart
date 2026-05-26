@@ -181,6 +181,21 @@ class GetAllJobsController extends GetxController {
         if (period != null) params['discovery_period'] = period;
       }
 
+      // Education
+      if (filter.education.isNotEmpty) {
+        params['education'] = filter.education.join(',');
+      }
+
+      // Industry
+      if (filter.industry.isNotEmpty) {
+        params['industry'] = filter.industry.join(',');
+      }
+
+      // Department
+      if (filter.department.isNotEmpty) {
+        params['department'] = filter.department.join(',');
+      }
+
       final url = Uri.parse(
         "${ApiList.baseUrl1}/jobs",
       ).replace(queryParameters: params);

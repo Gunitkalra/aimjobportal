@@ -17,8 +17,11 @@ import '../presentation/dashboard/view/Job_detail_screen.dart';
 import '../presentation/forgot_password/view/Forgot_Password.dart';
 import '../presentation/myprofile/view/my_Profile.dart';
 import '../presentation/myresume/view/myresume.dart';
+import '../presentation/splash/Splash_binding.dart';
+import '../presentation/splash/view/Splash_Screen.dart';
 
 class AppRoutes {
+  static const String splash          = '/splash';
   static const String onboarding      = '/onboarding';
   static const String login           = '/login';
   static const String signup          = '/signup';
@@ -32,6 +35,12 @@ class AppRoutes {
   static const myprofile = '/my-profile';
   static const verifyotp = '/verifyOTP';
   static List<GetPage> routes = [
+    GetPage(
+      name: splash,
+      page: () => const SplashScreen(),
+      binding: SplashBinding(),
+      transition: Transition.fade,
+    ),
     GetPage(
       name: dashboard,
       page: () => const DashboardScreen(),

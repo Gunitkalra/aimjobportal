@@ -885,7 +885,7 @@ class SignupScreen extends GetView<AuthController> {
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    launchUrl(Uri.parse('https://aimjobtechno.in/Home/Terms'));
+                                    launchUrl(Uri.parse('https://www.aimjobs.ai/Home/Terms'));
                                   },
                               ),
                               const TextSpan(text: ' and '),
@@ -897,7 +897,7 @@ class SignupScreen extends GetView<AuthController> {
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    launchUrl(Uri.parse('https://aimjobtechno.in/Home/Privacy'));
+                                    launchUrl(Uri.parse('https://www.aimjobs.ai/Home/Privacy'));
                                   },
                               ),
                             ],
