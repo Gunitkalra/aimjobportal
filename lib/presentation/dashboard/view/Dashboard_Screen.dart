@@ -8,6 +8,7 @@ import '../Controller/Get_Job_Controller.dart';
 import '../Controller/Get_stats_Controller.dart';
 import 'widget/filter_sheet.dart';
 import 'widget/job_card.dart';
+import 'package:http/http.dart' as http;
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -254,7 +255,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     TextSpan(
                                       text: 'Find Jobs Faster with ',
                                       style: TextStyle(
-                                        fontSize: 30,
+                                        fontSize: 26,
                                         fontWeight: FontWeight.w800,
                                         color: AppColors.black,
                                       ),
@@ -802,6 +803,19 @@ class _SideDrawer extends StatelessWidget {
 
             const Divider(height: 1, color: AppColors.border),
 
+            // In your Drawer - update the DrawerItem
+
+            _DrawerItem(
+              icon: Icons.delete_outline_rounded, // more appropriate icon
+              label: 'Delete Account',
+              onTap: () {
+                Navigator.of(context).pop(); // close drawer first
+                showDeleteAccountConfirmation(context,DashboardController()); // then show dialog
+              },
+            ),
+
+            const Divider(height: 1, color: AppColors.border),
+
             _DrawerItem(
               icon: Icons.logout_rounded,
               label: 'Logout',
@@ -812,6 +826,57 @@ class _SideDrawer extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+// Confirmation dialog - add this helper in your controller or a utils file
+
+  void showDeleteAccountConfirmation(BuildContext context,DashboardController dashboardcontroller) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Delete Account',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          content: const Text(
+            'Are you sure you want to delete your account? This action cannot be undone.',
+            style: TextStyle(fontSize: 14),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(); // Cancel - just close dialog
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(); // Close dialog first
+                dashboardcontroller.deleteAccount();                   // Then call API
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
