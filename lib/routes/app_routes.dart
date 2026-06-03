@@ -21,12 +21,12 @@ import '../presentation/splash/Splash_binding.dart';
 import '../presentation/splash/view/Splash_Screen.dart';
 
 class AppRoutes {
-  static const String splash          = '/splash';
+  static const String splash          = '/';
   static const String onboarding      = '/onboarding';
   static const String login           = '/login';
   static const String signup          = '/signup';
   static const String completeProfile = '/complete-profile';
-  static const String dashboard       = '/';
+  static const String dashboard       = '/dashboard';
   static const String jobDetail       = '/job-detail';
   static const sideDashboard = '/side-dashboard';
   static const forgotPassword = '/forgot-password';
