@@ -165,9 +165,8 @@ class AuthController extends GetxController {
     }
   }
 
-  // ── Login with email (Integrated Real API) ────────────────────────────────
-  Future<void> login() async {
-    if (!loginFormKey.currentState!.validate()) return;
+  Future<String?> login() async {
+    if (!loginFormKey.currentState!.validate()) return null;
 
     isLoading.value = true;
     try {
@@ -230,12 +229,22 @@ class AuthController extends GetxController {
         }
       } else if (response.statusCode == 401) {
         showToastFail("Invalid email or password");
+      } else if (response.statusCode == 404) {
+        try {
+          final errorData = json.decode(response.body);
+          final message = errorData['message'] ?? "ACCOUNT_NOT_FOUND";
+          return message;
+        } catch (_) {
+          return "ACCOUNT_NOT_FOUND";
+        }
       } else {
         showToastFail("Login failed. Status: ${response.statusCode}");
       }
+      return null;
     } catch (e) {
       print("Login Error: $e");
       showToastFail("Connection error. Please check your internet.");
+      return null;
     } finally {
       isLoading.value = false;
     }

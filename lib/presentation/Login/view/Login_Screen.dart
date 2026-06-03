@@ -818,7 +818,17 @@ class LoginScreen extends GetView<AuthController> {
                   controller: controller.passwordCtrl,
                   obscureText: controller.hidePassword.value,
                   textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => controller.login(),
+                  onFieldSubmitted: (_) async {
+                    final errorCode = await controller.login();
+                    if (errorCode != null) {
+                      Get.snackbar(
+                        "Error",
+                        errorCode,
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white,
+                      );
+                    }
+                  },
                   style: const TextStyle(
                       fontSize: 14, color: _kTextPrimary),
                   decoration: _inputDecoration(
@@ -847,7 +857,17 @@ class LoginScreen extends GetView<AuthController> {
                   child: ElevatedButton.icon(
                     onPressed: controller.isLoading.value
                         ? null
-                        : controller.login,
+                        : () async {
+                            final errorCode = await controller.login();
+                            if (errorCode != null) {
+                              Get.snackbar(
+                                "Error",
+                                errorCode,
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                              );
+                            }
+                          },
                     icon: controller.isLoading.value
                         ? const SizedBox(
                       width: 20,
