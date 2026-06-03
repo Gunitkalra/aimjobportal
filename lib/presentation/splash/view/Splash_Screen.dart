@@ -22,17 +22,11 @@ class _SplashScreenState extends State<SplashScreen> {
   void _startTimer() {
     if (_hasStartedTimer) return;
     _hasStartedTimer = true;
-    Future.delayed(const Duration(seconds: 10), () async {
+    Future.delayed(const Duration(seconds: 3), () async {
       if (mounted) {
         final prefHelper = SharedPrefHelper();
         final token = await prefHelper.get('accessToken');
-        final isOnboarded = await prefHelper.get('isOnboarded') ?? false;
         final profileCompleted = await prefHelper.get('isProfileComplete') ?? false;
-
-        if (isOnboarded != true) {
-          Get.offAllNamed(AppRoutes.onboarding);
-          return;
-        }
 
         if (token != null && token.toString().isNotEmpty) {
           if (profileCompleted == true) {
