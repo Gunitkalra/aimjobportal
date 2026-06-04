@@ -14,14 +14,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "557085828050-0gnduk3vpi9vbcbc2m0oavtfbonpu0ss.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.aimjobs.ai",
-            "certificate_hash": "e5e56474d938102a35923d20175886f3afa7b6ce"
-          }
-        },
-        {
           "client_id": "557085828050-i5ek6624p3l7s5j65dvah9o9chn32b74.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

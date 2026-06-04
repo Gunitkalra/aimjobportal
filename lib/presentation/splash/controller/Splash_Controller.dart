@@ -44,7 +44,8 @@ class SplashController extends GetxController {
       if (profileCompleted == true) {
         Get.offAllNamed(AppRoutes.dashboard);  // logged in + profile done → dashboard
       } else {
-        Get.offAllNamed(AppRoutes.completeProfile); // logged in + profile not done
+       // Get.offAllNamed(AppRoutes.completeProfile); // logged in + profile not done
+        Get.offAllNamed(AppRoutes.login); // logged in + profile not done
       }
       return;
     }

@@ -897,50 +897,120 @@ class CompleteProfileScreen extends GetView<CompleteProfileController> {
 // ── Blue Hero Header ──────────────────────────────────────────────────────────
 
 class _HeroHeader extends StatelessWidget {
+  const _HeroHeader({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+      // Increased top padding to 40 to give the back button breathing room from the status bar
+      padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
       color: const Color(0xFFEFF6FF),
-      child: Column(
+      child: Stack(
         children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.person_outline_rounded,
-              color: AppColors.darkRed,
-              size: 34,
-            ),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Complete Your Profile',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: _kTextPrimary,
-              letterSpacing: -0.3,
+          // 1. The Back Arrow (Positioned Top-Left)
+          Positioned(
+            left: 0,
+            top: 0,
+            child: GestureDetector(
+              onTap: () => Navigator.maybePop(context),
+              child: const Icon(
+                Icons.arrow_back_ios_new_rounded, // Modern, clean back arrow
+                color: _kTextPrimary,             // Matches your primary text color
+                size: 22,
+              ),
             ),
           ),
-          const SizedBox(height: 5),
-          const Text(
-            'Just a few more details to get you started',
-            style: TextStyle(
-              fontSize: 13.5,
-              color: _kTextSecondary,
-            ),
+
+          // 2. Your Existing Content (Stays Perfectly Centered)
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: const BoxDecoration(
+                  color: AppColors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.person_outline_rounded,
+                  color: AppColors.darkRed,
+                  size: 34,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Complete Your Profile',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: _kTextPrimary,
+                  letterSpacing: -0.3,
+                ),
+              ),
+              const SizedBox(height: 5),
+              const Text(
+              //  'Just a few more details to get you started',
+                'Add a few details in seconds to unlock better job opportunities',
+                style: TextStyle(
+                  fontSize: 13.5,
+                  color: _kTextSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 }
+// class _HeroHeader extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       width: double.infinity,
+//       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+//       color: const Color(0xFFEFF6FF),
+//       child: Column(
+//         children: [
+//           Container(
+//             width: 64,
+//             height: 64,
+//             decoration: BoxDecoration(
+//               color: AppColors.white,
+//               shape: BoxShape.circle,
+//             ),
+//             child: const Icon(
+//               Icons.person_outline_rounded,
+//               color: AppColors.darkRed,
+//               size: 34,
+//             ),
+//           ),
+//           const SizedBox(height: 12),
+//           const Text(
+//             'Complete Your Profile',
+//             style: TextStyle(
+//               fontSize: 22,
+//               fontWeight: FontWeight.w800,
+//               color: _kTextPrimary,
+//               letterSpacing: -0.3,
+//             ),
+//           ),
+//           const SizedBox(height: 5),
+//           const Text(
+//             'Just a few more details to get you started',
+//             style: TextStyle(
+//               fontSize: 13.5,
+//               color: _kTextSecondary,
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 // ── Resume upload area (dashed border) ───────────────────────────────────────
 

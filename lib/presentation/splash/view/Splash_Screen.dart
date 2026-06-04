@@ -32,7 +32,8 @@ class _SplashScreenState extends State<SplashScreen> {
           if (profileCompleted == true) {
             Get.offAllNamed(AppRoutes.dashboard);
           } else {
-            Get.offAllNamed(AppRoutes.completeProfile);
+           // Get.offAllNamed(AppRoutes.completeProfile);
+            Get.offAllNamed(AppRoutes.login);
           }
           return;
         }

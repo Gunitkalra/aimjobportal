@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../Utils/constant_utils.dart';
@@ -323,25 +324,132 @@ class AuthController extends GetxController {
   }
 
   // ── Social logins ─────────────────────────────────────────────────────────
+
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+  );
   Future<void> loginWithGoogle() async {
     isLoading.value = true;
     try {
-      await Future.delayed(const Duration(milliseconds: 800));
-      await _prefs.save('accessToken', 'google_mock_token');
-      await _prefs.save('userEmail', 'user@gmail.com');
+      // Step 1: Trigger Google Sign-In picker
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
-      final profileCompleted = await _prefs.get('isProfileComplete') ?? false;
-      if (profileCompleted == true) {
-        Get.offAllNamed(AppRoutes.dashboard);
-      } else {
-        Get.offAllNamed(AppRoutes.completeProfile);
+      if (googleUser == null) {
+        // User cancelled the sign-in
+        isLoading.value = false;
+        return;
       }
-    } catch (_) {
+
+      // Step 2: Get auth tokens from Google
+      final GoogleSignInAuthentication googleAuth =
+      await googleUser.authentication;
+
+      final String? idToken = googleAuth.idToken;
+      final String? accessToken = googleAuth.accessToken;
+
+      print("google return this data : " +  idToken.toString()  +  " acess  : "  + accessToken.toString() );
+      if (googleUser != null) {
+        print(googleUser.email);          // user@gmail.com
+        print(googleUser.displayName);    // Full Name
+        print(googleUser.photoUrl);       // profile picture URL
+        print(googleUser.id);             // Google user ID
+                // Google user ID
+      }
+
+      if (idToken == null) {
+        _toast('Google sign-in failed. Please try again.', isError: true);
+        return;
+      }
+
+      // Step 3: Send idToken to your backend
+      final url = Uri.parse("${ApiList.baseUrl}/v1/auth/token");
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': XApikeys,
+        },
+        body: json.encode({
+          'provider': "google",
+          'idToken': idToken,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final res = json.decode(response.body);
+
+        if (res['success'] == true) {
+          // Step 4: Save tokens & user info from backend response
+          final String accessToken = res['data']['accessToken'] ?? '';
+          final String refreshToken = res['data']['refreshToken'] ?? '';
+          final bool isProfileComplete =
+              res['data']['isProfileComplete'] ?? false;
+
+          await _prefs.save('accessToken', accessToken);
+          await _prefs.save('refreshToken', refreshToken);
+          await _prefs.save('userEmail', googleUser.email);
+          await _prefs.save('userName', googleUser.displayName ?? '');
+          await _prefs.save('isProfileComplete', isProfileComplete);
+
+          // Step 5: Navigate based on profile status
+          if (isProfileComplete) {
+            Get.offAllNamed(AppRoutes.dashboard);
+          } else {
+            Get.toNamed(AppRoutes.completeProfile);
+          }
+        } else {
+          _toast(res['message'] ?? 'Login failed. Please try again.',
+              isError: true);
+        }
+      } else if (response.statusCode == 401) {
+        _toast('Unauthorized. Please try again.', isError: true);
+      } else {
+        _toast('Server error. Please try again later.', isError: true);
+      }
+    } on http.ClientException {
+      _toast('No internet connection.', isError: true);
+    } catch (e) {
+      print("Google Login Error: $e");
       _toast('Google sign-in failed.', isError: true);
     } finally {
       isLoading.value = false;
     }
   }
+
+
+  // ── Add this for sign-out / session clear ──────────────────────────────────
+  Future<void> signOutGoogle() async {
+    try {
+      await _googleSignIn.signOut();         // clears Google session
+      await _prefs.clear();
+
+      Get.offAllNamed(AppRoutes.signup);     // or your login route
+    } catch (e) {
+      print("Sign Out Error: $e");
+    }
+  }
+  // Future<void> loginWithGoogle() async {
+  //   isLoading.value = true;
+  //   try {
+  //     await Future.delayed(const Duration(milliseconds: 800));
+  //     await _prefs.save('accessToken', 'google_mock_token');
+  //     await _prefs.save('userEmail', 'user@gmail.com');
+  //
+  //     final profileCompleted = await _prefs.get('isProfileComplete') ?? false;
+  //     if (profileCompleted == true) {
+  //       Get.offAllNamed(AppRoutes.dashboard);
+  //     } else {
+  //      // Get.offAllNamed(AppRoutes.completeProfile);
+  //       Get.toNamed(AppRoutes.completeProfile);
+  //     }
+  //   } catch (_) {
+  //     _toast('Google sign-in failed.', isError: true);
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
   Future<void> loginWithFacebook() async {
     isLoading.value = true;
