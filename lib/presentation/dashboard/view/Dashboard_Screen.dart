@@ -232,8 +232,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                     const SizedBox(width: 8),
                                     Obx(() {
-                                      final stats = getstatscontroller.statsData.value;
-                                      final String totalJobsStr = stats?.totalJobsCount?.toString() ?? '14,000';
+                                      final total = getstatscontroller.statsData2.value?.totalJobsScraped;
+                                      final String totalJobsStr = total != null
+                                          ? total.toString()
+                                          : '...'; // shows '...' while loading, real number after
+
                                       return Text(
                                         'Over $totalJobsStr+ jobs added this week',
                                         style: const TextStyle(
@@ -243,6 +246,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         ),
                                       );
                                     }),
+                                    // Obx(() {
+                                    //   final stats = getstatscontroller.statsData.value;
+                                    //   final String totalJobsStr = stats?.totalJobsCount?.toString() ?? '14,000';
+                                    //   return Text(
+                                    //     'Over $totalJobsStr+ jobs added this week',
+                                    //     style: const TextStyle(
+                                    //       fontSize: 13,
+                                    //       fontWeight: FontWeight.w500,
+                                    //       color: AppColors.black,
+                                    //     ),
+                                    //   );
+                                    // }),
                                   ],
                                 ),
                               ),

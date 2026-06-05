@@ -160,3 +160,30 @@ class SeniorityLevelDistribution {
   };
 
 }
+
+
+
+// getstatsModel.dart
+
+class GetStatsResponseModel2 {
+  final int? totalJobsScraped;
+  final int? windowDays;
+  final String? sinceUtc;
+  final String? untilUtc;
+
+  GetStatsResponseModel2({
+    this.totalJobsScraped,
+    this.windowDays,
+    this.sinceUtc,
+    this.untilUtc,
+  });
+
+  factory GetStatsResponseModel2.fromJson(Map<String, dynamic> json) {
+    return GetStatsResponseModel2(
+      totalJobsScraped: json['total_jobs_scraped'],
+      windowDays: json['window_days'],
+      sinceUtc: json['since_utc'],
+      untilUtc: json['until_utc'],
+    );
+  }
+}

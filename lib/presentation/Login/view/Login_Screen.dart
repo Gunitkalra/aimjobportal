@@ -724,11 +724,16 @@ class LoginScreen extends GetView<AuthController> {
                   onTap: () => controller.loginWithGoogle(),
                 ),
                 const SizedBox(height: 10),
-                _SocialLoginButton(
-                  label: 'Continue with LinkedIn',
-                  icon: const _LinkedInIcon(),
-                  onTap: () => controller.loginWithLinkedIn(),
-                ),
+                      _SocialLoginButton(
+                        label: 'Continue with LinkedIn',
+                        icon: const _LinkedInIcon(),
+                        onTap: () => controller.loginWithLinkedIn(),
+                      ),
+                // _SocialLoginButton(
+                //   label: 'Continue with LinkedIn',
+                //   icon: const _LinkedInIcon(),
+                //   onTap: () => controller.loginWithLinkedIn(),
+                // ),
                 const SizedBox(height: 10),
                 // _SocialLoginButton(
                 //   label: 'Continue with Facebook',

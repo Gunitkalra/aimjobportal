@@ -16,6 +16,7 @@ import '../model/Login_Model.dart';
 import '../model/RefreshToken_Model.dart';
 import '../model/sendOtpModel.dart';
 import '../model/verifyOtpModel.dart';
+import 'package:linkedin_login/linkedin_login.dart'; // Import correct package
 
 class AuthController extends GetxController {
   // ── Form controllers ──────────────────────────────────────────────────────
@@ -333,7 +334,33 @@ class AuthController extends GetxController {
     isLoading.value = true;
     try {
       // Step 1: Trigger Google Sign-In picker
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+   //   final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      const String googleWebClientId = '557085828050-t9fi7e43q1hqa6ki265gq3ic9ssn1i81.apps.googleusercontent.com';
+
+// 2. Pass it to the constructor
+      final GoogleSignIn _googleSignIn = GoogleSignIn(
+        clientId: googleWebClientId, // <-- THIS IS THE MAGIC LINE
+        scopes: [
+          'email',
+          'https://www.googleapis.com/auth/userinfo.profile',
+          'openid', // Ensures OpenID Connect is triggered
+        ],
+      );
+
+
+        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+        if (googleUser != null) {
+          final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+          // This will no longer be null!
+          print("ID Token: ${googleAuth.idToken}");
+          print("Access Token: ${googleAuth.accessToken}");
+
+          print(googleUser.email);
+          print(googleUser.displayName);
+        }
 
       if (googleUser == null) {
         // User cancelled the sign-in
@@ -464,18 +491,62 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> loginWithLinkedIn() async {
-    isLoading.value = true;
-    try {
-      await Future.delayed(const Duration(milliseconds: 800));
-      await _prefs.save('accessToken', 'linkedin_mock_token');
-      Get.offAllNamed(AppRoutes.completeProfile);
-    } catch (_) {
-      _toast('LinkedIn sign-in failed.', isError: true);
-    } finally {
-      isLoading.value = false;
-    }
+// Your LinkedIn App Credentials
+  final String _clientId = 'YOUR_LINKEDIN_CLIENT_ID';
+  final String _clientSecret = 'YOUR_LINKEDIN_CLIENT_SECRET';
+  final String _redirectUrl = 'https://your-redirect-url.com';
+  void loginWithLinkedIn() {
+    // LinkedIn plugin forces its own fullscreen routing layer.
+    // We pass Get.context to build the modal screen.
+    Navigator.push(
+      Get.context!,
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (BuildContext context) => LinkedInUserWidget(
+          appBar: AppBar(
+            title: const Text('Sign In with LinkedIn'),
+          ),
+          destroySession: true, // Clears previous sessions so users can switch accounts
+          redirectUrl: _redirectUrl,
+          clientId: _clientId,
+          clientSecret: _clientSecret,
+          // LinkedIn uses OpenID connect scopes by default now
+          onGetUserProfile: (UserSucceededAction response) async {
+            isLoading.value = true;
+
+            // This is the active OAuth2 access token string your backend needs
+            final String? token = response.user.token.accessToken;
+
+            // Pop the web view safely, then process the token delivery
+            Navigator.pop(context);
+
+            if (token != null) {
+              await _sendTokenToBackend(token);
+            } else {
+              isLoading.value = false;
+              _toast('Failed to catch authorization token.', isError: true);
+            }
+          },
+          onError: (UserFailedAction error) {
+            _toast('LinkedIn process error: ${error.exception.toString()}', isError: true);
+          },
+        ),
+      ),
+    );
   }
+
+  // Future<void> loginWithLinkedIn() async {
+  //   isLoading.value = true;
+  //   try {
+  //     await Future.delayed(const Duration(milliseconds: 800));
+  //     await _prefs.save('accessToken', 'linkedin_mock_token');
+  //     Get.offAllNamed(AppRoutes.completeProfile);
+  //   } catch (_) {
+  //     _toast('LinkedIn sign-in failed.', isError: true);
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
   // ── Logout ────────────────────────────────────────────────────────────────
   Future<void> logout() async {
@@ -523,4 +594,45 @@ class AuthController extends GetxController {
       toastLength: Toast.LENGTH_LONG,
     );
   }
+}
+
+Future<void> _sendTokenToBackend(String token) async {
+  final url = Uri.parse('https://www.aimjobs.ai/api/v1/auth/token');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        "provider": "linkedin",
+        "idToken": token, // Passing the auth token to your backend key
+        "isLogin": false
+      }),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      final _prefs = SharedPrefHelper();
+      // Save the backend application's returned application token safely
+      await _prefs.save('accessToken', data['token'] ?? 'linkedin_mock_token');
+
+      Get.offAllNamed(AppRoutes.completeProfile);
+    } else {
+      _toast('Server rejected authorization: ${response.statusCode}', isError: true);
+    }
+  } catch (e) {
+    _toast('Network connection failed.', isError: true);
+  } finally {
+  //  isLoading.value = false;
+  }
+}
+
+void _toast(String message, {bool isError = false}) {
+  Get.snackbar(
+    isError ? "Error" : "Success",
+    message,
+    snackPosition: SnackPosition.bottom,
+  );
 }

@@ -14,11 +14,13 @@ class GetStatsController extends GetxController {
 
   // Rxn allows the model to be null initially
   var statsData = Rxn<GetStatsResponseModel>();
+  var statsData2 = Rxn<GetStatsResponseModel2>();
 
   @override
   void onInit() {
     super.onInit();
     fetchStats(); // Auto-fetch when controller is initialized
+    fetchStats2();
   }
 
   // ── Core Fetch ────────────────────────────────────────────────────────────
@@ -57,6 +59,38 @@ class GetStatsController extends GetxController {
       isLoading.value = false;
     }
   }
+
+
+  Future<void> fetchStats2() async {
+    try {
+      isLoading.value = true;
+
+      // ← correct endpoint with query param
+      final url = Uri.parse("${ApiList.baseUrl1}/stats/scraped?days=7");
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'X-API-Key': XApikeys,
+      };
+
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> decodedData = json.decode(response.body);
+        statsData2.value = GetStatsResponseModel2.fromJson(decodedData);
+        print("Stats fetched: ${statsData2.value?.totalJobsScraped}");
+      } else {
+        showToastFail("Server Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Exception in GetStatsController: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+// ← updated getter
+  int get totalJobsScraped => statsData2.value?.totalJobsScraped ?? 0;
 
   // ── Helper Getters for UI ─────────────────────────────────────────────────
   // These make it easier to bind data to charts or cards
