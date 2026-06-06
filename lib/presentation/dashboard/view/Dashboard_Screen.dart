@@ -451,7 +451,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   '$totalJobs+',
                                   style: const TextStyle(
                                     fontSize: 42,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w900,
                                     color: AppColors.darkRed,
                                   ),
                                 ),

@@ -470,15 +470,32 @@ import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 import '../../../Utils/colors.dart';
 import '../../../routes/app_routes.dart';
 import '../../Savedjobs/controller/SaveJob_Controller.dart';
 import '../Controller/Dashboard_Controller.dart';
-
 import '../model/job_model/Job_Model.dart';
 
 class JobDetailScreen extends StatelessWidget {
   const JobDetailScreen({super.key});
+
+  Future<String> _fetchFullDescription(String jobId, String fallback) async {
+    try {
+      final response = await http.get(
+        Uri.parse("https://www.aimjobs.ai/Home/GetJobDetails?id=$jobId"),
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data != null && data['description'] != null) {
+          return data['description'] as String;
+        }
+      }
+    } catch (e) {
+      print("Error fetching full description: $e");
+    }
+    return fallback;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -489,7 +506,7 @@ class JobDetailScreen extends StatelessWidget {
     final saveCtrl = Get.put(SaveJobController());
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.appBg1,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -516,119 +533,195 @@ class JobDetailScreen extends StatelessWidget {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 10),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: AppColors.darkRed,
-                            borderRadius: BorderRadius.circular(14),
+                    // Card 1: Above portion containing all job details & full description
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
                           ),
-                          child: Center(
-                            child: Text(
-                              job.logoText,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                job.title,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.black,
+                              Container(
+                                width: 52,
+                                height: 52,
+                                decoration: BoxDecoration(
+                                  color: AppColors.darkRed,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    job.logoText,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 20,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              const SizedBox(height: 3),
-                              Text(
-                                job.company,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.textSecondary,
-                                  fontWeight: FontWeight.w500,
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      job.title,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 3),
+                                    Text(
+                                      job.company,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: AppColors.textSecondary,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        const Icon(Icons.card_travel_sharp, size: 15, color: AppColors.darkRed),
-                        const SizedBox(width: 4),
-                        Text(job.experience, style: const TextStyle(fontSize: 13, color: AppColors.black)),
-                        const SizedBox(width: 16),
-                        const Icon(Icons.location_on, size: 15, color: AppColors.darkRed),
-                        const SizedBox(width: 4),
-                        Text(job.location, style: const TextStyle(fontSize: 13, color: AppColors.black)),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                      decoration: BoxDecoration(color: AppColors.appBg1, borderRadius: BorderRadius.circular(6)),
-                      child: Text(
-                        job.jobTypes.join(","),
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.black),
+                          const SizedBox(height: 14),
+                          Row(
+                            children: [
+                              const Icon(Icons.card_travel_sharp, size: 15, color: AppColors.darkRed),
+                              const SizedBox(width: 4),
+                              Text(job.experience, style: const TextStyle(fontSize: 13, color: AppColors.black)),
+                              const SizedBox(width: 16),
+                              const Icon(Icons.location_on, size: 15, color: AppColors.darkRed),
+                              const SizedBox(width: 4),
+                              Text(job.location, style: const TextStyle(fontSize: 13, color: AppColors.black)),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                            decoration: BoxDecoration(color: AppColors.appBg1, borderRadius: BorderRadius.circular(6)),
+                            child: Text(
+                              job.jobTypes.join(","),
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.black),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: job.indsector.map((tag) => _DetailTag(label: tag)).toList(),
+                          ),
+                          const SizedBox(height: 24),
+                          _Divider(),
+                          const SizedBox(height: 20),
+                          const _SectionTitle(title: 'Key Skills'),
+                          const SizedBox(height: 14),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: job.requiredSkills.map((s) => _SkillChip(label: s)).toList(),
+                          ),
+                          const SizedBox(height: 24),
+                          _Divider(),
+                          const SizedBox(height: 20),
+                          const _SectionTitle(title: 'Job Description'),
+                          const SizedBox(height: 12),
+                          FutureBuilder<String>(
+                            future: _fetchFullDescription(job.id, job.description),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 20),
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.darkRed),
+                                    ),
+                                  ),
+                                );
+                              }
+                              final desc = snapshot.data ?? job.description;
+                              return Text(
+                                desc,
+                                style: const TextStyle(fontSize: 14, color: AppColors.black, height: 1.7),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: job.indsector.map((tag) => _DetailTag(label: tag)).toList(),
+                    const SizedBox(height: 16),
+                    // Card 2: Education Requirements
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // const _SectionTitle(title: 'Education Requirements'),
+                          // const SizedBox(height: 12),
+                          // Row(
+                          //   crossAxisAlignment: CrossAxisAlignment.start,
+                          //   children: [
+                          //     const Text('• ', style: TextStyle(color: AppColors.black, fontSize: 14)),
+                          //     Expanded(
+                          //       child: Text(
+                          //         job.requiredEducation.join('\n'),
+                          //         style: const TextStyle(fontSize: 14, color: AppColors.black, height: 1.5),
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
+                          const _SectionTitle(title: 'Education Requirements'),
+                          const SizedBox(height: 12),
+                          ...job.requiredEducation.map((edu) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('• ', style: TextStyle(color: AppColors.black, fontSize: 14)),
+                                Expanded(
+                                  child: Text(
+                                    edu,
+                                    style: const TextStyle(fontSize: 14, color: AppColors.black, height: 1.5),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )).toList(),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 24),
-                    _Divider(),
-                    const SizedBox(height: 20),
-                    const _SectionTitle(title: 'Key Skills'),
-                    const SizedBox(height: 14),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: job.requiredSkills.map((s) => _SkillChip(label: s)).toList(),
-                    ),
-                    const SizedBox(height: 24),
-                    _Divider(),
-                    const SizedBox(height: 20),
-                    const _SectionTitle(title: 'Job Description'),
-                    const SizedBox(height: 12),
-                    Text(job.description, style: const TextStyle(fontSize: 14, color: AppColors.black, height: 1.7)),
-                    const SizedBox(height: 24),
-                    _Divider(),
-                    const SizedBox(height: 20),
-                    const _SectionTitle(title: 'Education Requirements'),
-                    const SizedBox(height: 12),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('• ', style: TextStyle(color: AppColors.black, fontSize: 14)),
-                        Expanded(
-                          child: Text(job.requiredEducation.join('\n'), style: const TextStyle(fontSize: 14, color: AppColors.black, height: 1.5)),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    _Divider(),
-                    const SizedBox(height: 20),
                   ],
                 ),
               ),
