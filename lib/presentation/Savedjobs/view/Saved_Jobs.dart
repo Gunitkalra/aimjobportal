@@ -602,8 +602,10 @@
 //     );
 //   }
 // }
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../Utils/colors.dart';
 import '../../../routes/app_routes.dart';
@@ -686,18 +688,27 @@ class SavedJobsScreen extends GetView<SavedJobsController> {
             itemCount: controller.savedJobsList.length,
             itemBuilder: (_, i) {
               final job = controller.savedJobsList[i];
-              return _SavedJobCard(
-                job: job,
-                onRemove: () {
-                  deleteController.deleteJob(job.jobId ?? "");
-                },
-                onApply: () async {
-                  final Uri url = Uri.parse(job.jobUrl ?? "");
-                  if (await canLaunchUrl(url)) {
-                    await launchUrl(url, mode: LaunchMode.externalApplication);
-                  }
-                },
-              );
+              return Obx(() {
+                final isSelected = controller.selectedJobId.value == job.jobId;
+                return GestureDetector(
+                  onTap: () {
+                    controller.selectedJobId.value = job.jobId ?? "";
+                  },
+                  child: _SavedJobCard(
+                    job: job,
+                    isSelected: isSelected,
+                    onRemove: () {
+                      deleteController.deleteJob(job.jobId ?? "");
+                    },
+                    onApply: () async {
+                      final Uri url = Uri.parse(job.jobUrl ?? "");
+                      if (await canLaunchUrl(url)) {
+                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                      }
+                    },
+                  ),
+                );
+              });
             },
           );
         }),
@@ -712,12 +723,62 @@ class _SavedJobCard extends StatelessWidget {
   final Datum job;
   final VoidCallback onRemove;
   final VoidCallback onApply;
+  final bool isSelected;
 
   const _SavedJobCard({
     required this.job,
     required this.onRemove,
     required this.onApply,
+    required this.isSelected,
   });
+
+  String _formatLocation() {
+    if (job.locations.isEmpty) return "N/A";
+    final firstLoc = job.locations.first;
+    if (job.locations.length > 1) {
+      return "$firstLoc +${job.locations.length - 1}";
+    }
+    return firstLoc;
+  }
+
+  String _formatSalary() {
+    if (job.minSalary == null && job.maxSalary == null) return "N/A";
+    final formatter = NumberFormat('#,###');
+    String minStr = "";
+    String maxStr = "";
+    if (job.minSalary != null) {
+      final val = num.tryParse(job.minSalary.toString());
+      minStr = val != null ? formatter.format(val) : job.minSalary.toString();
+    }
+    if (job.maxSalary != null) {
+      final val = num.tryParse(job.maxSalary.toString());
+      maxStr = val != null ? formatter.format(val) : job.maxSalary.toString();
+    }
+    if (minStr.isNotEmpty && maxStr.isNotEmpty) {
+      return "$minStr - $maxStr";
+    } else if (minStr.isNotEmpty) {
+      return minStr;
+    } else {
+      return maxStr;
+    }
+  }
+
+  List<Widget> _buildSkillChips() {
+    const maxVisible = 5;
+    final skills = job.requiredSkills;
+    final visible = skills.take(maxVisible).toList();
+    final extra = skills.length - maxVisible;
+
+    final List<Widget> chips = visible
+        .map<Widget>((s) => _SkillChip(label: s))
+        .toList();
+
+    if (extra > 0) {
+      chips.add(_MoreSkillChip(label: '+$extra'));
+    }
+
+    return chips;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -736,148 +797,168 @@ class _SavedJobCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(
+                color: isSelected ? AppColors.darkRed : Colors.transparent,
+                width: 4,
+              ),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 14, 14, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 46,
-                      height: 46,
-                      decoration: BoxDecoration(
-                        color: AppColors.darkRed,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: Text(
-                          (job.companyName ?? "C").substring(0, 1).toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 16,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: BoxDecoration(
+                            color: AppColors.darkRed,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              (job.companyName ?? "C").substring(0, 1).toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                job.jobTitle ?? "Job Title",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.black,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                job.companyName ?? "Company",
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 4,
+                      children: [
+                        _InfoItem(
+                          icon: Icons.location_on_outlined,
+                          label: _formatLocation(),
+                        ),
+                        _InfoItem(
+                          icon: Icons.payments_outlined,
+                          label: _formatSalary(),
+                        ),
+                        _InfoItem(
+                          icon: Icons.work_outline_rounded,
+                          label: job.salaryPeriod ?? "Full Time",
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    _InfoItem(
+                      icon: Icons.access_time_rounded,
+                      label: controller.formatDate(job.savedAt),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
+                      children: _buildSkillChips(),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1, color: Color(0xFFEEEEEE)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 42,
+                        child: ElevatedButton.icon(
+                          onPressed: onApply,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.darkRed,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          icon: const Icon(Icons.open_in_new_rounded,
+                              color: Colors.white, size: 16),
+                          label: const Text(
+                            'Apply Now',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 10),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            job.jobTitle ?? "Job Title",
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                      child: SizedBox(
+                        height: 42,
+                        child: OutlinedButton.icon(
+                          onPressed: onRemove,
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Color(0xFFDDDDDD)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            job.companyName ?? "Company",
-                            style: const TextStyle(
-                              fontSize: 12,
+                          icon: const Icon(Icons.delete_outline_rounded,
+                              color: AppColors.textSecondary, size: 16),
+                          label: const Text(
+                            'Remove',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
                               color: AppColors.textSecondary,
                             ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 4,
-                  children: [
-                    _InfoItem(
-                        icon: Icons.location_on_outlined,
-                        label: job.locations.isEmpty ? "N/A" : job.locations.first),
-                    _InfoItem(
-                        icon: Icons.calendar_today_outlined,
-                        label: job.salaryPeriod ?? "Full Time"),
-                    _InfoItem(
-                        icon: Icons.access_time_rounded,
-                        label: controller.formatDate(job.savedAt)),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                // Show all skills from API
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 6,
-                  children: job.requiredSkills
-                      .map((s) => _SkillChip(label: s))
-                      .toList(),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const Divider(height: 1, color: Color(0xFFEEEEEE)),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            child: Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 42,
-                    child: ElevatedButton.icon(
-                      onPressed: onApply,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.darkRed,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      icon: const Icon(Icons.open_in_new_rounded,
-                          color: Colors.white, size: 16),
-                      label: const Text(
-                        'Apply Now',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: SizedBox(
-                    height: 42,
-                    child: OutlinedButton.icon(
-                      onPressed: onRemove,
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFDDDDDD)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      icon: const Icon(Icons.delete_outline_rounded,
-                          color: AppColors.textSecondary, size: 16),
-                      label: const Text(
-                        'Remove',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -892,21 +973,108 @@ class _SkillChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
-        color: AppColors.lightRed.withOpacity(0.1),
+        color: const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.lightRed.withOpacity(0.4), width: 0.5),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
       ),
       child: Text(
         label,
         style: const TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w500,
-          color: AppColors.darkRed,
+          color: Color(0xFF475569),
         ),
       ),
     );
+  }
+}
+
+class _MoreSkillChip extends StatelessWidget {
+  final String label;
+  const _MoreSkillChip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: DashedBorderPainter(
+        color: const Color(0xFFCBD5E1),
+        strokeWidth: 1.0,
+        gap: 3.0,
+        dashLength: 4.0,
+        borderRadius: 20.0,
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF475569),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class DashedBorderPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double gap;
+  final double dashLength;
+  final double borderRadius;
+
+  DashedBorderPainter({
+    required this.color,
+    this.strokeWidth = 1.0,
+    this.gap = 3.0,
+    this.dashLength = 4.0,
+    this.borderRadius = 20.0,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final RRect rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Radius.circular(borderRadius),
+    );
+
+    final Path path = Path()..addRRect(rrect);
+    final Path dashPath = Path();
+
+    double distance = 0.0;
+    for (final PathMetric measure in path.computeMetrics()) {
+      while (distance < measure.length) {
+        dashPath.addPath(
+          measure.extractPath(distance, distance + dashLength),
+          Offset.zero,
+        );
+        distance += dashLength + gap;
+      }
+      distance = 0.0;
+    }
+
+    canvas.drawPath(dashPath, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant DashedBorderPainter oldDelegate) {
+    return oldDelegate.color != color ||
+        oldDelegate.strokeWidth != strokeWidth ||
+        oldDelegate.gap != gap ||
+        oldDelegate.dashLength != dashLength ||
+        oldDelegate.borderRadius != borderRadius;
   }
 }
 

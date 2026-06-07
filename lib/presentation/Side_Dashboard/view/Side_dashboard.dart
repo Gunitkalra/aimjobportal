@@ -1,5 +1,6 @@
 // import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 // import 'package:get/get.dart';
 // import '../../../Utils/colors.dart';
@@ -1362,15 +1363,19 @@ class _WelcomeCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Welcome back, ${controller.userName.value}!',
+            'Welcome  ${controller.userName.value.trim().isNotEmpty ? controller.userName.value.trim().split(' ').first : ''}',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 22),
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 30,
+            ),
           ),
           const SizedBox(height: 8),
           const Text(
             "Here's your profile overview and\njob search activity",
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.4),
+            style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
           ),
         ],
       ),
@@ -1415,21 +1420,59 @@ class _ProfileCompletionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final status = data.completionStatus;
+    // final sections = [
+    //   ('Personal Information', (status?.personalInfoPercentage ?? 0) / 100, '${status?.personalInfoPercentage}%'),
+    //   ('Job Details', (status?.jobDetailsPercentage ?? 0) / 100, '${status?.jobDetailsPercentage}%'),
+    //   ('Profile Summary', (status?.profileSummaryPercentage ?? 0) / 100, '${status?.profileSummaryPercentage}%'),
+    //   ('Skills & Languages', (status?.skillsLanguagesPercentage ?? 0) / 100, '${status?.skillsLanguagesPercentage}%'),
+    //   ('Work Experience', (status?.workExperiencePercentage ?? 0) / 100, '${status?.workExperiencePercentage}%'),
+    //   ('Education', (status?.educationPercentage ?? 0) / 100, '${status?.educationPercentage}%'),
+    // ];
     final sections = [
-      ('Personal Information', (status?.personalInfoPercentage ?? 0) / 100, '${status?.personalInfoPercentage}%'),
-      ('Job Details', (status?.jobDetailsPercentage ?? 0) / 100, '${status?.jobDetailsPercentage}%'),
-      ('Profile Summary', (status?.profileSummaryPercentage ?? 0) / 100, '${status?.profileSummaryPercentage}%'),
-      ('Skills & Languages', (status?.skillsLanguagesPercentage ?? 0) / 100, '${status?.skillsLanguagesPercentage}%'),
-      ('Work Experience', (status?.workExperiencePercentage ?? 0) / 100, '${status?.workExperiencePercentage}%'),
-      ('Education', (status?.educationPercentage ?? 0) / 100, '${status?.educationPercentage}%'),
+      (
+          Icons.account_circle_outlined,
+      'Personal Information',
+      (status?.personalInfoPercentage ?? 0) / 100,
+      '${status?.personalInfoPercentage}%'
+      ),
+      (
+      Icons.badge,
+      'Job Details',
+      (status?.jobDetailsPercentage ?? 0) / 100,
+      '${status?.jobDetailsPercentage}%'
+      ),
+      (
+      Icons.assignment_outlined,
+      'Profile Summary',
+      (status?.profileSummaryPercentage ?? 0) / 100,
+      '${status?.profileSummaryPercentage}%'
+      ),
+      (
+      Icons.lightbulb,
+      'Skills & Languages',
+      (status?.skillsLanguagesPercentage ?? 0) / 100,
+      '${status?.skillsLanguagesPercentage}%'
+      ),
+      (
+      Icons.business,
+      'Work Experience',
+      (status?.workExperiencePercentage ?? 0) / 100,
+      '${status?.workExperiencePercentage}%'
+      ),
+      (
+      Icons.school_rounded,
+      'Education',
+      (status?.educationPercentage ?? 0) / 100,
+      '${status?.educationPercentage}%'
+      ),
     ];
-
     return _SectionCard(
       icon: Icons.trending_up_rounded,
       iconColor: AppColors.darkRed,
       title: 'Profile Completion',
       child: Column(
         children: [
+
           SizedBox(
             width: 150,
             height: 150,
@@ -1443,7 +1486,7 @@ class _ProfileCompletionCard extends StatelessWidget {
                     value: (data.profileCompletionPercentage ?? 0) / 100,
                     strokeWidth: 12,
                     backgroundColor: const Color(0xFFE0E0E0),
-                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.darkRed),
+                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.appBg2),
                     strokeCap: StrokeCap.round,
                   ),
                 ),
@@ -1452,7 +1495,7 @@ class _ProfileCompletionCard extends StatelessWidget {
                   children: [
                     Text(
                       '${data.profileCompletionPercentage}%',
-                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.black),
                     ),
                     const Text('Complete', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
                   ],
@@ -1461,7 +1504,15 @@ class _ProfileCompletionCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          ...sections.map((s) => _SectionBar(label: s.$1, progress: s.$2, percent: s.$3)),
+          // ...sections.map((s) => _SectionBar(label: s.$1, progress: s.$2, percent: s.$3)),
+          ...sections.map(
+                (s) => _SectionBar(
+              icon: s.$1,
+              label: s.$2,
+              progress: s.$3,
+              percent: s.$4,
+            ),
+          ),
         ],
       ),
     );
@@ -1498,8 +1549,8 @@ class _CompleteProfileCard extends StatelessWidget {
                 const Expanded(child: Text('Complete Your Profile', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary))),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: AppColors.darkRed.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
-                  child: Text('${fields.length} items', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.darkRed)),
+                  decoration: BoxDecoration(color: AppColors.textRed.withOpacity(0.40), borderRadius: BorderRadius.circular(20)),
+                  child: Text('${fields.length} items', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textRed)),
                 ),
               ],
             ),
@@ -1617,6 +1668,69 @@ class _CvStatusCard extends StatelessWidget {
   final dynamic data;
   const _CvStatusCard({required this.data});
 
+  String _formatUploadedAt(DateTime? date) {
+    if (date == null) return "Uploaded date unknown";
+    final dateStr = DateFormat('MMM dd, yyyy').format(date);
+    final timeStr = DateFormat('hh:mm a').format(date);
+    return 'Uploaded $dateStr at $timeStr';
+  }
+
+  Widget _buildStatusBadge(String? status) {
+    final normalizedStatus = (status ?? "").trim().toLowerCase();
+    final isCompleted = normalizedStatus.contains("complete") || normalizedStatus.isEmpty;
+    final isFailed = normalizedStatus.contains("fail") || normalizedStatus.contains("error");
+
+    Color bgColor;
+    Color textColor;
+    IconData iconData;
+    String label;
+
+    if (isFailed) {
+      bgColor = const Color(0xFFFDE8E8);
+      textColor = const Color(0xFF9B1C1C);
+      iconData = Icons.error_rounded;
+      label = "AI Parsing Failed";
+    } else if (isCompleted) {
+      bgColor = const Color(0xFFD4F5E6);
+      textColor = const Color(0xFF155724);
+      iconData = Icons.check_circle_rounded;
+      label = "AI Parsing Completed";
+    } else {
+      bgColor = const Color(0xFFFEF3C7);
+      textColor = const Color(0xFFB45309);
+      iconData = Icons.access_time_filled_rounded;
+      label = status ?? "AI Parsing In Progress";
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            iconData,
+            color: textColor,
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cv = data.cvUploadStatus;
@@ -1634,47 +1748,47 @@ class _CvStatusCard extends StatelessWidget {
               Container(
                 width: 48,
                 height: 48,
-                decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(10)),
-                child: Icon(Icons.picture_as_pdf_rounded, color: Colors.red.shade600, size: 28),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE53935),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.picture_as_pdf_rounded,
+                  color: Colors.white,
+                  size: 28,
+                ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(cv.fileName ?? "No File", style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 2),
-                    Text('Status: ${cv.status}', style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                    Text(
+                      cv.fileName ?? "No File",
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _formatUploadedAt(cv.uploadedAt),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(color: const Color(0xFFFFF3E0), borderRadius: BorderRadius.circular(10)),
-            child: Row(
-              children: [
-                Icon(Icons.access_time_rounded, size: 16, color: Colors.orange.shade700),
-                const SizedBox(width: 8),
-                Text(cv.status ?? "Processing", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.orange.shade700)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: (cv.progressPercentage ?? 0) / 100,
-              minHeight: 6,
-              backgroundColor: const Color(0xFFE0E0E0),
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF00BCD4)),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text('${cv.progressPercentage}% processed', style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+          const SizedBox(height: 16),
+          _buildStatusBadge(cv.status),
         ],
       ),
     );
@@ -1694,7 +1808,7 @@ class _StatTile extends StatelessWidget {
         Container(width: 52, height: 52, decoration: BoxDecoration(color: iconBgColor, borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: Colors.white, size: 26)),
         const SizedBox(width: 16),
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+          Text(value, style: GoogleFonts.poppins(fontSize: 26, fontWeight: FontWeight.w600, color: Colors.black)),
           Text(label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
         ]),
       ]),
@@ -1715,6 +1829,8 @@ class _QuickActionsCard extends StatelessWidget {
         _QuickActionTile(icon: Icons.bookmark_rounded, iconColor: const Color(0xFF2196F3), label: 'Saved Jobs', labelColor: const Color(0xFF2196F3), onTap: () {Get.toNamed(AppRoutes.savedJobs);}),
         const SizedBox(height: 10),
         _QuickActionTile(icon: Icons.description_rounded, iconColor: const Color(0xFF2ECC71), label: 'View Resume', labelColor: const Color(0xFF2ECC71), onTap: () {Get.toNamed(AppRoutes.myresume);}),
+        const SizedBox(height: 10),
+        _QuickActionTile(icon: Icons.edit, iconColor: AppColors.appBg2, label: 'Edit profile', labelColor: AppColors.appBg2, onTap: () {Get.toNamed(AppRoutes.myprofile);}),
       ]),
     );
   }
@@ -1760,19 +1876,83 @@ class _SectionCard extends StatelessWidget {
 }
 
 // ── Generic Section Bar ──
+// class _SectionBar extends StatelessWidget {
+//   final String label; final double progress; final String percent;
+//   const _SectionBar({required this.label, required this.progress, required this.percent});
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(padding: const EdgeInsets.only(bottom: 14), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+//       Row(children: [const SizedBox(width: 8), Expanded(child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary))), Text(percent, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary))]),
+//       const SizedBox(height: 6),
+//       ClipRRect(borderRadius: BorderRadius.circular(4), child: LinearProgressIndicator(value: progress, minHeight: 6, backgroundColor: const Color(0xFFE0E0E0), valueColor: const AlwaysStoppedAnimation<Color>(AppColors.darkRed))),
+//     ]));
+//   }
+// }
 class _SectionBar extends StatelessWidget {
-  final String label; final double progress; final String percent;
-  const _SectionBar({required this.label, required this.progress, required this.percent});
+  final IconData icon;
+  final String label;
+  final double progress;
+  final String percent;
+
+  const _SectionBar({
+    required this.icon,
+    required this.label,
+    required this.progress,
+    required this.percent,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return Padding(padding: const EdgeInsets.only(bottom: 14), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [const SizedBox(width: 8), Expanded(child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary))), Text(percent, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary))]),
-      const SizedBox(height: 6),
-      ClipRRect(borderRadius: BorderRadius.circular(4), child: LinearProgressIndicator(value: progress, minHeight: 6, backgroundColor: const Color(0xFFE0E0E0), valueColor: const AlwaysStoppedAnimation<Color>(AppColors.darkRed))),
-    ]));
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: AppColors.darkRed,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              Text(
+                percent,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: const Color(0xFFE0E0E0),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                AppColors.darkRed,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
-
 class _QuickActionTile extends StatelessWidget {
   final IconData icon; final Color iconColor; final String label; final Color labelColor; final VoidCallback onTap;
   const _QuickActionTile({required this.icon, required this.iconColor, required this.label, required this.labelColor, required this.onTap});
@@ -1784,10 +1964,56 @@ class _QuickActionTile extends StatelessWidget {
 
 class _ProfileTipsCard extends StatelessWidget {
   const _ProfileTipsCard();
+
   @override
   Widget build(BuildContext context) {
-    final tips = ['Keep your skills updated', 'Add specific achievements',  'Check job matches daily'];
-    return _SectionCard(icon: Icons.lightbulb_rounded, iconColor: AppColors.darkRed, title: 'Profile Tips', child: Column(children: tips.map((tip) => Padding(padding: const EdgeInsets.only(bottom: 10), child: Row(children: [const Icon(Icons.check_circle_rounded, color: Color(0xFF2ECC71), size: 20), const SizedBox(width: 12), Expanded(child: Text(tip, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)))]))).toList()));
+    final tips = [
+      'Keep your skills updated with trending technologies',
+      'Add specific achievements in your work experience',
+      'Upload a professional profile picture',
+      'Check for job matches daily to stay ahead',
+    ];
+
+    return _SectionCard(
+      icon: Icons.lightbulb_outline_rounded,
+      iconColor: AppColors.darkRed,
+      title: 'Profile Tips',
+      child: Column(
+        children: List.generate(tips.length, (index) {
+          final tip = tips[index];
+          return Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.check_circle_outline_rounded,
+                    color: Color(0xFF2ECC71),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      tip,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (index < tips.length - 1)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Divider(height: 1, color: Color(0xFFEEEEEE)),
+                ),
+            ],
+          );
+        }),
+      ),
+    );
   }
 }
 

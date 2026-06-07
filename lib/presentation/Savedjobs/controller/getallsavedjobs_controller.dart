@@ -14,6 +14,7 @@ class SavedJobsController extends GetxController {
   final isLoading = false.obs;
   final savedJobsList = <Datum>[].obs;
   final _prefs = SharedPrefHelper();
+  final selectedJobId = "".obs;
 
   @override
   void onInit() {
@@ -54,6 +55,14 @@ class SavedJobsController extends GetxController {
         final res = GetAllSavedJobsResponseModel.fromJson(json.decode(response.body));
         if (res.success == true) {
           savedJobsList.assignAll(res.data);
+          if (savedJobsList.isNotEmpty) {
+            final hasSelected = savedJobsList.any((j) => j.jobId == selectedJobId.value);
+            if (!hasSelected) {
+              selectedJobId.value = savedJobsList.first.jobId ?? "";
+            }
+          } else {
+            selectedJobId.value = "";
+          }
         }
       } else {
         showToastFail("Failed to load jobs: ${response.statusCode}");
