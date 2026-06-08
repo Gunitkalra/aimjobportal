@@ -430,7 +430,12 @@ class AuthController extends GetxController {
           await _prefs.save('tokenType', tokenType ?? "");
           await _prefs.save('userId', userId?? "");
 
-
+          if (Get.isRegistered<DashboardController>()) {
+            final dashCtrl = Get.find<DashboardController>();
+            dashCtrl.isLoggedIn.value = true;
+            dashCtrl.userName.value = (googleUser.displayName ?? '').split(' ').first;
+            dashCtrl.userEmail.value =  googleUser.email ?? '';
+          }
 
           // Step 5: Navigate based on profile status
           if (isProfileComplete) {
@@ -605,13 +610,20 @@ class AuthController extends GetxController {
           await _prefs.save('tokenType', tokenType ?? "");
           await _prefs.save('userId', userId?? "");
 
-
+          if (Get.isRegistered<DashboardController>()) {
+            final dashCtrl = Get.find<DashboardController>();
+            dashCtrl.isLoggedIn.value = true;
+            dashCtrl.userName.value = (name ?? '').split(' ').first;
+            dashCtrl.userEmail.value =  email ?? '';
+          }
 
 
           if (isProfileComplete) {
             Get.offAllNamed(AppRoutes.dashboard);
           } else {
+
             Get.toNamed(AppRoutes.completeProfile);
+
           }
         } else {
           _toast(res['message'] ?? 'Login failed.', isError: true);
@@ -707,6 +719,7 @@ Future<void> _sendTokenToBackend(String token) async {
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = jsonDecode(response.body);
       final _prefs = SharedPrefHelper();
+
       // Save the backend application's returned application token safely
       await _prefs.save('accessToken', data['token'] ?? 'linkedin_mock_token');
 
