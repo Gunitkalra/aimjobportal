@@ -1,4 +1,5 @@
 import 'dart:ui' show PathMetric;
+import 'package:aimjobs/routes/app_routes.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -269,7 +270,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                         ),
                         const SizedBox(height: 14),
                         ElevatedButton.icon(
-                          onPressed: () => Get.back(),
+                          onPressed: () => Get.toNamed(AppRoutes.myprofile),
                           style: ElevatedButton.styleFrom(
                             backgroundColor:Color(0xFF046307),
                             // backgroundColor:AppColors.textDarkGreen.withOpacity(0.9) ,
