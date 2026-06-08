@@ -336,7 +336,11 @@ class AuthController extends GetxController {
       // Step 1: Trigger Google Sign-In picker
    //   final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
-      const String googleWebClientId = '557085828050-t9fi7e43q1hqa6ki265gq3ic9ssn1i81.apps.googleusercontent.com';
+  //   const String googleWebClientId = '557085828050-t9fi7e43q1hqa6ki265gq3ic9ssn1i81.apps.googleusercontent.com';
+
+    // const String googleWebClientId = '557085828050-0gnduk3vpi9vbcbc2m0oavtfbonpu0ss.apps.googleusercontent.com';
+    const String googleWebClientId = '557085828050-eqs7q5s8bdfvstlggp10ec4c7jvcfui3.apps.googleusercontent.com';
+
 
 // 2. Pass it to the constructor
       final GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -396,7 +400,7 @@ class AuthController extends GetxController {
         url,
         headers: {
           'Content-Type': 'application/json',
-          'X-API-Key': XApikeys,
+         // 'X-API-Key': XApikeys,
         },
         body: json.encode({
           'provider': "google",
@@ -407,18 +411,26 @@ class AuthController extends GetxController {
       if (response.statusCode == 200) {
         final res = json.decode(response.body);
 
+        print("api res after g login  : $res ");
+
         if (res['success'] == true) {
           // Step 4: Save tokens & user info from backend response
           final String accessToken = res['data']['accessToken'] ?? '';
           final String refreshToken = res['data']['refreshToken'] ?? '';
-          final bool isProfileComplete =
-              res['data']['isProfileComplete'] ?? false;
+          final bool isProfileComplete = res['data']['user']['isProfileComplete'] ?? false;
+          final String tokenType = res['data']['user']['tokenType'] ?? '';
+          final String userId = res['data']['user']['userId'] ?? '';
+
 
           await _prefs.save('accessToken', accessToken);
           await _prefs.save('refreshToken', refreshToken);
           await _prefs.save('userEmail', googleUser.email);
           await _prefs.save('userName', googleUser.displayName ?? '');
           await _prefs.save('isProfileComplete', isProfileComplete);
+          await _prefs.save('tokenType', tokenType ?? "");
+          await _prefs.save('userId', userId?? "");
+
+
 
           // Step 5: Navigate based on profile status
           if (isProfileComplete) {
@@ -492,12 +504,17 @@ class AuthController extends GetxController {
   }
 
 // Your LinkedIn App Credentials
-  final String _clientId = 'YOUR_LINKEDIN_CLIENT_ID';
-  final String _clientSecret = 'YOUR_LINKEDIN_CLIENT_SECRET';
-  final String _redirectUrl = 'https://your-redirect-url.com';
+//   final String _clientId = '86a4wnhvrsx3su';
+//   final String _clientSecret = 'WPL_AP1.KLm3U05jcRyiYkbr.gK/LYQ==';
+//   final String _redirectUrl = 'https://your-redirect-url.com';
+
+  final String _clientId = '86a4wnhvrsx3su';
+  final String _clientSecret = 'WPL_AP1.KLm3U05jcRyiYkbr.gK/LYQ==';
+
+  final String _redirectUrl = 'https://aimjobs.ai/signin-linkedin'; // ← real URL
+
+
   void loginWithLinkedIn() {
-    // LinkedIn plugin forces its own fullscreen routing layer.
-    // We pass Get.context to build the modal screen.
     Navigator.push(
       Get.context!,
       MaterialPageRoute<void>(
@@ -506,33 +523,108 @@ class AuthController extends GetxController {
           appBar: AppBar(
             title: const Text('Sign In with LinkedIn'),
           ),
-          destroySession: true, // Clears previous sessions so users can switch accounts
+          destroySession: true,
           redirectUrl: _redirectUrl,
           clientId: _clientId,
           clientSecret: _clientSecret,
-          // LinkedIn uses OpenID connect scopes by default now
+        //  scopes: const ['openid', 'profile', 'email'], // ← required explicitly
           onGetUserProfile: (UserSucceededAction response) async {
             isLoading.value = true;
 
-            // This is the active OAuth2 access token string your backend needs
             final String? token = response.user.token.accessToken;
+            final String? email = response.user.email;
+            final String? firstName = response.user.name;
+           // final String? lastName = response.user.lastName?.localized?.enUS;
 
-            // Pop the web view safely, then process the token delivery
+            print("LinkedIn Token: $token");
+            print("LinkedIn Email: $email");
+            print("LinkedIn Email: $firstName");
+       //     print("LinkedIn Name: $firstName $lastName");
+
             Navigator.pop(context);
 
             if (token != null) {
-              await _sendTokenToBackend(token);
+              await _sendTokenToBackend(
+                token: token,
+                email: email ?? '',
+                name: firstName ?? '',
+
+              );
             } else {
               isLoading.value = false;
-              _toast('Failed to catch authorization token.', isError: true);
+              _toast('Failed to get authorization token.', isError: true);
             }
           },
           onError: (UserFailedAction error) {
-            _toast('LinkedIn process error: ${error.exception.toString()}', isError: true);
+            Navigator.pop(context); // ← always pop on error too
+            _toast('LinkedIn sign-in failed.', isError: true);
+            print("LinkedIn Error: ${error.exception}");
           },
         ),
       ),
     );
+  }
+
+  Future<void> _sendTokenToBackend({
+    required String token,
+    required String email,
+    required String name,
+  }) async {
+    try {
+      final url = Uri.parse("${ApiList.baseUrl}/v1/auth/token");
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        //  'X-API-Key': XApikeys,
+        },
+        body: json.encode({
+          'provider': "linkedin",
+          'idToken': token,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final res = json.decode(response.body);
+
+        if (res['success'] == true) {
+
+          final String accessToken = res['data']['accessToken'] ?? '';
+          final String refreshToken = res['data']['refreshToken'] ?? '';
+          final bool isProfileComplete = res['data']['user']['isProfileComplete'] ?? false;
+          final String tokenType = res['data']['user']['tokenType'] ?? '';
+          final String userId = res['data']['user']['userId'] ?? '';
+
+
+          await _prefs.save('accessToken', accessToken);
+          await _prefs.save('refreshToken', refreshToken);
+          await _prefs.save('userEmail', email??'');
+          await _prefs.save('userName', name ?? '');
+          await _prefs.save('isProfileComplete', isProfileComplete);
+          await _prefs.save('tokenType', tokenType ?? "");
+          await _prefs.save('userId', userId?? "");
+
+
+
+
+          if (isProfileComplete) {
+            Get.offAllNamed(AppRoutes.dashboard);
+          } else {
+            Get.toNamed(AppRoutes.completeProfile);
+          }
+        } else {
+          _toast(res['message'] ?? 'Login failed.', isError: true);
+        }
+      } else {
+        _toast('Server error: ${response.statusCode}', isError: true);
+      }
+    } catch (e) {
+      print("LinkedIn Backend Error: $e");
+      _toast('Connection error.', isError: true);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   // Future<void> loginWithLinkedIn() async {

@@ -1315,7 +1315,7 @@ class SideDashboardScreen extends GetView<SideDashboardController> {
                       const SizedBox(height: 20),
 
                       // 9. Footer
-                      const _Footer(),
+                      //const _Footer(),
                       const SizedBox(height: 16),
                     ],
                   ),
