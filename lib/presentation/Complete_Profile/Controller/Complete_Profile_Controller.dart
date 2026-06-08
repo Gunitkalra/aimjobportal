@@ -44,7 +44,7 @@ class CompleteProfileController extends GetxController {
 
   Future<void> _prefillFromSession() async {
     final email = await _prefs.get('userEmail') ?? '';
-    final name = await _prefs.get('name') ?? '';
+    final name = await _prefs.get('userName') ?? '';
     emailCtrl.text = email;
     nameCtrl.text = name;
   }

@@ -611,19 +611,19 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             const SizedBox(height: 20),
 
             // Footer
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _FooterLink('About Us'),
-                const _FooterDivider(),
-                _FooterLink('Privacy Policy'),
-                const _FooterDivider(),
-                _FooterLink('Terms & Conditions'),
-              ],
-            ),
-            const SizedBox(height: 6),
-            const Text('© 2026 Aim Job Techno. All Rights Reserved.',
-                style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     _FooterLink('About Us'),
+            //     const _FooterDivider(),
+            //     _FooterLink('Privacy Policy'),
+            //     const _FooterDivider(),
+            //     _FooterLink('Terms & Conditions'),
+            //   ],
+            // ),
+            // const SizedBox(height: 6),
+            // const Text('© 2026 Aim Job Techno. All Rights Reserved.',
+            //     style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
             const SizedBox(height: 16),
           ],
         ),

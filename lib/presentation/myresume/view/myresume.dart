@@ -510,25 +510,25 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
               const SizedBox(height: 30),
 
               // ── Footer ──────────────────────────────────────────────
-              Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _FooterLink('About Us'),
-                      const _FooterDivider(),
-                      _FooterLink('Privacy Policy'),
-                      const _FooterDivider(),
-                      _FooterLink('Terms & Conditions'),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    '© 2026 Aim Job Techno. All Rights Reserved.',
-                    style: TextStyle(fontSize: 11, color: AppColors.textMuted),
-                  ),
-                ],
-              ),
+              // Column(
+              //   children: [
+              //     Row(
+              //       mainAxisAlignment: MainAxisAlignment.center,
+              //       children: [
+              //         _FooterLink('About Us'),
+              //         const _FooterDivider(),
+              //         _FooterLink('Privacy Policy'),
+              //         const _FooterDivider(),
+              //         _FooterLink('Terms & Conditions'),
+              //       ],
+              //     ),
+              //     const SizedBox(height: 6),
+              //     const Text(
+              //       '© 2026 Aim Job Techno. All Rights Reserved.',
+              //       style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+              //     ),
+              //   ],
+              // ),
 
               const SizedBox(height: 16),
             ],
