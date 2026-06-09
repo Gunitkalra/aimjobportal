@@ -1231,6 +1231,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../Utils/colors.dart';
 import '../../../routes/app_routes.dart';
 import '../controller/SideDashboard_Controller.dart';
@@ -1394,15 +1395,29 @@ class _StatsRow extends StatelessWidget {
     return Column(
       children: [
         _StatTile(
-          icon: Icons.speed_rounded,
-          iconBgColor: const Color(0xFF2ECC71),
+          svgAsset: 'assets/speedometer2.svg',
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFEC70C4),
+              Color(0xFFFF5E62),
+            ],
+          ),
           value: '${data.profileCompletionPercentage}%',
           label: 'Profile Strength',
         ),
         const SizedBox(height: 10),
         _StatTile(
           icon: Icons.bookmark_rounded,
-          iconBgColor: const Color(0xFF2196F3),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF26A0FC),
+              Color(0xFF13E2E6),
+            ],
+          ),
           value: '${data.savedJobsCount ?? 0}',
           label: 'Saved Jobs',
         ),
@@ -1430,44 +1445,44 @@ class _ProfileCompletionCard extends StatelessWidget {
     // ];
     final sections = [
       (
-          Icons.account_circle_outlined,
+      'assets/person-circle.svg',
       'Personal Information',
       (status?.personalInfoPercentage ?? 0) / 100,
       '${status?.personalInfoPercentage}%'
       ),
       (
-      Icons.badge,
+      'assets/briefcase-fill.svg',
       'Job Details',
       (status?.jobDetailsPercentage ?? 0) / 100,
       '${status?.jobDetailsPercentage}%'
       ),
       (
-      Icons.assignment_outlined,
+      'assets/card-text.svg',
       'Profile Summary',
       (status?.profileSummaryPercentage ?? 0) / 100,
       '${status?.profileSummaryPercentage}%'
       ),
       (
-      Icons.lightbulb,
+      'assets/lightbulb-fill.svg',
       'Skills & Languages',
       (status?.skillsLanguagesPercentage ?? 0) / 100,
       '${status?.skillsLanguagesPercentage}%'
       ),
       (
-      Icons.business,
+      'assets/building.svg',
       'Work Experience',
       (status?.workExperiencePercentage ?? 0) / 100,
       '${status?.workExperiencePercentage}%'
       ),
       (
-      Icons.school_rounded,
+      'assets/mortarboard-fill.svg',
       'Education',
       (status?.educationPercentage ?? 0) / 100,
       '${status?.educationPercentage}%'
       ),
     ];
     return _SectionCard(
-      icon: Icons.trending_up_rounded,
+      icon: 'assets/graph-up-arrow.svg',
       iconColor: AppColors.darkRed,
       title: 'Profile Completion',
       child: Column(
@@ -1486,7 +1501,9 @@ class _ProfileCompletionCard extends StatelessWidget {
                     value: (data.profileCompletionPercentage ?? 0) / 100,
                     strokeWidth: 12,
                     backgroundColor: const Color(0xFFE0E0E0),
-                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.appBg2),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Color(0xFFF64F73),
+                    ),
                     strokeCap: StrokeCap.round,
                   ),
                 ),
@@ -1528,7 +1545,8 @@ class _CompleteProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fields = data.missingFields ?? [];
-    final important = fields.where((f) => f.priority == 0 || f.priority == 1).toList();
+    final critical = fields.where((f) => f.priority == 0).toList();
+    final important = fields.where((f) => f.priority == 1).toList();
     final optional = fields.where((f) => f.priority == 2).toList();
 
     return Container(
@@ -1544,26 +1562,44 @@ class _CompleteProfileCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             child: Row(
               children: [
-                const Icon(Icons.warning_rounded, color: AppColors.darkRed, size: 20),
+                const Icon(Icons.warning_amber_rounded, color: AppColors.darkRed, size: 22),
                 const SizedBox(width: 8),
                 const Expanded(child: Text('Complete Your Profile', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary))),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: AppColors.textRed.withOpacity(0.40), borderRadius: BorderRadius.circular(20)),
-                  child: Text('${fields.length} items', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textRed)),
+                  decoration: BoxDecoration(color: AppColors.textRed.withOpacity(0.3), borderRadius: BorderRadius.circular(20)),
+                  child: Text('${fields.length} items', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color:AppColors.textRed)),
                 ),
               ],
             ),
           ),
           const Divider(height: 1, color: Color(0xFFEEEEEE)),
 
+          if (critical.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+              child: Row(children: [
+                const Icon(Icons.error, color: Color(0xFFC92A2A), size: 18),
+                const SizedBox(width: 8),
+                Text('CRITICAL (${critical.length})', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFC92A2A), letterSpacing: 0.5)),
+              ]),
+            ),
+            ...critical.map((item) => _ProfileTaskCard(
+              title: item.fieldName ?? "",
+              category: item.section ?? "",
+              description: item.whyItMatters ?? "",
+              time: item.estimatedTime ?? "",
+              priority: 0,
+            )),
+          ],
+
           if (important.isNotEmpty) ...[
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
               child: Row(children: [
-                const Icon(Icons.info_rounded, color: Color(0xFFF4A742), size: 18),
+                const Icon(Icons.info, color: Color(0xFFD97706), size: 18),
                 const SizedBox(width: 8),
-                Text('IMPORTANT (${important.length})', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFF4A742), letterSpacing: 0.5)),
+                Text('IMPORTANT (${important.length})', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFD97706), letterSpacing: 0.5)),
               ]),
             ),
             ...important.map((item) => _ProfileTaskCard(
@@ -1571,17 +1607,17 @@ class _CompleteProfileCard extends StatelessWidget {
               category: item.section ?? "",
               description: item.whyItMatters ?? "",
               time: item.estimatedTime ?? "",
-              isImportant: true,
+              priority: 1,
             )),
           ],
 
           if (optional.isNotEmpty) ...[
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
               child: Row(children: [
-                const Icon(Icons.remove_circle_outline_rounded, color: AppColors.textSecondary, size: 18),
+                const Icon(Icons.remove_circle, color: Color(0xFF6B7280), size: 18),
                 const SizedBox(width: 8),
-                Text('OPTIONAL (${optional.length})', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textSecondary, letterSpacing: 0.5)),
+                Text('OPTIONAL (${optional.length})', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF6B7280), letterSpacing: 0.5)),
               ]),
             ),
             ...optional.map((item) => _ProfileTaskCard(
@@ -1589,7 +1625,7 @@ class _CompleteProfileCard extends StatelessWidget {
               category: item.section ?? "",
               description: item.whyItMatters ?? "",
               time: item.estimatedTime ?? "",
-              isImportant: false,
+              priority: 2,
             )),
           ],
           const SizedBox(height: 16),
@@ -1605,10 +1641,10 @@ class _RecentActivityCard extends StatelessWidget {
   final dynamic data;
   const _RecentActivityCard({required this.data});
 
-  IconData _getIcon(String? type) {
-    if (type == "Profile Updated") return Icons.edit_rounded;
-    if (type == "CV Upload") return Icons.upload_file_rounded;
-    return Icons.person_add_rounded;
+  String _getIconSvg(String? type) {
+    if (type == "Profile Updated") return "assets/pencil-square.svg";
+    if (type == "CV Upload") return "assets/cloud-upload.svg";
+    return "assets/person-lines-fill.svg";
   }
 
   String _formatTime(DateTime? date) {
@@ -1621,7 +1657,7 @@ class _RecentActivityCard extends StatelessWidget {
     final activities = data.recentActivities ?? [];
 
     return _SectionCard(
-      icon: Icons.access_time_rounded,
+      icon: 'assets/clock-history.svg',
       iconColor: AppColors.darkRed,
       title: 'Recent Activity',
       child: Column(
@@ -1636,7 +1672,11 @@ class _RecentActivityCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(color: AppColors.darkRed, shape: BoxShape.circle),
-                    child: Icon(_getIcon(a.activityType), color: Colors.white, size: 18),
+                    padding: const EdgeInsets.all(10),
+                    child: SvgPicture.asset(
+                      _getIconSvg(a.activityType),
+                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -1682,23 +1722,23 @@ class _CvStatusCard extends StatelessWidget {
 
     Color bgColor;
     Color textColor;
-    IconData iconData;
+    String svgAsset;
     String label;
 
     if (isFailed) {
       bgColor = const Color(0xFFFDE8E8);
       textColor = const Color(0xFF9B1C1C);
-      iconData = Icons.error_rounded;
+      svgAsset = "assets/x-circle-fill.svg";
       label = "AI Parsing Failed";
     } else if (isCompleted) {
       bgColor = const Color(0xFFD4F5E6);
       textColor = const Color(0xFF155724);
-      iconData = Icons.check_circle_rounded;
+      svgAsset = "assets/check-circle-fill.svg";
       label = "AI Parsing Completed";
     } else {
       bgColor = const Color(0xFFFEF3C7);
       textColor = const Color(0xFFB45309);
-      iconData = Icons.access_time_filled_rounded;
+      svgAsset = "assets/clock-history.svg";
       label = status ?? "AI Parsing In Progress";
     }
 
@@ -1712,10 +1752,11 @@ class _CvStatusCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            iconData,
-            color: textColor,
-            size: 18,
+          SvgPicture.asset(
+            svgAsset,
+            colorFilter: ColorFilter.mode(AppColors.textRed, BlendMode.srcIn),
+            width: 18,
+            height: 18,
           ),
           const SizedBox(width: 8),
           Text(
@@ -1737,7 +1778,7 @@ class _CvStatusCard extends StatelessWidget {
     if (cv == null) return const SizedBox();
 
     return _SectionCard(
-      icon: Icons.description_rounded,
+      icon: 'assets/file-earmark-text.svg',
       iconColor: AppColors.darkRed,
       title: 'CV Status',
       child: Column(
@@ -1745,18 +1786,11 @@ class _CvStatusCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE53935),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.picture_as_pdf_rounded,
-                  color: Colors.white,
-                  size: 28,
-                ),
+              SvgPicture.asset(
+                'assets/file-earmark-pdf-fill.svg',
+                colorFilter: const ColorFilter.mode(Color(0xFFE53935), BlendMode.srcIn),
+                width: 38,
+                height: 44,
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -1797,15 +1831,41 @@ class _CvStatusCard extends StatelessWidget {
 
 // ── Reused StatTile helper ──
 class _StatTile extends StatelessWidget {
-  final IconData icon; final Color iconBgColor; final String value; final String label;
-  const _StatTile({required this.icon, required this.iconBgColor, required this.value, required this.label});
+  final IconData? icon;
+  final String? svgAsset;
+  final Gradient gradient;
+  final String value;
+  final String label;
+
+  const _StatTile({
+    this.icon,
+    this.svgAsset,
+    required this.gradient,
+    required this.value,
+    required this.label,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))]),
       child: Row(children: [
-        Container(width: 52, height: 52, decoration: BoxDecoration(color: iconBgColor, borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: Colors.white, size: 26)),
+        Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(gradient: gradient, borderRadius: BorderRadius.circular(12)),
+          padding: svgAsset != null ? const EdgeInsets.all(12) : EdgeInsets.zero,
+          child: Center(
+            child: svgAsset != null
+                ? SvgPicture.asset(
+                    svgAsset!,
+                    height: 25,
+                    colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  )
+                : Icon(icon, color: Colors.white, size: 26),
+          ),
+        ),
         const SizedBox(width: 16),
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(value, style: GoogleFonts.poppins(fontSize: 26, fontWeight: FontWeight.w600, color: Colors.black)),
@@ -1822,15 +1882,17 @@ class _QuickActionsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _SectionCard(
-      icon: Icons.bolt_rounded, iconColor: AppColors.darkRed, title: 'Quick Actions',
+      icon: 'assets/lightning-charge-fill.svg',
+      iconColor: AppColors.darkRed,
+      title: 'Quick Actions',
       child: Column(children: [
-        SizedBox(width: double.infinity, height: 80, child: DecoratedBox(decoration: BoxDecoration(gradient: AppColors.blueGradient, borderRadius: BorderRadius.circular(12)), child: ElevatedButton(onPressed: () {Get.toNamed(AppRoutes.dashboard);}, style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent), child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.search_rounded, color: Colors.white, size: 28), SizedBox(height: 4), Text('Search Jobs', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600))])))),
+        SizedBox(width: double.infinity, height: 80, child: DecoratedBox(decoration: BoxDecoration(gradient: AppColors.blueGradient, borderRadius: BorderRadius.circular(12)), child: ElevatedButton(onPressed: () {Get.toNamed(AppRoutes.dashboard);}, style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [SvgPicture.asset('assets/search.svg', colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn), width: 28, height: 28), const SizedBox(height: 4), const Text('Search Jobs', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600))])))),
         const SizedBox(height: 10),
-        _QuickActionTile(icon: Icons.bookmark_rounded, iconColor: const Color(0xFF2196F3), label: 'Saved Jobs', labelColor: const Color(0xFF2196F3), onTap: () {Get.toNamed(AppRoutes.savedJobs);}),
+        _QuickActionTile(icon: 'assets/bookmarks-fill.svg', iconColor: const Color(0xFF2196F3), label: 'Saved Jobs', labelColor: const Color(0xFF2196F3), onTap: () {Get.toNamed(AppRoutes.savedJobs);}),
         const SizedBox(height: 10),
-        _QuickActionTile(icon: Icons.description_rounded, iconColor: const Color(0xFF2ECC71), label: 'View Resume', labelColor: const Color(0xFF2ECC71), onTap: () {Get.toNamed(AppRoutes.myresume);}),
+        _QuickActionTile(icon: 'assets/file-earmark-text.svg', iconColor: const Color(0xFF2ECC71), label: 'View Resume', labelColor: const Color(0xFF2ECC71), onTap: () {Get.toNamed(AppRoutes.myresume);}),
         const SizedBox(height: 10),
-        _QuickActionTile(icon: Icons.edit, iconColor: AppColors.appBg2, label: 'Edit profile', labelColor: AppColors.appBg2, onTap: () {Get.toNamed(AppRoutes.myprofile);}),
+        _QuickActionTile(icon: 'assets/pencil-square.svg', iconColor: AppColors.appBg2, label: 'Edit Profile', labelColor: AppColors.appBg2, onTap: () {Get.toNamed(AppRoutes.myprofile);}),
       ]),
     );
   }
@@ -1838,36 +1900,138 @@ class _QuickActionsCard extends StatelessWidget {
 
 // ── Profile Task helper ──
 class _ProfileTaskCard extends StatelessWidget {
-  final String title; final String category; final String description; final String time; final bool isImportant;
-  const _ProfileTaskCard({required this.title, required this.category, required this.description, required this.time, required this.isImportant});
+  final String title;
+  final String category;
+  final String description;
+  final String time;
+  final int priority;
+
+  const _ProfileTaskCard({
+    required this.title,
+    required this.category,
+    required this.description,
+    required this.time,
+    required this.priority,
+  });
+
   @override
   Widget build(BuildContext context) {
+    Color cardBg;
+    Color leftBorderColor;
+
+    if (priority == 0) {
+      cardBg = const Color(0xFFFFF5F5);
+      leftBorderColor = const Color(0xFFE53935);
+    } else if (priority == 1) {
+      cardBg = const Color(0xFFFFF8E7).withOpacity(0.5);
+      leftBorderColor = const Color(0xFFF59E0B);
+    } else {
+      cardBg = const Color(0xFFF9FAFB);
+      leftBorderColor = const Color(0xFF9CA3AF);
+    }
+
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 10), padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: isImportant ? const Color(0xFFFFF8F0) : const Color(0xFFF5F6FA), borderRadius: BorderRadius.circular(12), border: Border(left: BorderSide(color: isImportant ? const Color(0xFFF4A742) : const Color(0xFFCCCCCC), width: 3))),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [Expanded(child: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary))), Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: AppColors.darkRed.withOpacity(0.1), borderRadius: BorderRadius.circular(20)), child: Row(children: [Icon(Icons.access_time_rounded, size: 12, color: AppColors.darkRed), const SizedBox(width: 4), Text(time, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.darkRed))]))]),
-        const SizedBox(height: 4),
-        Row(children: [Icon(Icons.label_outline_rounded, size: 13, color: AppColors.buttonPrimary), const SizedBox(width: 4), Text(category, style: const TextStyle(fontSize: 12, color: AppColors.buttonPrimary))]),
-        const SizedBox(height: 6),
-        Text(description, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4)),
-        const SizedBox(height: 10),
-        SizedBox(width: double.infinity, height: 40, child: DecoratedBox(decoration: BoxDecoration(gradient: AppColors.blueGradient, borderRadius: BorderRadius.circular(10)), child: ElevatedButton.icon(onPressed: () {Get.toNamed(AppRoutes.myprofile);}, style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent), icon: const Icon(Icons.arrow_circle_right_outlined, size: 16, color: Colors.white), label: const Text('Complete', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)))))
-      ]),
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border(left: BorderSide(color: leftBorderColor, width: 4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                ),
+              ),
+              if (time.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: const Color(0xFFDBEAFE).withOpacity(0.4), borderRadius: BorderRadius.circular(20)),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.access_time_rounded, size: 12, color: Color(0xFF1E40AF)),
+                      const SizedBox(width: 4),
+                      Text(time, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF1E40AF))),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              const Icon(
+                Icons.sell_outlined,
+                size: 14,
+                color: AppColors.textSecondary,
+              ),
+              const SizedBox(width: 6),
+              Text(category, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(description, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4)),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 40,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Get.toNamed(AppRoutes.myprofile);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:AppColors.darkRed,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              icon: const Icon(Icons.arrow_circle_right_outlined, size: 16, color: Colors.white),
+              label: const Text(
+                'Complete',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 // ── Generic Section Card Wrapper ──
 class _SectionCard extends StatelessWidget {
-  final IconData icon; final Color iconColor; final String title; final Widget child;
+  final dynamic icon; final Color iconColor; final String title; final Widget child;
   const _SectionCard({required this.icon, required this.iconColor, required this.title, required this.child});
   @override
   Widget build(BuildContext context) {
+    Widget iconWidget;
+    if (icon is String) {
+      iconWidget = SvgPicture.asset(
+        icon as String,
+        width: 20,
+        height: 20,
+        colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+      );
+    } else if (icon is IconData) {
+      iconWidget = Icon(
+        icon as IconData,
+        color: iconColor,
+        size: 20,
+      );
+    } else {
+      iconWidget = const SizedBox.shrink();
+    }
+
     return Container(
       width: double.infinity, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))]),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Padding(padding: const EdgeInsets.fromLTRB(16, 16, 16, 12), child: Row(children: [Icon(icon, color: iconColor, size: 20), const SizedBox(width: 8), Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary))])),
+        Padding(padding: const EdgeInsets.fromLTRB(16, 16, 16, 12), child: Row(children: [iconWidget, const SizedBox(width: 8), Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary))])),
         const Divider(height: 1, color: Color(0xFFEEEEEE)),
         Padding(padding: const EdgeInsets.all(16), child: child),
       ]),
@@ -1889,7 +2053,7 @@ class _SectionCard extends StatelessWidget {
 //   }
 // }
 class _SectionBar extends StatelessWidget {
-  final IconData icon;
+  final dynamic icon;
   final String label;
   final double progress;
   final String percent;
@@ -1903,6 +2067,24 @@ class _SectionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget iconWidget;
+    if (icon is String) {
+      iconWidget = SvgPicture.asset(
+        icon as String,
+        width: 18,
+        height: 18,
+        colorFilter: const ColorFilter.mode(AppColors.darkRed, BlendMode.srcIn),
+      );
+    } else if (icon is IconData) {
+      iconWidget = Icon(
+        icon as IconData,
+        size: 18,
+        color: AppColors.darkRed,
+      );
+    } else {
+      iconWidget = const SizedBox.shrink();
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Column(
@@ -1910,11 +2092,7 @@ class _SectionBar extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                icon,
-                size: 18,
-                color: AppColors.darkRed,
-              ),
+              iconWidget,
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -1954,11 +2132,55 @@ class _SectionBar extends StatelessWidget {
   }
 }
 class _QuickActionTile extends StatelessWidget {
-  final IconData icon; final Color iconColor; final String label; final Color labelColor; final VoidCallback onTap;
+  final dynamic icon; final Color iconColor; final String label; final Color labelColor; final VoidCallback onTap;
   const _QuickActionTile({required this.icon, required this.iconColor, required this.label, required this.labelColor, required this.onTap});
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(onTap: onTap, child: Container(width: double.infinity, height: 80, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFEEEEEE))), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, color: iconColor, size: 28), const SizedBox(height: 4), Text(label, style: TextStyle(color: labelColor, fontSize: 14, fontWeight: FontWeight.w600))])));
+    Widget iconWidget;
+    if (icon is String) {
+      iconWidget = SvgPicture.asset(
+        icon as String,
+        width: 28,
+        height: 28,
+        colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+      );
+    } else if (icon is IconData) {
+      iconWidget = Icon(
+        icon as IconData,
+        color: iconColor,
+        size: 28,
+      );
+    } else {
+      iconWidget = const SizedBox.shrink();
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        height: 80,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFEEEEEE)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            iconWidget,
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: labelColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -1975,7 +2197,7 @@ class _ProfileTipsCard extends StatelessWidget {
     ];
 
     return _SectionCard(
-      icon: Icons.lightbulb_outline_rounded,
+      icon: 'assets/lightbulb-fill.svg',
       iconColor: AppColors.darkRed,
       title: 'Profile Tips',
       child: Column(

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:aimjobs/api/apilist.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import '../../../Utils/constant_utils.dart';
@@ -37,7 +38,18 @@ class UpdateEducationController extends GetxController {
       );
 
       // Handle 400 or 401 Unauthorized / Token Expired
-      if (response.statusCode == 401 || response.statusCode == 400) {
+      if (response.statusCode == 400) {
+        Get.snackbar(
+          "Error",
+          parse400Error(response.body),
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.top,
+        );
+        return;
+      }
+
+      if (response.statusCode == 401) {
         final newToken = await _refreshTokenAndSave();
         if (newToken != null && newToken.isNotEmpty) {
           response = await http.patch(
@@ -67,8 +79,13 @@ class UpdateEducationController extends GetxController {
           showToastFail(res.message ?? "Failed to update education.");
         }
       } else if (response.statusCode == 400) {
-        print("EDUCATION API 400 ERROR: ${response.body}");
-        showToastFail("Validation Error: ${response.body}");
+        Get.snackbar(
+          "Error",
+          parse400Error(response.body),
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.top,
+        );
       } else {
         showToastFail("Error: ${response.statusCode}");
       }

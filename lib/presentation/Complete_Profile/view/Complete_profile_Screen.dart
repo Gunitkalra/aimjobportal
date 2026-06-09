@@ -538,25 +538,32 @@
 // }
 
 
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../../Utils/colors.dart';
 import '../../../routes/app_routes.dart';
 import '../Controller/Complete_Profile_Controller.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 // ── Shared colour tokens ──────────────────────────────────────────────────────
-const _kBlue      = Color(0xFF1A56DB);
-const _kBlueSoft  = Color(0xFFEFF6FF);
-const _kBlueDash  = Color(0xFF93C5FD);
-const _kBorder    = Color(0xFFE2E8F0);
-const _kBg        = Color(0xFFF8FAFC);
+const _kBlue          = Color(0xFF1A56DB);
+const _kBlueSoft      = Color(0xFFEFF6FF);
+const _kBlueDash      = Color(0xFF93C5FD);
+const _kBorder        = Color(0xFFE2E8F0);
+const _kBg            = Color(0xFFF8FAFC);
+const _kBgGradientTop = Color(0xFFF1F5F9); // Light soft background
+const _kBgGradientBot = Color(0xFFE2E8F0);
 const _kTextPrimary   = Color(0xFF111827);
 const _kTextSecondary = Color(0xFF6B7280);
 const _kTextHint      = Color(0xFFADB5BD);
 
 class CompleteProfileScreen extends GetView<CompleteProfileController> {
-  const CompleteProfileScreen({super.key});
+  CompleteProfileScreen({super.key});
+
+  // Local state for agreed to terms checkbox
+  final agreedToTerms = false.obs;
 
   @override
   Widget build(BuildContext context) {
@@ -564,292 +571,621 @@ class CompleteProfileScreen extends GetView<CompleteProfileController> {
     final sh = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // ── Blue hero header ─────────────────────────────────────
-            _HeroHeader(),
-
-            // ── Scrollable form ──────────────────────────────────────
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: sw * 0.06),
-                child: Form(
-                  key: controller.formKey,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [_kBgGradientTop, _kBgGradientBot],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      if (Navigator.canPop(context)) {
+                        Get.back();
+                      } else {
+                        Get.offAllNamed(AppRoutes.login);
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: AppColors.darkRed,
+                      size: 22,
+                    ),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: sw * 0.05, vertical: 10),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: sh * 0.028),
-
-                      // ── Full Name ──────────────────────────────────
-                      const _FieldLabel(label: 'Full Name *'),
-                      const SizedBox(height: 7),
-                      TextFormField(
-                        controller: controller.nameCtrl,
-                        textCapitalization: TextCapitalization.words,
-                        textInputAction: TextInputAction.next,
-                        style: const TextStyle(
-                            fontSize: 14, color: _kTextPrimary),
-                        decoration: _inputDecoration(
-                          hint: 'Enter your full name',
-                          prefix: Icons.person_outline_rounded,
-                        ),
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty)
-                            return 'Name is required';
-                          if (v.trim().length < 2)
-                            return 'Name is too short';
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: sh * 0.02),
-
-                      // ── Mobile Number ──────────────────────────────
-                      const _FieldLabel(label: 'Mobile Number *'),
-                      const SizedBox(height: 7),
-                      TextFormField(
-                        controller: controller.phoneCtrl,
-                        keyboardType: TextInputType.phone,
-                        textInputAction: TextInputAction.next,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                        maxLength: 10,
-                        style: const TextStyle(
-                            fontSize: 14, color: _kTextPrimary),
-                        decoration: _inputDecoration(
-                          hint: 'Enter 10-digit mobile number',
-                          prefix: Icons.phone_outlined,
-                        ).copyWith(counterText: ''),
-                        validator: (v) {
-                          if (v == null || v.isEmpty)
-                            return 'Phone number is required';
-                          if (v.length < 10)
-                            return 'Enter a valid 10-digit number';
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: sh * 0.02),
-
-                      // ── Email (read-only / pre-filled) ─────────────
-                      const _FieldLabel(label: 'Email Address'),
-                      const SizedBox(height: 7),
-                      TextFormField(
-                        controller: controller.emailCtrl,
-                        keyboardType: TextInputType.emailAddress,
-                        textInputAction: TextInputAction.next,
-                        readOnly: true,
-                        style: const TextStyle(
-                            fontSize: 14, color: _kTextSecondary),
-                        decoration: _inputDecoration(
-                          hint: 'your@email.com',
-                          prefix: Icons.mail_outline_rounded,
-                        ).copyWith(
-                          fillColor: const Color(0xFFF1F5F9),
-                        ),
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty)
-                            return 'Email is required';
-                          if (!GetUtils.isEmail(v.trim()))
-                            return 'Enter a valid email';
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Your registered email address',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: _kTextHint,
-                        ),
-                      ),
-
-                      SizedBox(height: sh * 0.024),
-
-                      // ── Upload CV card ─────────────────────────────
-                      Container(
-                        decoration: BoxDecoration(
-                          color: _kBlueSoft,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                              color: _kBlueDash, width: 1.2),
-                        ),
-                        padding: const EdgeInsets.all(18),
+                      // ── Centered Avatar & Header ───────────────────
+                      Center(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            // Icon + title
+                            const SizedBox(height: 16),
                             Container(
-                              width: 52,
-                              height: 52,
-                              decoration: BoxDecoration(
+                              width: 64,
+                              height: 64,
+                              decoration: const BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: _kBlue.withOpacity(0.12),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
+                                shape: BoxShape.circle,
                               ),
-                              child: const Icon(
-                                Icons.description_outlined,
-                                color: AppColors.darkRed,
-                                size: 26,
+                              child: SvgPicture.asset(
+                                'assets/person-circle.svg',
+                                width: 34,
+                                height: 34,
+                                colorFilter: const ColorFilter.mode(
+                                  AppColors.darkRed,
+                                  BlendMode.srcIn,
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 12),
                             const Text(
-                              'Upload Your CV',
+                              'Complete Your Profile',
                               style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
                                 color: _kTextPrimary,
+                                letterSpacing: -0.3,
                               ),
                             ),
-                            const SizedBox(height: 14),
-
-                            // AI info banner
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 11),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                    color: _kBorder, width: 1),
-                              ),
-                              child: Row(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(
-                                    Icons.auto_awesome_outlined,
-                                    color: _kBlue,
-                                    size: 18,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  const Expanded(
-                                    child: Text(
-                                      "Let AI turn your resume into a complete professional profile in seconds",
-                                      style: TextStyle(
-                                        fontSize: 12.5,
-                                        color: _kTextSecondary,
-                                        height: 1.45,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            const SizedBox(height: 14),
-
-                            // Upload area / file card
-                            Obx(() =>
-                            controller.resumeFileName.value.isEmpty
-                                ? _ResumeUploadArea(
-                              onTap: controller.pickResume,
-                            )
-                                : _ResumeFileCard(
-                              fileName: controller
-                                  .resumeFileName.value,
-                              fileSize: controller
-                                  .resumeFileSize.value,
-                              onRemove: controller.removeResume,
-                            )),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: sh * 0.028),
-
-                      // ── Complete Profile button ────────────────────
-                      Obx(() => SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton.icon(
-                          onPressed: controller.isLoading.value
-                              ? null
-                              : controller.saveProfile,
-                          icon: controller.isLoading.value
-                              ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              color: Colors.white,
-                            ),
-                          )
-                              : const Icon(
-                            Icons.check_circle_outline_rounded,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          label: controller.isLoading.value
-                              ? const SizedBox.shrink()
-                              : const Text(
-                            'Complete Profile',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.darkRed,
-                            disabledBackgroundColor:
-                            AppColors.darkRed,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      )),
-
-                      SizedBox(height: sh * 0.016),
-
-                      // ── Security note ──────────────────────────────
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: _kBg,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: _kBorder),
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.shield_outlined,
-                                color: _kTextSecondary, size: 16),
-                            SizedBox(width: 8),
-                            Expanded(
+                            const SizedBox(height: 5),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
                               child: Text(
-                                'Your information is securely handled and used only to match you with relevant job opportunities.',
+                                'Add a few details in seconds to unlock better job opportunities',
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 11.5,
+                                  fontSize: 13.5,
                                   color: _kTextSecondary,
-                                  height: 1.45,
                                 ),
                               ),
                             ),
                           ],
                         ),
                       ),
+                      const SizedBox(height: 20),
 
-                      SizedBox(height: sh * 0.04),
+                      // ── Form inside a White Card ───────────────────
+                      Form(
+                        key: controller.formKey,
+                        child: Card(
+                          color: Colors.white,
+                          surfaceTintColor: Colors.white,
+                          elevation: 4,
+                          shadowColor: Colors.black.withOpacity(0.15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // ── Full Name ──────────────────────────────────
+                                const _FieldLabel(label: 'Full Name *'),
+                                const SizedBox(height: 7),
+                                TextFormField(
+                                  controller: controller.nameCtrl,
+                                  textCapitalization: TextCapitalization.words,
+                                  textInputAction: TextInputAction.next,
+                                  style: const TextStyle(
+                                      fontSize: 14, color: _kTextPrimary),
+                                  decoration: _inputDecoration(
+                                    hint: 'Enter your full name',
+                                    // prefix: Icons.person_outline_rounded,
+                                  ),
+                                  validator: (v) {
+                                    if (v == null || v.trim().isEmpty)
+                                      return 'Name is required';
+                                    if (v.trim().length < 2)
+                                      return 'Name is too short';
+                                    return null;
+                                  },
+                                ),
+
+                                const SizedBox(height: 20),
+
+                                // ── Mobile Number ──────────────────────────────
+                                const _FieldLabel(label: 'Mobile Number *'),
+                                const SizedBox(height: 7),
+                                TextFormField(
+                                  controller: controller.phoneCtrl,
+                                  keyboardType: TextInputType.phone,
+                                  textInputAction: TextInputAction.next,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  maxLength: 10,
+                                  style: const TextStyle(
+                                      fontSize: 14, color: _kTextPrimary),
+                                  decoration: _inputDecoration(
+                                    hint: 'Enter 10-digit mobile number',
+                                    // prefix: Icons.phone_outlined,
+                                  ).copyWith(counterText: ''),
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty)
+                                      return 'Phone number is required';
+                                    if (v.length < 10)
+                                      return 'Enter a valid 10-digit number';
+                                    return null;
+                                  },
+                                ),
+
+                                const SizedBox(height: 20),
+
+                                // ── Email Address ──────────────────────────────
+                                const _FieldLabel(label: 'Email Address'),
+                                const SizedBox(height: 7),
+                                TextFormField(
+                                  controller: controller.emailCtrl,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  readOnly: true,
+                                  style: const TextStyle(
+                                      fontSize: 14, color: _kTextSecondary),
+                                  decoration: _inputDecoration(
+                                    hint: 'your@email.com',
+                                    // prefix: Icons.mail_outline_rounded,
+                                  ).copyWith(
+                                    fillColor: const Color(0xFFF1F5F9),
+                                  ),
+                                  validator: (v) {
+                                    if (v == null || v.trim().isEmpty)
+                                      return 'Email is required';
+                                    if (!GetUtils.isEmail(v.trim()))
+                                      return 'Enter a valid email';
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 4),
+                                const Text(
+                                  'Your registered email address',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: _kTextHint,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 24),
+
+                                // ── Upload CV card ─────────────────────────────
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: _kBlueSoft,
+                                    borderRadius: BorderRadius.circular(16),
+                                    // border: Border.all(
+                                    //     color: _kBlueDash, width: 1.2),
+                                  ),
+                                  padding: const EdgeInsets.all(18),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      // Icon + title
+                                      const Icon(
+                                        Icons.description_outlined,
+                                        color: AppColors.darkRed,
+                                        size: 30,
+                                      ),
+                                      const SizedBox(height: 10),
+                                      const Text(
+                                        'Upload Your CV',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: _kTextPrimary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 14),
+
+                                      // AI info banner
+                                      Container(
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 16,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: Border.all(
+                                            color: _kBorder,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            SvgPicture.asset(
+                                              'assets/robot.svg',
+                                              width: 25,
+                                              height: 25,
+                                              colorFilter: const ColorFilter.mode(
+                                                AppColors.darkRed,
+                                                BlendMode.srcIn,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 12),
+                                            const Text(
+                                              "Let AI turn your resume into a complete professional profile in seconds",
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 12.5,
+                                                color: _kTextSecondary,
+                                                height: 1.45,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 14),
+
+                                      // Upload area / file card
+                                      Obx(() =>
+                                      controller.resumeFileName.value.isEmpty
+                                          ? _ResumeUploadArea(
+                                        onTap: controller.pickResume,
+                                      )
+                                          : _ResumeFileCard(
+                                        fileName: controller
+                                            .resumeFileName.value,
+                                        fileSize: controller
+                                            .resumeFileSize.value,
+                                        onRemove: controller.removeResume,
+                                      )),
+                                    ],
+                                  ),
+                                ),
+
+
+                                const SizedBox(height: 20),
+
+                                // ── Terms checkbox ─────────────────────────────
+                                Obx(() => GestureDetector(
+                                  onTap: () => agreedToTerms.toggle(),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        width: 20,
+                                        height: 20,
+                                        margin: const EdgeInsets.only(top: 1),
+                                        decoration: BoxDecoration(
+                                          color: agreedToTerms.value
+                                              ? AppColors.darkRed
+                                              : Colors.transparent,
+                                          borderRadius: BorderRadius.circular(5),
+                                          border: Border.all(
+                                            color: agreedToTerms.value
+                                                ? AppColors.darkRed
+                                                : _kTextSecondary,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        child: agreedToTerms.value
+                                            ? const Icon(Icons.check, size: 13, color: Colors.white)
+                                            : null,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: RichText(
+                                          text: TextSpan(
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: _kTextSecondary,
+                                              height: 1.5,
+                                            ),
+                                            children: [
+                                              const TextSpan(text: 'I agree to the '),
+                                              TextSpan(
+                                                text: 'Terms and Conditions',
+                                                style: const TextStyle(
+                                                  color: AppColors.darkRed,
+                                                  fontWeight: FontWeight.w600,
+                                                  decoration: TextDecoration.underline,
+                                                ),
+                                              ),
+                                              const TextSpan(text: ' and '),
+                                              TextSpan(
+                                                text: 'Privacy Policy',
+                                                style: const TextStyle(
+                                                  color: AppColors.darkRed,
+                                                  fontWeight: FontWeight.w600,
+                                                  decoration: TextDecoration.underline,
+                                                ),
+                                              ),
+                                              const TextSpan(
+                                                text: ' *',
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )),
+
+                                const SizedBox(height: 20),
+
+                                // ── Complete Profile button ────────────────────
+                                Obx(() => Container(
+                                  width: double.infinity,
+                                  height: 52,
+                                  decoration: BoxDecoration(
+                                    gradient: AppColors.blueGradient,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: ElevatedButton.icon(
+                                    onPressed: controller.isLoading.value
+                                        ? null
+                                        : () {
+                                            if (!agreedToTerms.value) {
+                                              Fluttertoast.showToast(
+                                                msg: "Please agree to the Terms and Conditions to continue.",
+                                                backgroundColor: Colors.red,
+                                                textColor: Colors.white,
+                                              );
+                                              return;
+                                            }
+                                            controller.saveProfile();
+                                          },
+                                    icon: controller.isLoading.value
+                                        ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                        : const Icon(
+                                      Icons.check_circle_outline_rounded,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    label: controller.isLoading.value
+                                        ? const SizedBox.shrink()
+                                        : const Text(
+                                      'Complete Profile',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      shadowColor: Colors.transparent,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  ),
+                                )),
+
+                                const SizedBox(height: 16),
+
+                                // ── Security note ──────────────────────────────
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: _kBlueSoft,
+                                    borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(10),
+                                      bottomRight: Radius.circular(10),
+                                    ),
+                                    border: const Border(
+                                      left: BorderSide(color: AppColors.darkRed, width: 4),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      SvgPicture.asset(
+                                        'assets/shield-check.svg',
+                                        width: 18,
+                                        height: 18,
+                                        colorFilter: const ColorFilter.mode(
+                                         AppColors.darkRed,
+                                          BlendMode.srcIn,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Your information is securely handled and used only to match you with relevant job opportunities.',
+                                          style: TextStyle(
+                                            fontSize: 11.5,
+                                            color: _kTextSecondary,
+                                            height: 1.45,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // const SizedBox(height: 20),
+                      //
+                      // // ── Terms checkbox ─────────────────────────────
+                      // Obx(() => GestureDetector(
+                      //   onTap: () => agreedToTerms.toggle(),
+                      //   child: Row(
+                      //     crossAxisAlignment: CrossAxisAlignment.start,
+                      //     children: [
+                      //       Container(
+                      //         width: 20,
+                      //         height: 20,
+                      //         margin: const EdgeInsets.only(top: 1),
+                      //         decoration: BoxDecoration(
+                      //           color: agreedToTerms.value
+                      //               ? AppColors.darkRed
+                      //               : Colors.transparent,
+                      //           borderRadius: BorderRadius.circular(5),
+                      //           border: Border.all(
+                      //             color: agreedToTerms.value
+                      //                 ? AppColors.darkRed
+                      //                 : _kTextSecondary,
+                      //             width: 1.5,
+                      //           ),
+                      //         ),
+                      //         child: agreedToTerms.value
+                      //             ? const Icon(Icons.check, size: 13, color: Colors.white)
+                      //             : null,
+                      //       ),
+                      //       const SizedBox(width: 10),
+                      //       Expanded(
+                      //         child: RichText(
+                      //           text: TextSpan(
+                      //             style: const TextStyle(
+                      //               fontSize: 13,
+                      //               color: _kTextSecondary,
+                      //               height: 1.5,
+                      //             ),
+                      //             children: [
+                      //               const TextSpan(text: 'I agree to the '),
+                      //               TextSpan(
+                      //                 text: 'Terms and Conditions',
+                      //                 style: const TextStyle(
+                      //                   color: AppColors.darkRed,
+                      //                   fontWeight: FontWeight.w600,
+                      //                   decoration: TextDecoration.underline,
+                      //                 ),
+                      //               ),
+                      //               const TextSpan(text: ' and '),
+                      //               TextSpan(
+                      //                 text: 'Privacy Policy',
+                      //                 style: const TextStyle(
+                      //                   color: AppColors.darkRed,
+                      //                   fontWeight: FontWeight.w600,
+                      //                   decoration: TextDecoration.underline,
+                      //                 ),
+                      //               ),
+                      //               const TextSpan(
+                      //                 text: ' *',
+                      //                 style: TextStyle(
+                      //                   color: Colors.red,
+                      //                   fontWeight: FontWeight.bold,
+                      //                 ),
+                      //               ),
+                      //             ],
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // )),
+                      //
+                      // const SizedBox(height: 20),
+                      //
+                      // // ── Complete Profile button ────────────────────
+                      // Obx(() => Container(
+                      //   width: double.infinity,
+                      //   height: 52,
+                      //   decoration: BoxDecoration(
+                      //     gradient: AppColors.blueGradient,
+                      //     borderRadius: BorderRadius.circular(12),
+                      //   ),
+                      //   child: ElevatedButton.icon(
+                      //     onPressed: controller.isLoading.value
+                      //         ? null
+                      //         : controller.saveProfile,
+                      //     icon: controller.isLoading.value
+                      //         ? const SizedBox(
+                      //             width: 20,
+                      //             height: 20,
+                      //             child: CircularProgressIndicator(
+                      //               strokeWidth: 2.5,
+                      //               color: Colors.white,
+                      //             ),
+                      //           )
+                      //         : const Icon(
+                      //             Icons.check_circle_outline_rounded,
+                      //             color: Colors.white,
+                      //             size: 20,
+                      //           ),
+                      //     label: controller.isLoading.value
+                      //         ? const SizedBox.shrink()
+                      //         : const Text(
+                      //             'Complete Profile',
+                      //             style: TextStyle(
+                      //               fontSize: 16,
+                      //               fontWeight: FontWeight.w600,
+                      //               color: Colors.white,
+                      //             ),
+                      //           ),
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: Colors.transparent,
+                      //       shadowColor: Colors.transparent,
+                      //       elevation: 0,
+                      //       shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(12),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // )),
+                      //
+                      // const SizedBox(height: 16),
+                      //
+                      // // ── Security note ──────────────────────────────
+                      // Container(
+                      //   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      //   decoration: BoxDecoration(
+                      //     color: _kBlueSoft,
+                      //     borderRadius: const BorderRadius.only(
+                      //       topRight: Radius.circular(10),
+                      //       bottomRight: Radius.circular(10),
+                      //     ),
+                      //     border: const Border(
+                      //       left: BorderSide(color: AppColors.darkRed, width: 4),
+                      //     ),
+                      //   ),
+                      //   child: Row(
+                      //     children: [
+                      //       const Icon(Icons.shield_outlined,
+                      //           color: AppColors.darkRed, size: 18),
+                      //       const SizedBox(width: 8),
+                      //       Expanded(
+                      //         child: Text(
+                      //           'Your information is securely handled and used only to match you with relevant job opportunities.',
+                      //           style: TextStyle(
+                      //             fontSize: 11.5,
+                      //             color: _kTextSecondary,
+                      //             height: 1.45,
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+
+                      // const SizedBox(height: sh * 0.04),
                     ],
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -857,7 +1193,7 @@ class CompleteProfileScreen extends GetView<CompleteProfileController> {
 
   InputDecoration _inputDecoration({
     required String hint,
-    required IconData prefix,
+    // required IconData prefix,
     Widget? suffix,
   }) {
     return InputDecoration(
@@ -867,7 +1203,7 @@ class CompleteProfileScreen extends GetView<CompleteProfileController> {
       fillColor: _kBg,
       contentPadding:
       const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-      prefixIcon: Icon(prefix, color: _kTextSecondary, size: 20),
+      // prefixIcon: Icon(prefix, color: _kTextSecondary, size: 20),
       suffixIcon: suffix,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -894,78 +1230,7 @@ class CompleteProfileScreen extends GetView<CompleteProfileController> {
   }
 }
 
-// ── Blue Hero Header ──────────────────────────────────────────────────────────
 
-class _HeroHeader extends StatelessWidget {
-  const _HeroHeader({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      // Increased top padding to 40 to give the back button breathing room from the status bar
-      padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
-      color: const Color(0xFFEFF6FF),
-      child: Stack(
-        children: [
-          // 1. The Back Arrow (Positioned Top-Left)
-          Positioned(
-            left: 0,
-            top: 0,
-            child: GestureDetector(
-              onTap: () => Navigator.maybePop(context),
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded, // Modern, clean back arrow
-                color: _kTextPrimary,             // Matches your primary text color
-                size: 22,
-              ),
-            ),
-          ),
-
-          // 2. Your Existing Content (Stays Perfectly Centered)
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: const BoxDecoration(
-                  color: AppColors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.person_outline_rounded,
-                  color: AppColors.darkRed,
-                  size: 34,
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Complete Your Profile',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: _kTextPrimary,
-                  letterSpacing: -0.3,
-                ),
-              ),
-              const SizedBox(height: 5),
-              const Text(
-              //  'Just a few more details to get you started',
-                'Add a few details in seconds to unlock better job opportunities',
-                style: TextStyle(
-                  fontSize: 13.5,
-                  color: _kTextSecondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
 // class _HeroHeader extends StatelessWidget {
 //   @override
 //   Widget build(BuildContext context) {
@@ -1020,68 +1285,83 @@ class _ResumeUploadArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding:
-      const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.darkRed, width: 1.8),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.cloud_upload_outlined,
-            size: 40,
-            color: AppColors.darkRed,
+    return
+      DottedBorder(
+        color: Colors.grey,
+        strokeWidth: 0.5,
+        dashPattern: const [2, 2],
+        borderType: BorderType.RRect,
+        radius: const Radius.circular(12),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(
+            vertical: 28,
+            horizontal: 16,
           ),
-          const SizedBox(height: 10),
-          const Text(
-            'Drag & drop your CV here',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: _kTextPrimary,
-            ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
           ),
-          const SizedBox(height: 4),
-          const Text(
-            'or',
-            style: TextStyle(fontSize: 13, color: _kTextSecondary),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 40,
-            child: ElevatedButton(
-              onPressed: onTap,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.darkRed,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.cloud_upload_outlined,
+                size: 40,
+                color: AppColors.darkRed,
               ),
-              child: const Text(
-                'Browse Files',
+              const SizedBox(height: 10),
+              const Text(
+                'Drag & drop your CV here',
                 style: TextStyle(
-                  fontSize: 13.5,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: _kTextPrimary,
                 ),
               ),
-            ),
+              const SizedBox(height: 4),
+              const Text(
+                'or',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: _kTextSecondary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 40,
+                child: ElevatedButton(
+                  onPressed: onTap,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.darkRed,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Browse Files',
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Supported formats: PDF, DOC, DOCX (Max 5MB)',
+                style: TextStyle(
+                  fontSize: 11.5,
+                  color: _kTextHint,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          const Text(
-            'Supported formats: PDF, DOC, DOCX (Max 5MB)',
-            style: TextStyle(fontSize: 11.5, color: _kTextHint),
-          ),
-        ],
-      ),
-    );
+        ),
+      );
   }
 }
 

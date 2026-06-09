@@ -29,6 +29,7 @@ class AppColors {
 
   // static const Color bluekRed = Color(0xFF8B0000);
   static const Color lightRed = Color(0xFF5AA9E6);
+  static const Color logincolor = Color(0xFF5e93c8);
 
   static const LinearGradient blueGradient = LinearGradient(
   colors: [

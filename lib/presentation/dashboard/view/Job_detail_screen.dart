@@ -476,9 +476,215 @@ import '../../../routes/app_routes.dart';
 import '../../Savedjobs/controller/SaveJob_Controller.dart';
 import '../Controller/Dashboard_Controller.dart';
 import '../model/job_model/Job_Model.dart';
+import 'package:aimjobs/api/apilist.dart';
+import 'package:aimjobs/Utils/shared_prehelper.dart';
+import 'package:aimjobs/Utils/constraint.dart';
+import 'package:aimjobs/Utils/constant_utils.dart';
+import 'package:aimjobs/presentation/Login/model/RefreshToken_Model.dart';
+import 'package:aimjobs/presentation/Savedjobs/controller/getallsavedjobs_controller.dart';
+import 'package:aimjobs/presentation/Savedjobs/controller/DeleteSavedJobs_Controller.dart';
+
+final RxBool _saveButtonLoading = false.obs;
 
 class JobDetailScreen extends StatelessWidget {
   const JobDetailScreen({super.key});
+
+  Future<String?> _refreshTokenAndSave(SharedPrefHelper prefs) async {
+    try {
+      final storedRefreshToken = await prefs.get('refreshToken');
+
+      if (storedRefreshToken == null || storedRefreshToken.isEmpty) {
+        return null;
+      }
+
+      final url = Uri.parse("${ApiList.baseUrl}/v1/auth/refresh");
+      final body = {"refreshToken": storedRefreshToken};
+      final headers = {
+        'Content-Type': 'application/json',
+        'X-API-Key': XApikeys,
+      };
+
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final refreshRes = RefreshTokenResponseModel.fromJson(json.decode(response.body));
+
+        if (refreshRes.success == true && refreshRes.data != null) {
+          final data = refreshRes.data!;
+
+          await prefs.save('accessToken', data.accessToken ?? "");
+          await prefs.save('refreshToken', data.refreshToken ?? "");
+          await prefs.save('tokenType', data.tokenType ?? "");
+          
+          if (data.user != null) {
+            await prefs.save('userId', data.user!.id ?? "");
+            await prefs.save('userEmail', data.user!.email ?? "");
+            await prefs.save('name', data.user!.name ?? "");
+            await prefs.save('isProfileComplete', data.user!.isProfileComplete ?? false);
+          }
+
+          return data.accessToken;
+        }
+      }
+      return null;
+    } catch (e) {
+      print("Refresh Token Exception: $e");
+      return null;
+    }
+  }
+
+  Future<void> _toggleSaveJob(BuildContext context, String jobId, SavedJobsController savedJobsCtrl) async {
+    final _prefs = SharedPrefHelper();
+    final isSaved = savedJobsCtrl.savedJobsList.any((j) => j.jobId == jobId);
+    
+    _saveButtonLoading.value = true;
+    try {
+      String? token = await _prefs.get('accessToken');
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+        'X-API-Key': XApikeys,
+      };
+
+      if (isSaved) {
+        // Unsave / Delete
+        final url = Uri.parse("${ApiList.baseUrl}/v1/saved-jobs/$jobId");
+        final response = await http.delete(url, headers: headers);
+        
+        var resCode = response.statusCode;
+        var resBody = response.body;
+        if (resCode == 401 || resCode == 400) {
+          final String? newToken = await _refreshTokenAndSave(_prefs);
+          if (newToken != null && newToken.isNotEmpty) {
+            headers['Authorization'] = 'Bearer $newToken';
+            final retryResponse = await http.delete(url, headers: headers);
+            resCode = retryResponse.statusCode;
+            resBody = retryResponse.body;
+          }
+        }
+
+        if (resCode == 200 || resCode == 201) {
+          showToastSuccess("Job removed successfully");
+          await savedJobsCtrl.fetchSavedJobs();
+        } else {
+          try {
+            final body = json.decode(resBody);
+            showToastFail(body['message'] ?? "Failed to remove job");
+          } catch (_) {
+            showToastFail("Failed to remove job: $resCode");
+          }
+        }
+      } else {
+        // Save job
+        final url = Uri.parse("${ApiList.baseUrl}/v1/saved-jobs");
+        final body = json.encode({"jobId": jobId});
+        final response = await http.post(url, headers: headers, body: body);
+
+        var resCode = response.statusCode;
+        var resBody = response.body;
+        if (resCode == 401 || resCode == 400) {
+          final String? newToken = await _refreshTokenAndSave(_prefs);
+          if (newToken != null && newToken.isNotEmpty) {
+            headers['Authorization'] = 'Bearer $newToken';
+            final retryResponse = await http.post(url, headers: headers, body: body);
+            resCode = retryResponse.statusCode;
+            resBody = retryResponse.body;
+          }
+        }
+
+        if (resCode == 200 || resCode == 201) {
+          Get.rawSnackbar(
+            messageText: Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    "Job saved successfully",
+                    style: TextStyle(
+                      color: Color(0xFF1E3A8A),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => Get.closeCurrentSnackbar(),
+                  child: const Icon(
+                    Icons.close,
+                    color: Color(0xFF1E3A8A),
+                    size: 18,
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFFEFF6FF),
+            borderColor: const Color(0xFF3B82F6),
+            borderWidth: 1,
+            borderRadius: 12,
+            margin: const EdgeInsets.all(16),
+            snackPosition: SnackPosition.top,
+            duration: const Duration(seconds: 4),
+          );
+          await savedJobsCtrl.fetchSavedJobs();
+        } else if (resCode == 409) {
+          String errorMsg = "Conflict: Job is already saved.";
+          try {
+            final body = json.decode(resBody);
+            if (body != null && body['message'] != null) {
+              errorMsg = body['message'].toString();
+            }
+          } catch (_) {}
+          
+          Get.rawSnackbar(
+            messageText: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    errorMsg,
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => Get.closeCurrentSnackbar(),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.red,
+                    size: 18,
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFFFEF2F2),
+            borderColor: Colors.red,
+            borderWidth: 1,
+            borderRadius: 12,
+            margin: const EdgeInsets.all(16),
+            snackPosition: SnackPosition.top,
+            duration: const Duration(seconds: 4),
+          );
+        } else {
+          try {
+            final body = json.decode(resBody);
+            showToastFail(body['message'] ?? "Failed to save job");
+          } catch (_) {
+            showToastFail("Failed to save job: $resCode");
+          }
+        }
+      }
+    } catch (e) {
+      print("Toggle Save Job Exception: $e");
+      showToastFail("Could not connect to server.");
+    } finally {
+      _saveButtonLoading.value = false;
+    }
+  }
 
   Future<String> _fetchFullDescription(String jobId, String fallback) async {
     try {
@@ -502,8 +708,11 @@ class JobDetailScreen extends StatelessWidget {
     final job = Get.arguments as JobModel;
     final sw = MediaQuery.of(context).size.width;
 
-    // Initialize the new controller
-    final saveCtrl = Get.put(SaveJobController());
+    // Initialize the controllers
+    final savedJobsCtrl = Get.isRegistered<SavedJobsController>()
+        ? Get.find<SavedJobsController>()
+        : Get.put(SavedJobsController());
+    final deleteCtrl = Get.put(DeleteSavedJobsController());
 
     return Scaffold(
       backgroundColor: AppColors.appBg1,
@@ -738,28 +947,89 @@ class JobDetailScreen extends StatelessWidget {
                 children: [
                   // ── Save Job Button (Integrated) ────────────────────
                   Expanded(
-                    child: Obx(() => OutlinedButton.icon(
-                      onPressed: saveCtrl.isLoading.value ? null : () {
-                        final dashCtrl = Get.find<DashboardController>();
-                        if (!dashCtrl.isLoggedIn.value) {
-                          Get.toNamed(AppRoutes.login);
-                          return;
-                        }
-                        // Use job.id here (Ensure your JobModel has an id field)
-                        saveCtrl.saveJob(job.id);
-                      },
-                      icon: saveCtrl.isLoading.value
-                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.darkRed))
-                          : const Icon(Icons.bookmark_border_rounded, color: AppColors.darkRed, size: 24),
-                      label: Text(saveCtrl.isLoading.value ? 'Saving...' : 'Save Job'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.darkRed,
-                        side: const BorderSide(color: AppColors.darkRed, width: 1.5),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                      ),
-                    )),
+                    child: Obx(() {
+                      final isSaved = savedJobsCtrl.savedJobsList.any((j) => j.jobId == job.id);
+                      final isLoading = _saveButtonLoading.value;
+
+                      if (isSaved) {
+                        return ElevatedButton.icon(
+                          onPressed: isLoading ? null : () {
+                            final dashCtrl = Get.find<DashboardController>();
+                            if (!dashCtrl.isLoggedIn.value) {
+                              Get.toNamed(AppRoutes.login);
+                              return;
+                            }
+                            _toggleSaveJob(context, job.id, savedJobsCtrl);
+                          },
+                          icon: isLoading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.bookmark_rounded,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                          label: const Text('Saved'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.darkRed,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            textStyle: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        );
+                      } else {
+                        return OutlinedButton.icon(
+                          onPressed: isLoading ? null : () {
+                            final dashCtrl = Get.find<DashboardController>();
+                            if (!dashCtrl.isLoggedIn.value) {
+                              Get.toNamed(AppRoutes.login);
+                              return;
+                            }
+                            _toggleSaveJob(context, job.id, savedJobsCtrl);
+                          },
+                          icon: isLoading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.darkRed,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.bookmark_border_rounded,
+                                  color: AppColors.darkRed,
+                                  size: 24,
+                                ),
+                          label: const Text('Save Job'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.darkRed,
+                            side: const BorderSide(color: AppColors.darkRed, width: 1.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            textStyle: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        );
+                      }
+                    }),
                   ),
                   const SizedBox(width: 12),
                   // Apply

@@ -14,7 +14,7 @@ class UpdatePersonalInformationController extends GetxController {
   final isLoading = false.obs;
   final _prefs = SharedPrefHelper();
 
-  Future<void> updatePersonalInfo({
+  Future<bool> updatePersonalInfo({
     required String fullName,
     required String mobileNumber,
     required String gender,
@@ -44,7 +44,19 @@ class UpdatePersonalInformationController extends GetxController {
       );
 
       // Handle 400 or 401 Unauthorized / Token Expired
-      if (response.statusCode == 401 || response.statusCode == 400) {
+      if (response.statusCode == 400) {
+        Get.snackbar(
+          "Error",
+          parse400Error(response.body),
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.top,
+        );
+        return false;
+      }
+
+      if (response.statusCode == 401) {
+
         final newToken = await _refreshTokenAndSave();
         if (newToken != null && newToken.isNotEmpty) {
           response = await http.patch(
@@ -58,7 +70,7 @@ class UpdatePersonalInformationController extends GetxController {
           );
         } else {
           showToastFail("Session expired. Please log in again.");
-          return;
+          return false;
         }
       }
 
@@ -70,15 +82,29 @@ class UpdatePersonalInformationController extends GetxController {
           if (Get.isRegistered<GetProfileController>()) {
             Get.find<GetProfileController>().fetchProfile();
           }
+          return true;
         } else {
           showToastFail(res.message ?? "Failed to update information.");
+          return false;
         }
       } else {
+        if (response.statusCode == 400) {
+          Get.snackbar(
+            "Error",
+            parse400Error(response.body),
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.top,
+          );
+          return false;
+        }
         showToastFail("Error: ${response.statusCode}");
+        return false;
       }
     } catch (e) {
       print("Update Personal Info Error: $e");
       showToastFail("Connection error.");
+      return false;
     } finally {
       isLoading.value = false;
     }

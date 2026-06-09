@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:convert';
 
 import 'package:aimjobs/Utils/shared_prehelper.dart';
 import 'package:flutter/material.dart';
@@ -272,4 +273,55 @@ String convertToIso8601(String inputDate) {
 String formatToReadableDate(String isoDate) {
   final date = DateTime.parse(isoDate).toLocal(); // convert to local time if needed
   return DateFormat('MMM dd, yyyy').format(date);
+}
+
+String parse400Error(String body) {
+  try {
+    final decoded = json.decode(body);
+    if (decoded is Map) {
+      if (decoded.containsKey('errors')) {
+        final errors = decoded['errors'];
+        if (errors is Map) {
+          final List<String> messages = [];
+          errors.forEach((key, val) {
+            if (val is List) {
+              messages.addAll(val.map((e) => e.toString()));
+            } else if (val is Map) {
+              val.forEach((k, v) {
+                if (v is List) {
+                  messages.addAll(v.map((e) => e.toString()));
+                } else {
+                  messages.add(v.toString());
+                }
+              });
+            } else {
+              messages.add(val.toString());
+            }
+          });
+          if (messages.isNotEmpty) {
+            return messages.join('\n');
+          }
+        } else if (errors is List) {
+          return errors.map((e) => e.toString()).join('\n');
+        } else {
+          return errors.toString();
+        }
+      }
+      if (decoded.containsKey('message')) {
+        final msg = decoded['message'];
+        if (msg is List) {
+          return msg.map((e) => e.toString()).join('\n');
+        }
+        return msg.toString();
+      }
+      if (decoded.containsKey('error')) {
+        final err = decoded['error'];
+        return err.toString();
+      }
+      if (decoded.containsKey('title')) {
+        return decoded['title'].toString();
+      }
+    }
+  } catch (_) {}
+  return body;
 }

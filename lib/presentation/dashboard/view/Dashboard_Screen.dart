@@ -82,6 +82,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  String _getUserInitial() {
+    final name = controller.userName.value.trim();
+    if (name.isEmpty || name.toLowerCase() == 'there' || name.toLowerCase() == 'guest') {
+      return 'U';
+    }
+    return name[0].toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
     final sw = MediaQuery.of(context).size.width;
@@ -100,14 +108,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(
               color: AppColors.white,
               padding: EdgeInsets.symmetric(
-                  horizontal: sw * 0.05, vertical: 8),
+                  horizontal: sw * 0.05, vertical: 0),
               child: Row(
                 children: [
                   Image.asset(
                     'assets/logo.png',
-                    fit: BoxFit.cover,
-                    height: 60,
-                    width: 100,
+                    height: 80,
+                    fit: BoxFit.contain,
                   ),
                   const Spacer(),
                   Obx(() {
@@ -119,19 +126,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           width: 42,
                           height: 42,
                           decoration: BoxDecoration(
-                            color: Colors.white,
                             shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 6,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
+                            border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
                           ),
-                          child: const Center(
-                            child: Icon(Icons.menu,
-                                color: AppColors.darkRed, size: 22),
+                          padding: const EdgeInsets.all(2),
+                          child: CircleAvatar(
+                            backgroundColor: AppColors.darkRed,
+                            child: Text(
+                              _getUserInitial(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                           ),
                         ),
                       );

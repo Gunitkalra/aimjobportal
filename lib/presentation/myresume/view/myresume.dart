@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../Utils/colors.dart';
 import '../controller/getmyresume_Controller.dart';
 import '../controller/uploadresume_Controller.dart';
@@ -107,73 +109,70 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
 
         return SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: sw * 0.04, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Hero banner ─────────────────────────────────────────
-              _HeroBanner(),
-
-              const SizedBox(height: 20),
-
-              // ── Current Resume ──────────────────────────────────────
-              if (hasResume) ...[
-                Row(
-                  children: const [
-                    Icon(Icons.description_outlined, color: AppColors.textSecondary, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      'Current Resume',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ],
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-                const SizedBox(height: 12),
+              ],
+            ),
+            padding: EdgeInsets.zero,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Hero banner ─────────────────────────────────────────
+                _HeroBanner(),
 
-                // Resume file card
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFEEEEEE)),
-                  ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Word doc icon representation
-                      Container(
-                        width: 32,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: const Color(0xFF1274b8), width: 2),
-                        ),
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              left: 4,
-                              top: 10,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-                                color: const Color(0xFF1274b8),
-                                child: const Text(
-                                  'W',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                      // ── Current Resume ──────────────────────────────────────
+                      if (hasResume) ...[
+                  Row(
+                    children: [
+                      SvgPicture.asset(
+                        'assets/file-earmark-text.svg',
+                        colorFilter: const ColorFilter.mode(AppColors.textSecondary, BlendMode.srcIn),
+                        width: 20,
+                        height: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Current Resume',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Resume file card
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFEEEEEE)),
+                    ),
+                    child: Column(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/file-earmark-pdf-fill.svg',
+                          colorFilter: const ColorFilter.mode(Color(0xFFE53935), BlendMode.srcIn),
+                          width: 38,
+                          height: 44,
+                        ),
                       const SizedBox(height: 12),
                       Text(
                         resumeName,
@@ -217,7 +216,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                           ),
                           child: const Icon(
                             Icons.download_rounded,
-                            color:AppColors.lightRed,
+                            color: AppColors.lightRed,
                             size: 20,
                           ),
                         ),
@@ -240,14 +239,11 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                     ),
                     child: Column(
                       children: [
-                        Container(
+                        SvgPicture.asset(
+                          'assets/check-circle-fill.svg',
+                          colorFilter: const ColorFilter.mode(Color(0xFF2ECC71), BlendMode.srcIn),
                           width: 32,
                           height: 32,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF046307),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.check, color: Colors.white, size: 20),
                         ),
                         const SizedBox(height: 12),
                         const Text(
@@ -272,15 +268,19 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                         ElevatedButton.icon(
                           onPressed: () => Get.toNamed(AppRoutes.myprofile),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:Color(0xFF046307),
-                            // backgroundColor:AppColors.textDarkGreen.withOpacity(0.9) ,
+                            backgroundColor: const Color(0xFF046307),
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                           ),
-                          icon: const Icon(Icons.person_outline_rounded, size: 16,color:Colors.white,),
+                          icon: SvgPicture.asset(
+                            'assets/person-circle.svg',
+                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                            width: 16,
+                            height: 16,
+                          ),
                           label: const Text(
                             'View Profile',
                             style: TextStyle(
@@ -298,10 +298,15 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
 
               // ── Upload New Resume ───────────────────────────────────
               Row(
-                children: const [
-                  Icon(Icons.cloud_upload_outlined, color: AppColors.textSecondary, size: 20),
-                  SizedBox(width: 8),
-                  Text(
+                children: [
+                  SvgPicture.asset(
+                    'assets/cloud-upload.svg',
+                    colorFilter: const ColorFilter.mode(AppColors.textSecondary, BlendMode.srcIn),
+                    width: 20,
+                    height: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
                     'Upload New Resume',
                     style: TextStyle(
                       fontSize: 16,
@@ -376,9 +381,12 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.cloud_upload_outlined,
-                                    size: 44,
-                                    color: AppColors.darkRed.withOpacity(0.7)),
+                                SvgPicture.asset(
+                                  'assets/cloud-upload.svg',
+                                  colorFilter: const ColorFilter.mode(AppColors.darkRed, BlendMode.srcIn),
+                                  width: 48,
+                                  height: 48,
+                                ),
                                 const SizedBox(height: 10),
                                 const Text(
                                   'Drag & drop your resume here',
@@ -454,7 +462,12 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                               strokeWidth: 2,
                               color: Colors.white),
                         )
-                      : const Icon(Icons.upload_rounded, color: Colors.white, size: 18),
+                      : SvgPicture.asset(
+                          'assets/cloud-upload.svg',
+                          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                          width: 18,
+                          height: 18,
+                        ),
                   label: Text(
                     _isUploading ? 'Uploading...' : 'Upload & Parse Resume',
                     style: const TextStyle(
@@ -469,10 +482,15 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
 
               // ── AI-Powered Features ─────────────────────────────────
               Row(
-                children: const [
-                  Icon(Icons.smart_toy_outlined, color: AppColors.darkRed, size: 20),
-                  SizedBox(width: 8),
-                  Text(
+                children: [
+                  SvgPicture.asset(
+                    'assets/robot.svg',
+                    colorFilter: const ColorFilter.mode(AppColors.textPrimary, BlendMode.srcIn),
+                    width: 20,
+                    height: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
                     'AI-Powered Features',
                     style: TextStyle(
                       fontSize: 16,
@@ -484,25 +502,25 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
               ),
               const SizedBox(height: 12),
               _AiFeatureTile(
-                icon: Icons.person_outline_rounded,
+                icon: 'assets/person-lines-fill.svg',
                 label: 'Auto-Fill Profile',
                 description: 'Automatically extract and fill your professional details',
               ),
               const SizedBox(height: 12),
               _AiFeatureTile(
-                icon: Icons.work_outline_rounded,
+                icon: 'assets/briefcase.svg',
                 label: 'Work Experience',
                 description: 'Parse your employment history and job titles',
               ),
               const SizedBox(height: 12),
               _AiFeatureTile(
-                icon: Icons.school_outlined,
+                icon: 'assets/mortarboard.svg',
                 label: 'Education',
                 description: 'Extract your educational qualifications',
               ),
               const SizedBox(height: 12),
               _AiFeatureTile(
-                icon: Icons.bolt_outlined,
+                icon: 'assets/lightning-charge-fill.svg',
                 label: 'Skills Detection',
                 description: 'Identify your technical and soft skills',
               ),
@@ -510,28 +528,43 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
               const SizedBox(height: 30),
 
               // ── Footer ──────────────────────────────────────────────
-              // Column(
-              //   children: [
-              //     Row(
-              //       mainAxisAlignment: MainAxisAlignment.center,
-              //       children: [
-              //         _FooterLink('About Us'),
-              //         const _FooterDivider(),
-              //         _FooterLink('Privacy Policy'),
-              //         const _FooterDivider(),
-              //         _FooterLink('Terms & Conditions'),
-              //       ],
-              //     ),
-              //     const SizedBox(height: 6),
-              //     const Text(
-              //       '© 2026 Aim Job Techno. All Rights Reserved.',
-              //       style: TextStyle(fontSize: 11, color: AppColors.textMuted),
-              //     ),
-              //   ],
-              // ),
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      'AIMJOBS.AI',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF1E88E5),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      '© 2026 Aimjobs.ai All Rights Reserved.',
+                      style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _FooterLink('About Us'),
+                        const _FooterDivider(),
+                        _FooterLink('Privacy Policy'),
+                        const _FooterDivider(),
+                        _FooterLink('Terms & Conditions'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
 
               const SizedBox(height: 16),
-            ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       }),
@@ -547,21 +580,27 @@ class _HeroBanner extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: AppColors.blueGradient,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
       ),
       child: Row(
         children: [
           Container(
             width: 48,
             height: 48,
+            padding: const EdgeInsets.all(11),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.description_rounded,
-                color: Colors.white, size: 26),
+            child: SvgPicture.asset(
+              'assets/file-earmark-text.svg',
+              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            ),
           ),
           const SizedBox(width: 14),
           const Expanded(
@@ -668,7 +707,7 @@ class _SelectedFilePreview extends StatelessWidget {
 // ── AI Feature Tile ───────────────────────────────────────────────────────────
 
 class _AiFeatureTile extends StatelessWidget {
-  final IconData icon;
+  final dynamic icon;
   final String label;
   final String description;
   const _AiFeatureTile({
@@ -679,6 +718,24 @@ class _AiFeatureTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget iconWidget;
+    if (icon is String) {
+      iconWidget = SvgPicture.asset(
+        icon as String,
+        width: 28,
+        height: 28,
+        colorFilter: const ColorFilter.mode(AppColors.darkRed, BlendMode.srcIn),
+      );
+    } else if (icon is IconData) {
+      iconWidget = Icon(
+        icon as IconData,
+        color: AppColors.darkRed,
+        size: 28,
+      );
+    } else {
+      iconWidget = const SizedBox.shrink();
+    }
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -690,7 +747,7 @@ class _AiFeatureTile extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: AppColors.darkRed, size: 28),
+          iconWidget,
           const SizedBox(height: 12),
           Text(
             label,

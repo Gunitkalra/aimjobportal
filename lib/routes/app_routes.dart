@@ -67,7 +67,7 @@ class AppRoutes {
     ),
     GetPage(
       name: completeProfile,
-      page: () => const CompleteProfileScreen(),
+      page: () =>  CompleteProfileScreen(),
       binding: CompleteProfileBinding(),
       transition: Transition.rightToLeft,
     ),

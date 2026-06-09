@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
@@ -91,26 +92,46 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         
         _nameCtrl.text = data.personalInfo?.fullName ?? '';
         _mobileCtrl.text = data.personalInfo?.mobileNumber ?? '';
-        _genderCtrl.text = data.personalInfo?.gender ?? '';
+        _genderCtrl.text = (data.personalInfo?.gender == null || data.personalInfo!.gender!.toLowerCase() == 'not specified') ? '' : data.personalInfo!.gender!;
         _dobCtrl.text = data.personalInfo?.dateOfBirth != null 
             ? DateFormat('d MMM yyyy').format(data.personalInfo!.dateOfBirth!) 
-            : 'Not specified';
+            : '';
         _emailCtrl.text = data.email ?? '';
         
-        _designationCtrl.text = data.jobDetails?.currentDesignation ?? 'Not specified';
-        _ctcCtrl.text = data.jobDetails?.ctc?.toString() ?? 'Not specified';
-        _expCtrl.text = '${data.jobDetails?.totalExperience ?? 0} Years';
-        _locationCtrl.text = data.jobDetails?.currentLocation ?? 'Not specified';
-        _noticePeriodCtrl.text = '${data.jobDetails?.noticePeriod ?? 0} Days';
-        _industryCtrl.text = data.jobDetails?.industry ?? 'Not specified';
-        _departmentCtrl.text = data.jobDetails?.department ?? 'Not specified';
-        _jobTypeCtrl.text = data.jobDetails?.jobTypes.join(', ') ?? 'Not specified';
-        _prefredlocationCtrl.text = data.jobDetails?.preferredLocations.join(', ') ?? 'Not specified';
+        final designationVal = data.jobDetails?.currentDesignation;
+        _designationCtrl.text = (designationVal == null || designationVal.toLowerCase() == 'not specified') ? '' : designationVal;
+
+        final ctcVal = data.jobDetails?.ctc;
+        _ctcCtrl.text = (ctcVal == null || ctcVal == 0) ? '' : ctcVal.toString();
+
+        final expVal = data.jobDetails?.totalExperience;
+        _expCtrl.text = (expVal == null || expVal == 0) ? '' : '$expVal Years';
+
+        final locationVal = data.jobDetails?.currentLocation;
+        _locationCtrl.text = (locationVal == null || locationVal.toLowerCase() == 'not specified') ? '' : locationVal;
+
+        final noticeVal = data.jobDetails?.noticePeriod;
+        _noticePeriodCtrl.text = (noticeVal == null || noticeVal == 0) ? '' : '$noticeVal Days';
+
+        final industryVal = data.jobDetails?.industry;
+        _industryCtrl.text = (industryVal == null || industryVal.toLowerCase() == 'not specified') ? '' : industryVal;
+
+        final departmentVal = data.jobDetails?.department;
+        _departmentCtrl.text = (departmentVal == null || departmentVal.toLowerCase() == 'not specified') ? '' : departmentVal;
+
+        final jobTypesList = data.jobDetails?.jobTypes ?? [];
+        _jobTypeCtrl.text = jobTypesList.isEmpty ? '' : jobTypesList.join(', ');
+
+        final preferredLocList = data.jobDetails?.preferredLocations ?? [];
+        _prefredlocationCtrl.text = preferredLocList.isEmpty ? '' : preferredLocList.join(', ');
         
         _summaryCtrl.text = data.profileSummary ?? '';
         
-        _skillsCtrl.text = data.skillsLanguages?.skills.join(', ') ?? 'Not specified';
-        _languagesCtrl.text = data.skillsLanguages?.languages.join(', ') ?? 'Not specified';
+        final skillsList = data.skillsLanguages?.skills ?? [];
+        _skillsCtrl.text = skillsList.isEmpty ? '' : skillsList.join(', ');
+
+        final langsList = data.skillsLanguages?.languages ?? [];
+        _languagesCtrl.text = langsList.isEmpty ? '' : langsList.join(', ');
         
         _workEntries = data.workExperience.map((w) {
             final start = w.startDate != null ? DateFormat('d MMM yyyy').format(w.startDate!) : "";
@@ -238,7 +259,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
             // Personal Information
             _ProfileCard(
-              icon: Icons.person_outline_rounded,
+              icon: 'assets/person-circle.svg',
               title: 'Personal Information',
               isEditing: _editPersonal,
               isLoading: _updatePersonalInfoController.isLoading,
@@ -266,30 +287,51 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       }
                   }
                 }
+
+                if (dateParsing != null) {
+                  final today = DateTime.now();
+                  int age = today.year - dateParsing.year;
+                  if (today.month < dateParsing.month ||
+                      (today.month == dateParsing.month && today.day < dateParsing.day)) {
+                    age--;
+                  }
+                  if (age < 18 || age > 70) {
+                    Get.snackbar(
+                      "Error",
+                      "Age must be between 18 and 70 years",
+                      backgroundColor: Colors.red,
+                      colorText: Colors.white,
+                      snackPosition: SnackPosition.top,
+                    );
+                    return;
+                  }
+                }
                 
                 final String? isoDate = dateParsing != null 
                     ? "${DateFormat('yyyy-MM-dd').format(dateParsing)}T00:00:00Z" 
                     : null;
-                await _updatePersonalInfoController.updatePersonalInfo(
+                final bool success = await _updatePersonalInfoController.updatePersonalInfo(
                   fullName: _nameCtrl.text,
                   mobileNumber: _mobileCtrl.text,
                   gender: _genderCtrl.text,
                   dateOfBirth: isoDate,
                 );
-                _saveEdit((v) => _editPersonal = v);
+                if (success) {
+                  _saveEdit((v) => _editPersonal = v);
+                }
               },
               viewChild: _InfoGrid(rows: [
                 _InfoRow('Full Name',      _nameCtrl.text),
-                _InfoRow('Mobile Number',  _mobileCtrl.text, isLink: true),
+                _InfoRow('Mobile Number',  _mobileCtrl.text,),
                 _InfoRow('Gender',         _genderCtrl.text),
                 _InfoRow('Date of Birth',  _dobCtrl.text),
                 _InfoRow('Email Address',  _emailCtrl.text, isVerified: true),
               ]),
               editChild: _EditGrid(fields: [
-                _EditField('Full Name *',      _nameCtrl, helpText: 'Letters and spaces only, 2-100 characters'),
-                _EditField('Mobile Number *',  _mobileCtrl, inputType: TextInputType.phone, helpText: '10-digit number starting with 6, 7, 8, or 9'),
+                _EditField('Full Name *',      _nameCtrl, helpText: 'Letters and spaces only, 2-100 characters', hintText: 'Enter your full name'),
+                _EditField('Mobile Number *',  _mobileCtrl, inputType: TextInputType.phone, helpText: '10-digit number starting with 6, 7, 8, or 9', hintText: 'Enter mobile number'),
                 _EditField('Gender',         _genderCtrl, isDropdown: true, dropdownItems: ['Male', 'Female', 'Other']),
-                _EditField('Date of Birth',  _dobCtrl, isDateField: true, helpText: 'You must be 18-70 years old'),
+                _EditField('Date of Birth',  _dobCtrl, isDateField: true, helpText: 'You must be 18-70 years old', hintText: 'Select date of birth'),
                 // _EditField('Email Address',  _emailCtrl, inputType: TextInputType.emailAddress, enabled: false),
               ]),
             ),
@@ -297,7 +339,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
             // Job Details
             _ProfileCard(
-              icon: Icons.work_outline_rounded,
+              icon: 'assets/briefcase-fill.svg',
               title: 'Job Details',
               isEditing: _editJob,
               isLoading: _updateJobDetailController.isLoading,
@@ -348,14 +390,13 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 _InfoRow('Job Type',           _jobTypeCtrl.text),
               ]),
               editChild: _EditGrid(fields: [
-                _EditField('Current Designation (Job Title)', _designationCtrl, helpText: '2-100 characters'),
+                _EditField('Current Designation (Job Title)', _designationCtrl, helpText: '2-100 characters', hintText: 'e.g., Software Engineer'),
                 _EditField('Current CTC (in Lakhs)',      _ctcCtrl, helpText: '0-999.99 lakhs', hintText: 'e.g., 15.5'),
-                _EditField('Total Experience (in Years)', _expCtrl, helpText: '0-50 years'),
+                _EditField('Total Experience (in Years)', _expCtrl, helpText: '0-50 years', hintText: 'e.g., 5'),
                 _EditField('Notice Period (in Days)',    _noticePeriodCtrl, helpText: '0-365 days', hintText: 'e.g., 30'),
-                _EditField('Current Location', _locationCtrl, helpText: '2-100 characters'),
-                _EditField('Preferred Locations', _prefredlocationCtrl, helpText: 'Max 4 locations, 2-50 characters each', hintText: 'Type and press Enter', suffixIcon: Padding(padding: const EdgeInsets.all(8), child: CircleAvatar(radius: 12, backgroundColor: AppColors.appBg7, child: const Icon(Icons.add, size: 16, color: AppColors.darkRed)))),
+                _EditField('Current Location', _locationCtrl, helpText: '2-100 characters', hintText: 'e.g., Delhi, India'),
+                _EditField('Preferred Locations', _prefredlocationCtrl, helpText: 'Max 4 locations, 2-50 characters each', hintText: 'Type and press Enter', isChipInput: true),
                 _EditField('Industry',         _industryCtrl, isDropdown: true, dropdownItems: ['Select Industry', 'Information Technology', 'Banking & Finance', 'Automotive', 'Manufacturing', 'Healthcare', 'Pharmaceuticals & Biotech', 'Retail & E-Commerce', 'Consulting', 'Telecommunications', 'Energy & Utilities', 'Education', 'Media & Entertainment', 'Government & Public Sector', 'Logistics & Supply Chain', 'Real Estate', 'Hospitality & Travel', 'Non-Profit', 'Legal', 'Agriculture', 'Other']),
-                _EditField('Department',       _departmentCtrl, isDropdown: true, dropdownItems: ['Select Department', 'Engineering', 'Software Development', 'Information Technology', 'Data and Analytics', 'DevOps and Infrastructure', 'Security', 'Research and Development', 'Quality Assurance', 'IT Support', 'Design', 'Creative and Art Services', 'User Experience', 'Project and Program Management', 'Product Management', 'Operations', 'Logistics']),
                 _EditField('Department',       _departmentCtrl, isDropdown: true, dropdownItems: ['Select Department', 'Engineering', 'Software Development', 'Information Technology', 'Data and Analytics', 'DevOps and Infrastructure', 'Security', 'Research and Development', 'Quality Assurance', 'IT Support', 'Design', 'Creative and Art Services', 'User Experience', 'Project and Program Management', 'Product Management', 'Operations', 'Logistics']),
                 _EditField('Job Type',         _jobTypeCtrl, isCheckboxes: true, checkboxItems: ['Permanent', 'Full-Time', 'Part-Time', 'Contractor', 'Freelance', 'Intern']),
               ]),
@@ -364,7 +405,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
             // Profile Summary
             _ProfileCard(
-              icon: Icons.article_outlined,
+              icon: 'assets/card-text.svg',
               title: 'Profile Summary',
               isEditing: _editSummary,
               isLoading: _updateProfileSummaryController.isLoading,
@@ -387,21 +428,34 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Text(_summaryCtrl.text,
-                        style: const TextStyle(fontSize: 13,
-                            color: AppColors.textPrimary, height: 1.6, fontWeight: FontWeight.w600)),
+                    child: Builder(
+                      builder: (context) {
+                        final String val = _summaryCtrl.text.trim();
+                        final bool isEmpty = val.isEmpty || val.toLowerCase() == 'not specified';
+                        return Text(
+                          isEmpty ? 'Not specified' : _summaryCtrl.text,
+                          style: TextStyle(
+                            fontSize: 13,
+                            height: 1.6,
+                            fontStyle: isEmpty ? FontStyle.italic : FontStyle.normal,
+                            color: isEmpty ? AppColors.textMuted : AppColors.black,
+                            fontWeight: isEmpty ? FontWeight.w500 : FontWeight.w600,
+                          ),
+                        );
+                      }
+                    ),
                   ),
                 ],
               ),
               editChild: _EditGrid(fields: [
-                _EditField('Professional Summary', _summaryCtrl, helpText: '10-2000 characters', maxLines: 6),
+                _EditField('Professional Summary', _summaryCtrl, helpText: '10-2000 characters', maxLines: 6, hintText: 'Write a brief summary about your professional background...'),
               ]),
             ),
             const SizedBox(height: 12),
 
             // Skills & Languages
             _ProfileCard(
-              icon: Icons.lightbulb_outline_rounded,
+              icon: 'assets/lightbulb-fill.svg',
               title: 'Skills & Languages',
               isEditing: _editSkills,
               isLoading: _updateSkillsLanguageController.isLoading,
@@ -433,13 +487,28 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: Wrap(
-                          spacing: 8, runSpacing: 8,
-                          children: _skillsCtrl.text.split(',')
-                              .map((s) => s.trim())
-                              .where((s) => s.isNotEmpty)
-                              .map((s) => _SkillChip(label: s))
-                              .toList(),
+                        child: Builder(
+                          builder: (context) {
+                            final List<String> skills = _skillsCtrl.text.split(',')
+                                .map((s) => s.trim())
+                                .where((s) => s.isNotEmpty && s.toLowerCase() != 'not specified')
+                                .toList();
+                            if (skills.isEmpty) {
+                              return const Text(
+                                'Not specified',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.textMuted,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              );
+                            }
+                            return Wrap(
+                              spacing: 8, runSpacing: 8,
+                              children: skills.map((s) => _SkillChip(label: s)).toList(),
+                            );
+                          }
                         ),
                       ),
                     ],
@@ -475,7 +544,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
             // ── Work Experience ──────────────────────────────────────
             _MultiEntryCard(
-              icon: Icons.business_center_outlined,
+              icon: 'assets/building.svg',
               title: 'Work Experience',
               isEditing: _editWork,
               isLoading: _updateWorkExperienceController.isLoading,
@@ -517,23 +586,37 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               },
               onAdd: _addWorkEntry,
               addLabel: 'Add Work Experience',
-              viewChild: Column(
-                children: _workEntries.asMap().entries.map((e) {
-                  final entry = e.value;
-                  return Padding(
-                    padding: EdgeInsets.only(
-                        bottom: e.key < _workEntries.length - 1 ? 10 : 0),
-                    child: _WorkExpViewCard(
-                      company:     entry.companyCtrl.text,
-                      position:    entry.positionCtrl.text,
-                      duration:    entry.isCurrentJob.value 
-                          ? "${entry.startDateCtrl.text} - Present" 
-                          : "${entry.startDateCtrl.text} - ${entry.endDateCtrl.text}",
-                      description: entry.descCtrl.text,
+              viewChild: _workEntries.isEmpty
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24),
+                        child: Text(
+                          'No work experience added yet',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF94A3B8),
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Column(
+                      children: _workEntries.asMap().entries.map((e) {
+                        final entry = e.value;
+                        return Padding(
+                          padding: EdgeInsets.only(
+                              bottom: e.key < _workEntries.length - 1 ? 10 : 0),
+                          child: _WorkExpViewCard(
+                            company:     entry.companyCtrl.text,
+                            position:    entry.positionCtrl.text,
+                            duration:    entry.isCurrentJob.value 
+                                ? "${entry.startDateCtrl.text} - Present" 
+                                : "${entry.startDateCtrl.text} - ${entry.endDateCtrl.text}",
+                            description: entry.descCtrl.text,
+                          ),
+                        );
+                      }).toList(),
                     ),
-                  );
-                }).toList(),
-              ),
               editChild: Column(
                 children: [
                   ..._workEntries.asMap().entries.map((e) {
@@ -553,7 +636,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
             // ── Education ────────────────────────────────────────────
             _MultiEntryCard(
-              icon: Icons.school_outlined,
+              icon: 'assets/mortarboard-fill.svg',
               title: 'Education',
               isEditing: _editEdu,
               isLoading: _updateEducationController.isLoading,
@@ -573,28 +656,42 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               },
               onAdd: _addEduEntry,
               addLabel: 'Add Education',
-              viewChild: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: _eduEntries.asMap().entries.map((e) {
-                  final entry = e.value;
-                  final isLast = e.key == _eduEntries.length - 1;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _InfoGrid(rows: [
-                        _InfoRow('Education', entry.levelCtrl.text),
-                        _InfoRow('Degree', entry.degreeCtrl.text),
-                        _InfoRow('University/Board', entry.instCtrl.text),
-                      ]),
-                      if (!isLast) ...[
-                        const SizedBox(height: 12),
-                        const Divider(height: 1, color: Color(0xFFEEEEEE)),
-                        const SizedBox(height: 16),
-                      ],
-                    ],
-                  );
-                }).toList(),
-              ),
+              viewChild: _eduEntries.isEmpty
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24),
+                        child: Text(
+                          'No education details added yet',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF94A3B8),
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: _eduEntries.asMap().entries.map((e) {
+                        final entry = e.value;
+                        final isLast = e.key == _eduEntries.length - 1;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _InfoGrid(rows: [
+                              _InfoRow('Education', entry.levelCtrl.text),
+                              _InfoRow('Degree', entry.degreeCtrl.text),
+                              _InfoRow('University/Board', entry.instCtrl.text),
+                            ]),
+                            if (!isLast) ...[
+                              const SizedBox(height: 12),
+                              const Divider(height: 1, color: Color(0xFFEEEEEE)),
+                              const SizedBox(height: 16),
+                            ],
+                          ],
+                        );
+                      }).toList(),
+                    ),
               editChild: Column(
                 children: _eduEntries.asMap().entries.map((e) {
                   final i     = e.key;
@@ -739,7 +836,7 @@ InputDecoration _inputDeco({String? hint}) => InputDecoration(
 // ── Multi-entry card (Work / Education) ───────────────────────────────────────
 
 class _MultiEntryCard extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String title;
   final bool isEditing;
   final VoidCallback onEdit;
@@ -783,13 +880,13 @@ class _MultiEntryCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     child: Row(
                       children: [
-                        Container(
-                          width: 34, height: 34,
-                          decoration: BoxDecoration(
-                            color: AppColors.darkRed.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(9),
+                        Center(
+                          child: SvgPicture.asset(
+                            icon,
+                            colorFilter: const ColorFilter.mode(AppColors.darkRed, BlendMode.srcIn),
+                            width: 18,
+                            height: 18,
                           ),
-                          child: Icon(icon, color: AppColors.darkRed, size: 18),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -803,13 +900,20 @@ class _MultiEntryCard extends StatelessWidget {
                             onTap: onEdit,
                             child: Row(
                               children: [
-                                Icon(Icons.edit,
-                                    size: 14, color: AppColors.darkRed),
+                                SvgPicture.asset(
+                                  'assets/pencil.svg',
+                                  width: 14,
+                                  height: 14,
+                                  colorFilter: const ColorFilter.mode(
+                                    AppColors.darkRed,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
                                 const SizedBox(width: 4),
                                 Text('Edit',
                                     style: TextStyle(fontSize: 13,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.darkRed)),
+                                        color: AppColors.textHint)),
                               ],
                             ),
                           ),
@@ -1144,19 +1248,103 @@ class _EduEditCard extends StatelessWidget {
     required this.onRemove,
   });
 
+  void _showEducationLevelPicker(BuildContext context, TextEditingController ctrl, List<String> levels) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: levels.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+                  final isSelected = ctrl.text == item || (ctrl.text.isEmpty && item == 'Select Level');
+                  final isLast = index == levels.length - 1;
+
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        ctrl.text = item;
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: isLast ? null : const Border(
+                            bottom: BorderSide(color: Color(0xFFEEEEEE), width: 1),
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              item,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            Container(
+                              width: 22,
+                              height: 22,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isSelected ? AppColors.darkRed : const Color(0xFF475569),
+                                  width: 2,
+                                ),
+                              ),
+                              child: isSelected
+                                  ? Center(
+                                      child: Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: AppColors.darkRed,
+                                        ),
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<String> educationLevels = [
+      'Select Level',
       '10th',
       '12th',
       'Graduation',
-      'Post Graduation',
-      'Doctorate',
-      'Diploma',
+      'Master',
+      'PhD',
     ];
 
     if (entry.levelCtrl.text.isEmpty) {
-      entry.levelCtrl.text = '10th';
+      entry.levelCtrl.text = 'Select Level';
     }
 
     return Container(
@@ -1253,27 +1441,19 @@ class _EduEditCard extends StatelessWidget {
         ),
         const SizedBox(height: 5),
         if (isDropdown && dropdownItems != null)
-          DropdownButtonFormField<String>(
-            value: dropdownItems.contains(ctrl.text) ? ctrl.text : (dropdownItems.isNotEmpty ? dropdownItems.first : null),
-            items: dropdownItems
-                .map((e) => DropdownMenuItem(
-                      value: e,
-                      child: Text(
-                        e,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ))
-                .toList(),
-            onChanged: (val) {
-              if (val != null) ctrl.text = val;
-            },
-            decoration: _inputDeco(),
-            icon: const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: AppColors.textSecondary,
+          TextFormField(
+            controller: ctrl,
+            readOnly: true,
+            onTap: () => _showEducationLevelPicker(context, ctrl, dropdownItems),
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textPrimary,
+            ),
+            decoration: _inputDeco(hint: hint).copyWith(
+              suffixIcon: const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: AppColors.textSecondary,
+              ),
             ),
           )
         else
@@ -1293,7 +1473,7 @@ class _EduEditCard extends StatelessWidget {
 // ── Standard profile card (for non-list sections) ─────────────────────────────
 
 class _ProfileCard extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String title;
   final bool isEditing;
   final VoidCallback onEdit, onCancel, onSave;
@@ -1330,14 +1510,15 @@ class _ProfileCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     child: Row(
                       children: [
-                        Container(
-                          width: 34, height: 34,
-                          decoration: BoxDecoration(
-                            color: AppColors.darkRed.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(9),
+                        Center(
+                            child: SvgPicture.asset(
+                              icon,
+                              colorFilter: const ColorFilter.mode(AppColors.darkRed, BlendMode.srcIn),
+                              width: 18,
+                              height: 18,
+                            ),
                           ),
-                          child: Icon(icon, color: AppColors.darkRed, size: 18),
-                        ),
+
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(title,
@@ -1350,13 +1531,20 @@ class _ProfileCard extends StatelessWidget {
                             onTap: onEdit,
                             child: Row(
                               children: [
-                                Icon(Icons.edit,
-                                    size: 14, color: AppColors.darkRed),
+                                SvgPicture.asset(
+                                  'assets/pencil.svg',
+                                  width: 14,
+                                  height: 14,
+                                  colorFilter: const ColorFilter.mode(
+                                    AppColors.darkRed,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
                                 const SizedBox(width: 4),
                                 Text('Edit',
                                     style: TextStyle(fontSize: 13,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.darkRed)),
+                                        color: AppColors.textHint)),
                               ],
                             ),
                           ),
@@ -1461,7 +1649,9 @@ class _InfoRow {
   final bool isVerified;
   final bool isLink;
   final bool isMuted;
-  _InfoRow(this.label, this.value, {this.isVerified = false, this.isLink = false, this.isMuted = false});
+  _InfoRow(this.label, String val, {this.isVerified = false, this.isLink = false, bool? isMuted})
+      : value = (val.trim().isEmpty || val.trim().toLowerCase() == 'not specified' || val.trim() == '0 Years' || val.trim() == '0 Days') ? 'Not specified' : val,
+        isMuted = isMuted ?? (val.trim().isEmpty || val.trim().toLowerCase() == 'not specified' || val.trim() == '0 Years' || val.trim() == '0 Days');
 }
 
 class _InfoGrid extends StatelessWidget {
@@ -1490,9 +1680,9 @@ class _InfoGrid extends StatelessWidget {
                   Text(r.value,
                       style: TextStyle(fontSize: 13,
                           fontStyle: r.isMuted ? FontStyle.italic : FontStyle.normal,
-                          color: r.isMuted ? AppColors.textMuted : (r.isLink ? AppColors.darkRed : AppColors.textPrimary),
+                          color: r.isMuted ? AppColors.textMuted : (r.isLink ? AppColors.darkRed : AppColors.black),
                           decoration: r.isLink ? TextDecoration.underline : null,
-                          fontWeight: r.isMuted ? FontWeight.w500 : FontWeight.w600)),
+                          fontWeight: r.isMuted ? FontWeight.w500 : FontWeight.w500)),
                   if (r.isVerified) ...[
                     const SizedBox(height: 4),
                     Container(
@@ -1524,6 +1714,7 @@ class _EditField {
   final TextInputType inputType;
   final bool enabled;
   final bool isDateField;
+  final bool isChipInput;
   final String? helpText;
   final String? hintText;
   final bool isDropdown;
@@ -1532,7 +1723,7 @@ class _EditField {
   final List<String>? checkboxItems;
   final Widget? suffixIcon;
   final int maxLines;
-  _EditField(this.label, this.ctrl, {this.inputType = TextInputType.text, this.enabled = true, this.isDateField = false, this.helpText, this.hintText, this.isDropdown = false, this.dropdownItems, this.isCheckboxes = false, this.checkboxItems, this.suffixIcon, this.maxLines = 1});
+  _EditField(this.label, this.ctrl, {this.inputType = TextInputType.text, this.enabled = true, this.isDateField = false, this.isChipInput = false, this.helpText, this.hintText, this.isDropdown = false, this.dropdownItems, this.isCheckboxes = false, this.checkboxItems, this.suffixIcon, this.maxLines = 1});
 }
 
 class _EditGrid extends StatelessWidget {
@@ -1618,6 +1809,8 @@ class _EditGrid extends StatelessWidget {
                   style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
                   decoration: _inputDeco(hint: 'Select Date'),
                 )
+              else if (f.isChipInput)
+                _ChipInputField(ctrl: f.ctrl, hintText: f.hintText ?? 'Type and press Enter')
               else
                 TextFormField(
                   controller: f.ctrl,
@@ -1638,6 +1831,184 @@ class _EditGrid extends StatelessWidget {
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+class _ChipInputField extends StatefulWidget {
+  final TextEditingController ctrl;
+  final String hintText;
+  const _ChipInputField({required this.ctrl, required this.hintText});
+
+  @override
+  State<_ChipInputField> createState() => _ChipInputFieldState();
+}
+
+class _ChipInputFieldState extends State<_ChipInputField> {
+  final TextEditingController _textCtrl = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      if (mounted) {
+        setState(() {
+          _isFocused = _focusNode.hasFocus;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _textCtrl.dispose();
+    super.dispose();
+  }
+
+  List<String> get _items {
+    return widget.ctrl.text.split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty && e.toLowerCase() != 'not specified')
+        .toList();
+  }
+
+  void _addItem(String value) {
+    final clean = value.trim();
+    if (clean.isEmpty) return;
+    final current = _items;
+    if (current.length >= 4) {
+      Get.snackbar(
+        'Limit Exceeded',
+        'Maximum 4 preferred locations allowed.',
+        snackPosition: SnackPosition.top,
+        backgroundColor: Colors.red.withOpacity(0.9),
+        colorText: Colors.white,
+      );
+      return;
+    }
+    if (clean.length < 2 || clean.length > 50) {
+      Get.snackbar(
+        'Invalid Input',
+        'Location must be between 2 and 50 characters.',
+        snackPosition: SnackPosition.top,
+        backgroundColor: Colors.red.withOpacity(0.9),
+        colorText: Colors.white,
+      );
+      return;
+    }
+    if (!current.contains(clean)) {
+      current.add(clean);
+      widget.ctrl.text = current.join(', ');
+      setState(() {});
+    }
+    _textCtrl.clear();
+  }
+
+  void _removeItem(String item) {
+    final current = _items;
+    current.remove(item);
+    widget.ctrl.text = current.isEmpty ? '' : current.join(', ');
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentItems = _items;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F8FA),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: _isFocused ? AppColors.darkRed : const Color(0xFFE0E0E0),
+          width: _isFocused ? 1.5 : 1.0,
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (currentItems.isNotEmpty) ...[
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: currentItems.map((item) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0F2FE),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        item,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF0369A1),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      GestureDetector(
+                        onTap: () => _removeItem(item),
+                        child: const Icon(
+                          Icons.close,
+                          size: 14,
+                          color: Color(0xFF0369A1),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 12),
+          ],
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _textCtrl,
+                  focusNode: _focusNode,
+                  style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                  decoration: InputDecoration(
+                    hintText: widget.hintText,
+                    hintStyle: const TextStyle(fontSize: 13, color: AppColors.textHint),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  onSubmitted: _addItem,
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => _addItem(_textCtrl.text),
+                child: Container(
+                  width: 26,
+                  height: 26,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xFFBAE6FD),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.add,
+                      size: 16,
+                      color: Color(0xFF0369A1),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

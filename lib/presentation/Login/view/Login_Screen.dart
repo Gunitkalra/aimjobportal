@@ -515,6 +515,7 @@
 
 
 
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../Utils/colors.dart';
@@ -522,11 +523,13 @@ import '../../../routes/app_routes.dart';
 import '../controller/Auth_Controller.dart';
 
 // ── Primary blue accent used throughout this screen ───────────────────────────
-const _kBlue = Color(0xFF1A56DB);
-const _kBlueSoft = Color(0xFFEFF6FF); // avatar bg & banner bg
-const _kBorder = Color(0xFFE2E8F0); // input / button border
-const _kBg = Color(0xFFF8FAFC); // input fill
-const _kTextPrimary = Color(0xFF111827);
+const _kBlue          = Color(0xFF1A56DB);
+const _kBlueSoft      = Color(0xFFEFF6FF); // avatar bg & banner bg
+const _kBorder        = Color(0xFFE2E8F0); // input / button border
+const _kBgGradientTop = Color(0xFFF1F5F9); // Light soft background
+const _kBgGradientBot = Color(0xFFE2E8F0);
+const _kBg            = Color(0xFFF8FAFC); // input fill
+const _kTextPrimary   = Color(0xFF111827);
 const _kTextSecondary = Color(0xFF6B7280);
 
 class LoginScreen extends GetView<AuthController> {
@@ -538,421 +541,428 @@ class LoginScreen extends GetView<AuthController> {
     final sh = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: sw * 0.06),
-              child: Column(
-                children: [
-                  SizedBox(height: sh * 0.02),
-                  Container(
-                    color: AppColors.white,
-                    child: Row(
-                      children: [
-                        Image.asset(
-                          'assets/logo.png',
-                          fit: BoxFit.cover,
-                          height: 60,
-                          width: 100,
-                        ),
-                        const Spacer(),
-                        Row(
-                          children: [
-                            ElevatedButton(
-                              onPressed: () => Get.toNamed(AppRoutes.signup),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  side: const BorderSide(
-                                      color: AppColors.darkRed, width: 1),
-                                ),
-                                fixedSize: const Size(100, 36),
-                                padding: EdgeInsets.zero,
-                              ),
-                              child: const Text(
-                                'Register',
-                                style: TextStyle(
-                                    color: AppColors.darkRed,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: AppColors.blueGradient,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: ElevatedButton(
-                                onPressed: () => Get.toNamed(AppRoutes.login),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    side: const BorderSide(color: Colors.transparent, width: 1),
-                                  ),
-                                  fixedSize: const Size(100, 36),
-                                  padding: EdgeInsets.zero,
-                                ),
-                                child: const Text(
-                                  'Login',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: sw * 0.06),
-                child: Form(
-                  key: controller.loginFormKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 10),
-                // ── Avatar + Header ────────────────────────────────────
-                Center(
-                  child: Column(
-                    children: [
-                      // Circular avatar icon
-                      Container(
-                        width: 64,
-                        height: 64,
-                        decoration: const BoxDecoration(
-                          color: _kBlueSoft,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.person_outline_rounded,
-                          color: AppColors.darkRed,
-                          size: 32,
-                        ),
-                      ),
-                      SizedBox(height: sh * 0.018),
-                      Text(
-                        'Welcome Back',
-                        style: TextStyle(
-                          fontSize: sw * 0.058,
-                          fontWeight: FontWeight.w800,
-                          color: _kTextPrimary,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Sign in to your AimJobs account',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: _kTextSecondary,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [_kBgGradientTop, _kBgGradientBot],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // ── Top Header Bar (Logo & Action Buttons) ─────────────────────
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
                 ),
-
-                SizedBox(height: sh * 0.03),
-
-                // ── Sign-up banner ─────────────────────────────────────
-                Container(
-                  width: double.infinity,
-                  padding:
-                  const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: _kBlueSoft,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Don't have an account? ",
-                        style: TextStyle(
-                          fontSize: 13.5,
-                          color: _kTextSecondary,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => Get.toNamed(AppRoutes.signup),
-                        child: const Text(
-                          'Sign up here',
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            color: AppColors.darkRed,
-                            fontWeight: FontWeight.w700,
-                            // decoration: TextDecoration.underline,
-                            decorationColor: _kBlue,
+                child: Row(
+                  children: [
+                    Image.asset(
+                      'assets/logo.png',
+                      fit: BoxFit.contain,
+                      height: 90,
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => Get.toNamed(AppRoutes.signup),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            surfaceTintColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(color: AppColors.darkRed, width: 1.5),
+                            ),
+                            minimumSize: const Size(85, 36),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            'Register',
+                            style: TextStyle(
+                              color: AppColors.darkRed,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: sh * 0.03),
-
-                // ── "Sign in with" label ───────────────────────────────
-                const Text(
-                  'Sign in with',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: _kTextSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // ── Social Buttons ─────────────────────────────────────
-                _SocialLoginButton(
-                  label: 'Continue with Google',
-                  icon: const _GoogleIcon(),
-                  onTap: () => controller.loginWithGoogle(),
-                ),
-                const SizedBox(height: 10),
-                      _SocialLoginButton(
-                        label: 'Continue with LinkedIn',
-                        icon: const _LinkedInIcon(),
-                        onTap: () => controller.loginWithLinkedIn(),
-                      ),
-                // _SocialLoginButton(
-                //   label: 'Continue with LinkedIn',
-                //   icon: const _LinkedInIcon(),
-                //   onTap: () => controller.loginWithLinkedIn(),
-                // ),
-                const SizedBox(height: 10),
-                // _SocialLoginButton(
-                //   label: 'Continue with Facebook',
-                //   icon: const _FacebookIcon(),
-                //   onTap: () => controller.loginWithFacebook(),
-                // ),
-                //
-                // SizedBox(height: sh * 0.026),
-
-                // ── "or" Divider ───────────────────────────────────────
-                const Row(
-                  children: [
-                    Expanded(child: Divider(color: _kBorder, thickness: 1)),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 14),
-                      child: Text(
-                        'or',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: _kTextSecondary,
-                          fontWeight: FontWeight.w500,
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: () => Get.toNamed(AppRoutes.login),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.darkRed,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            minimumSize: const Size(85, 36),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            elevation: 0,
+                          ),
+                          child: const Text(
+                            'Login',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    Expanded(child: Divider(color: _kBorder, thickness: 1)),
-                  ],
-                ),
-
-                SizedBox(height: sh * 0.022),
-
-                // ── "Sign in with email" label ─────────────────────────
-                const Text(
-                  'Sign in with email',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: _kTextSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-
-                SizedBox(height: sh * 0.018),
-
-                // ── Email field ────────────────────────────────────────
-                const _FieldLabel(label: 'Email address'),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: controller.emailCtrl,
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  style: const TextStyle(
-                      fontSize: 14, color: _kTextPrimary),
-                  decoration: _inputDecoration(
-                    hint: 'you@example.com',
-                    prefix: Icons.mail_outline_rounded,
-                  ),
-                  validator: controller.emailValidator,
-                ),
-
-                SizedBox(height: sh * 0.02),
-
-                // ── Password field ─────────────────────────────────────
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const _FieldLabel(label: 'Password'),
-                    TextButton(
-                      onPressed: () =>
-                          Get.toNamed(AppRoutes.forgotPassword),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(0, 0),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: const Text(
-                        'Forgot password?',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.darkRed,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Obx(() => TextFormField(
-                  controller: controller.passwordCtrl,
-                  obscureText: controller.hidePassword.value,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) async {
-                    final errorCode = await controller.login();
-                    if (errorCode != null) {
-                      Get.snackbar(
-                        "Error",
-                        errorCode,
-                        backgroundColor: Colors.red,
-                        colorText: Colors.white,
-                      );
-                    }
-                  },
-                  style: const TextStyle(
-                      fontSize: 14, color: _kTextPrimary),
-                  decoration: _inputDecoration(
-                    hint: 'Enter your password',
-                    prefix: Icons.lock_outline_rounded,
-                    suffix: GestureDetector(
-                      onTap: controller.togglePassword,
-                      child: Icon(
-                        controller.hidePassword.value
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: _kTextSecondary,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                  validator: controller.passwordValidator,
-                )),
-
-                SizedBox(height: sh * 0.032),
-
-                // ── Sign in button ─────────────────────────────────────
-                Obx(() => SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton.icon(
-                    onPressed: controller.isLoading.value
-                        ? null
-                        : () async {
-                            final errorCode = await controller.login();
-                            if (errorCode != null) {
-                              Get.snackbar(
-                                "Error",
-                                errorCode,
-                                backgroundColor: Colors.red,
-                                colorText: Colors.white,
-                              );
-                            }
-                          },
-                    icon: controller.isLoading.value
-                        ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: Colors.white,
-                      ),
+                      ],
                     )
-                        : const Icon(
-                      Icons.login_rounded,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                    label: controller.isLoading.value
-                        ? const SizedBox.shrink()
-                        : const Text(
-                      'Sign in',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.darkRed,
-                      disabledBackgroundColor:
-                      AppColors.darkRed,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                )),
+                  ],
+                ),
+              ),
 
-                SizedBox(height: sh * 0.028),
+              // ── Form Content Inside White Card ─────────────────────────────
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: sw * 0.05, vertical: 10),
+                  child: Card(
+                    color: Colors.white,
+                    surfaceTintColor: Colors.white,
+                    elevation: 4,
+                    shadowColor: Colors.black.withOpacity(0.15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                      child: Form(
+                        key: controller.loginFormKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 10),
 
-                // ── Terms text ─────────────────────────────────────────
-                Center(
-                  child: RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: _kTextSecondary,
-                        height: 1.5,
+                            // ── Avatar + Header ────────────────────────────────────
+                            Center(
+                              child: Column(
+                                children: [
+                                  // Circular avatar icon
+                                  Container(
+                                    width: 64,
+                                    height: 64,
+                                    decoration: const BoxDecoration(
+                                      color: _kBlueSoft,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.person_outline_rounded,
+                                      color: AppColors.darkRed,
+                                      size: 32,
+                                    ),
+                                  ),
+                                  SizedBox(height: sh * 0.018),
+                                  Text(
+                                    'Welcome ',
+                                    style: TextStyle(
+                                      fontSize: sw * 0.058,
+                                      fontWeight: FontWeight.w800,
+                                      color: _kTextPrimary,
+                                      letterSpacing: -0.3,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'Sign in to your AimJobs account',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: _kTextSecondary,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            SizedBox(height: sh * 0.03),
+
+                            // ── Sign-up banner ─────────────────────────────────────
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: _kBlueSoft,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Don't have an account? ",
+                                    style: TextStyle(
+                                      fontSize: 13.5,
+                                      color: _kTextSecondary,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () => Get.toNamed(AppRoutes.signup),
+                                    child: const Text(
+                                      'Sign up here',
+                                      style: TextStyle(
+                                        fontSize: 13.5,
+                                        color: AppColors.darkRed,
+                                        fontWeight: FontWeight.w700,
+                                        decorationColor: _kBlue,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            SizedBox(height: sh * 0.03),
+
+                            // ── "Sign in with" label ───────────────────────────────
+                            const Text(
+                              'Sign in with',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: _kTextSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            // ── Social Buttons ─────────────────────────────────────
+                            _SocialLoginButton(
+                              label: 'Continue with Google',
+                              icon: const _GoogleIcon(),
+                              onTap: () => controller.loginWithGoogle(),
+                            ),
+                            const SizedBox(height: 10),
+                            _SocialLoginButton(
+                              label: 'Continue with LinkedIn',
+                              icon: const _LinkedInIcon(),
+                              onTap: () => controller.loginWithLinkedIn(),
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            // ── "or" Divider ───────────────────────────────────────
+                            const Row(
+                              children: [
+                                Expanded(child: Divider(color: _kBorder, thickness: 1)),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 14),
+                                  child: Text(
+                                    'or',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: _kTextSecondary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(child: Divider(color: _kBorder, thickness: 1)),
+                              ],
+                            ),
+
+                            SizedBox(height: sh * 0.022),
+
+                            // ── "Sign in with email" label ─────────────────────────
+                            const Text(
+                              'Sign in with email',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: _kTextSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+
+                            SizedBox(height: sh * 0.018),
+
+                            // ── Email field ────────────────────────────────────────
+                            const _FieldLabel(label: 'Email address'),
+                            const SizedBox(height: 6),
+                            TextFormField(
+                              controller: controller.emailCtrl,
+                              keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
+                              style: const TextStyle(fontSize: 14, color: _kTextPrimary),
+                              decoration: _inputDecoration(
+                                hint: 'you@example.com',
+                                prefix: Icons.mail_outline_rounded,
+                              ),
+                              validator: controller.emailValidator,
+                            ),
+
+                            SizedBox(height: sh * 0.02),
+
+                            // ── Password field ─────────────────────────────────────
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const _FieldLabel(label: 'Password'),
+                                TextButton(
+                                  onPressed: () => Get.toNamed(AppRoutes.forgotPassword),
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: const Size(0, 0),
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  child: const Text(
+                                    'Forgot password?',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.darkRed,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Obx(() => TextFormField(
+                              controller: controller.passwordCtrl,
+                              obscureText: controller.hidePassword.value,
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: (_) async {
+                                final errorCode = await controller.login();
+                                if (errorCode != null) {
+                                  Get.snackbar(
+                                    "Error",
+                                    errorCode,
+                                    backgroundColor: Colors.red,
+                                    colorText: Colors.white,
+                                  );
+                                }
+                              },
+                              style: const TextStyle(fontSize: 14, color: _kTextPrimary),
+                              decoration: _inputDecoration(
+                                hint: 'Enter your password',
+                                prefix: Icons.lock_outline_rounded,
+                                suffix: GestureDetector(
+                                  onTap: controller.togglePassword,
+                                  child: Icon(
+                                    controller.hidePassword.value
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                    color: _kTextSecondary,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                              validator: controller.passwordValidator,
+                            )),
+
+                            SizedBox(height: sh * 0.032),
+
+                            // ── Sign in button ─────────────────────────────────────
+                            Obx(() => SizedBox(
+                              width: double.infinity,
+                              height: 52,
+                              child: ElevatedButton.icon(
+                                onPressed: controller.isLoading.value
+                                    ? null
+                                    : () async {
+                                        final errorCode = await controller.login();
+                                        if (errorCode != null) {
+                                          Get.snackbar(
+                                            "Error",
+                                            errorCode,
+                                            backgroundColor: Colors.red,
+                                            colorText: Colors.white,
+                                          );
+                                        }
+                                      },
+                                icon: controller.isLoading.value
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.5,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.login_rounded,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                label: controller.isLoading.value
+                                    ? const SizedBox.shrink()
+                                    : const Text(
+                                        'Sign in',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.darkRed,
+                                  disabledBackgroundColor: AppColors.darkRed,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            )),
+
+                            SizedBox(height: sh * 0.028),
+
+                            // ── Terms text ─────────────────────────────────────────
+                            DottedBorder(
+                              strokeWidth: 0.1,
+                              dashPattern: const [4, 4],
+                              borderType: BorderType.RRect,
+                              radius: const Radius.circular(5),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Center(
+                                  child: RichText(
+                                    textAlign: TextAlign.center,
+                                    text: TextSpan(
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: _kTextSecondary,
+                                        height: 1.5,
+                                      ),
+                                      children: [
+                                        const TextSpan(
+                                            text: "By continuing, you agree to AimJobs' "),
+                                        const TextSpan(
+                                          text: 'Terms of Service',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const TextSpan(text: '\nand '),
+                                        const TextSpan(
+                                          text: 'Privacy Policy',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(height: sh * 0.04),
+                          ],
+                        ),
                       ),
-                      children: [
-                        const TextSpan(
-                            text: 'By continuing, you agree to AimJobs\' '),
-                        TextSpan(
-                          text: 'Terms of Service',
-                          style: const TextStyle(
-                            // color: _kBlue,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const TextSpan(text: '\nand '),
-                        TextSpan(
-                          text: 'Privacy Policy',
-                          style: const TextStyle(
-                            // color: _kBlue,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ),
-
-                SizedBox(height: sh * 0.04),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
-  ]
-    )
-    )
     );
   }
 
