@@ -113,17 +113,19 @@ class GetAllJobsController extends GetxController {
   var totalResults = 0.obs;
 
   String _lastQuery = '';
+  String _lastLocation = '';
   JobFilter _lastFilter = JobFilter();
 
   bool get hasMore => currentPage.value < totalPages.value;
 
   // ── Called on fresh search or filter apply ────────────────────────────────
-  Future<void> searchJobs(String q, {JobFilter? filter}) async {
+  Future<void> searchJobs(String q, {String? location, JobFilter? filter}) async {
     _lastQuery        = q;
+    _lastLocation     = location ?? '';
     _lastFilter       = filter ?? JobFilter();
     currentPage.value = 1;
     alljobs.clear();
-    await _fetchPage(q, 1, _lastFilter, isFirstLoad: true);
+    await _fetchPage(q, 1, _lastFilter, location: _lastLocation, isFirstLoad: true);
   }
 
   // ── Called when user scrolls to bottom ───────────────────────────────────
@@ -131,7 +133,7 @@ class GetAllJobsController extends GetxController {
     if (!hasMore || isPaginating.value || isLoading.value) return;
     final nextPage = currentPage.value + 1;
     // reuse the same query + filter for next page
-    await _fetchPage(_lastQuery, nextPage, _lastFilter, isFirstLoad: false);
+    await _fetchPage(_lastQuery, nextPage, _lastFilter, location: _lastLocation, isFirstLoad: false);
   }
 
   // ── Core fetch ────────────────────────────────────────────────────────────
@@ -139,6 +141,7 @@ class GetAllJobsController extends GetxController {
       String q,
       int page,
       JobFilter filter, {
+        String? location,
         required bool isFirstLoad,
       }) async {
     try {
@@ -152,6 +155,9 @@ class GetAllJobsController extends GetxController {
       final params = <String, String>{};
 
       if (q.isNotEmpty) params['q'] = q;
+      if (location != null && location.isNotEmpty) {
+        params['location'] = location;
+      }
 
       params['page'] = page.toString();
 

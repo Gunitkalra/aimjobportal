@@ -153,6 +153,7 @@ import 'package:http/http.dart' as http;
 
 class DashboardController extends GetxController {
   final searchCtrl  = TextEditingController();
+  final locationCtrl = TextEditingController();
   final userName    = 'there'.obs;
   final userEmail    = ''.obs;
   final isLoggedIn  = false.obs;
@@ -177,6 +178,7 @@ class DashboardController extends GetxController {
   @override
   void onClose() {
     searchCtrl.dispose();
+    locationCtrl.dispose();
     super.onClose();
   }
 
@@ -281,7 +283,7 @@ class DashboardController extends GetxController {
   // ── Called by DashboardScreen._search() ──────────────────────────────────
   // Passes the current active filter along with the query.
   Future<void> triggerSearch(String query) async {
-    await _jobCtrl.searchJobs(query, filter: filter.value);
+    await _jobCtrl.searchJobs(query, location: locationCtrl.text.trim(), filter: filter.value);
   }
 
   // ── Called when user taps "Show Jobs" in FilterBottomSheet ───────────────
@@ -290,14 +292,14 @@ class DashboardController extends GetxController {
 
     // Only re-fetch if a search has already been triggered
     if (_jobCtrl.alljobs.isNotEmpty || _jobCtrl.isLoading.value) {
-      _jobCtrl.searchJobs(searchCtrl.text.trim(), filter: newFilter);
+      _jobCtrl.searchJobs(searchCtrl.text.trim(), location: locationCtrl.text.trim(), filter: newFilter);
     }
   }
 
   void clearFilter() {
     filter.value = JobFilter();
     if (_jobCtrl.alljobs.isNotEmpty || _jobCtrl.isLoading.value) {
-      _jobCtrl.searchJobs(searchCtrl.text.trim());
+      _jobCtrl.searchJobs(searchCtrl.text.trim(), location: locationCtrl.text.trim());
     }
   }
 

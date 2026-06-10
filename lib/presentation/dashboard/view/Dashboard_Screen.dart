@@ -19,7 +19,6 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final _scaffoldKey   = GlobalKey<ScaffoldState>();
-  final _locationCtrl  = TextEditingController();
   final _scrollCtrl    = ScrollController();        // ✅ for infinite scroll
 
   bool _hasSearched = false;
@@ -36,7 +35,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     getstatscontroller.fetchStats();
     // Reset to home when search bar is cleared
     controller.searchCtrl.addListener(() {
-      if (controller.searchCtrl.text.isEmpty && _hasSearched) {
+      if (controller.searchCtrl.text.isEmpty &&
+          controller.locationCtrl.text.isEmpty &&
+          _hasSearched) {
+        setState(() => _hasSearched = false);
+      }
+    });
+    controller.locationCtrl.addListener(() {
+      if (controller.searchCtrl.text.isEmpty &&
+          controller.locationCtrl.text.isEmpty &&
+          _hasSearched) {
         setState(() => _hasSearched = false);
       }
     });
@@ -53,7 +61,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   void dispose() {
-    _locationCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
   }
@@ -62,7 +69,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     FocusScope.of(context).unfocus();
 
     if (controller.searchCtrl.text.trim().isEmpty &&
-        _locationCtrl.text.trim().isEmpty) {
+        controller.locationCtrl.text.trim().isEmpty) {
       setState(() => _hasSearched = false);
       return;
     }
@@ -360,7 +367,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 if (_hasSearched) ...[
                                   const SizedBox(height: 4),
                                   TextField(
-                                    controller: _locationCtrl,
+                                    controller: controller.locationCtrl,
                                     textInputAction: TextInputAction.search,
                                     onSubmitted: (_) => _search(),
                                     style: const TextStyle(
@@ -489,6 +496,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             child: Center(
                               child: CircularProgressIndicator(
                                   color: AppColors.buttonPrimary),
+                            ),
+                          );
+                        }
+
+                        if (getjobcontroller.alljobs.isEmpty) {
+                          return Padding(
+                            padding: EdgeInsets.only(top: sh * 0.08),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.search_off_rounded,
+                                    size: 64,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'No jobs found in this location/type',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'Try adjusting your search query, location, or filters.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 30),
+                                ],
+                              ),
                             ),
                           );
                         }

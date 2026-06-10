@@ -1515,8 +1515,10 @@ class _ProfileCompletionCard extends StatelessWidget {
                     value: (data.profileCompletionPercentage ?? 0) / 100,
                     strokeWidth: 12,
                     backgroundColor: const Color(0xFFE0E0E0),
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      Color(0xFFF64F73),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      (data.profileCompletionPercentage ?? 0) < 75
+                          ? const Color(0xFFF64F73)
+                          : const Color(0xFF2ECC71),
                     ),
                     strokeCap: StrokeCap.round,
                   ),
