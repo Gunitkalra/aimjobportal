@@ -2102,6 +2102,7 @@ class _AvatarHeader extends StatelessWidget {
                     const Text('View and manage your professional information',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: AppColors.textSecondary, fontSize: 12, )),
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
