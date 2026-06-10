@@ -65,7 +65,7 @@ class SavedJobsController extends GetxController {
           }
         }
       } else {
-        showToastFail("Failed to load jobs: ${response.statusCode}");
+       // showToastFail("Failed to load jobs: ${response.statusCode}");
       }
     } catch (e) {
       print("Fetch Saved Jobs Error: $e");

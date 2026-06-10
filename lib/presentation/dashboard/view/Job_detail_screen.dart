@@ -728,14 +728,35 @@ class JobDetailScreen extends StatelessWidget {
               size: 20
           ),
         ),
-        title: const Text(
-          'Job Detail',
-          style: TextStyle(
-            fontSize: 18,
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w700,
-          ),
+        title:
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+
+            Image.asset(
+              'assets/logo.png',
+              height: 80,
+              fit: BoxFit.contain,
+            ),
+            SizedBox(width: 23,)
+            // Text(
+            //   'Dashboard',
+            //   style: TextStyle(
+            //     fontSize: 18,
+            //     fontWeight: FontWeight.w700,
+            //     color: AppColors.textPrimary,
+            //   ),
+            // ),
+          ],
         ),
+        // const Text(
+        //   'Job Detail',
+        //   style: TextStyle(
+        //     fontSize: 18,
+        //     color: AppColors.textPrimary,
+        //     fontWeight: FontWeight.w700,
+        //   ),
+        // ),
       ),
       body: SafeArea(
         child: Column(

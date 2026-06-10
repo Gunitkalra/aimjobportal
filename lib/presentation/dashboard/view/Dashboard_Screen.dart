@@ -106,6 +106,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             // ── Top bar ────────────────────────────────────────────────
             Container(
+              height: 70,
               color: AppColors.white,
               padding: EdgeInsets.symmetric(
                   horizontal: sw * 0.05, vertical: 0),
@@ -154,7 +155,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              minimumSize: const Size(80, 36),
+                              minimumSize: const Size(80, 30),
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 16),
                             ),
@@ -162,6 +163,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               'Register',
                               style: TextStyle(
                                   color: Colors.white,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -176,13 +178,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 side: const BorderSide(
                                     color: AppColors.darkRed, width: 1),
                               ),
-                              minimumSize: const Size(80, 36),
+                              minimumSize: const Size(80, 30),
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 16),
                             ),
                             child: const Text(
                               'Login',
                               style: TextStyle(
+                                  fontSize: 12,
                                   color: AppColors.darkRed,
                                   fontWeight: FontWeight.bold),
                             ),

@@ -1267,6 +1267,7 @@ class SignupScreen extends GetView<AuthController> {
             children: [
               // ── Top Header Bar (Logo & Action Buttons) ─────────────────────
               Container(
+                height: 70,
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 decoration: BoxDecoration(
@@ -1290,7 +1291,7 @@ class SignupScreen extends GetView<AuthController> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            minimumSize: const Size(85, 36),
+                            minimumSize: const Size(80, 30),
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             elevation: 0,
                           ),
@@ -1313,7 +1314,7 @@ class SignupScreen extends GetView<AuthController> {
                               borderRadius: BorderRadius.circular(20),
                               side:  BorderSide(color: AppColors.darkRed, width: 1.5),
                             ),
-                            minimumSize: const Size(85, 36),
+                            minimumSize: const Size(80, 30),
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             elevation: 0,
                           ),
@@ -2102,22 +2103,36 @@ class SignupScreen extends GetView<AuthController> {
                                       ),
                                       children: [
                                         const TextSpan(
-                                            text: "By continuing, you agree to AimJobs' "),
-                                        const TextSpan(
+                                            text: "By continuing, you agree to AimJobs.AI' "),
+
+                                        TextSpan(
                                           text: 'Terms of Service',
-                                          style: TextStyle(
-                                            // color: _kBlue,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                          style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.blue),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () => _launchURL('https://www.aimjobs.ai/Home/Terms'),
                                         ),
                                         const TextSpan(text: '\nand '),
-                                        const TextSpan(
+                                        TextSpan(
                                           text: 'Privacy Policy',
-                                          style: TextStyle(
-                                            // color: _kBlue,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                          style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.blue),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () => _launchURL('https://www.aimjobs.ai/Home/Privacy'),
                                         ),
+                                        // const TextSpan(
+                                        //   text: 'Terms of Service',
+                                        //   style: TextStyle(
+                                        //     // color: _kBlue,
+                                        //     fontWeight: FontWeight.w500,
+                                        //   ),
+                                        // ),
+                                        // const TextSpan(text: '\nand '),
+                                        // const TextSpan(
+                                        //   text: 'Privacy Policy',
+                                        //   style: TextStyle(
+                                        //     // color: _kBlue,
+                                        //     fontWeight: FontWeight.w500,
+                                        //   ),
+                                        // ),
                                       ],
                                     ),
                                   ),
@@ -2174,6 +2189,16 @@ class SignupScreen extends GetView<AuthController> {
         borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
       ),
     );
+  }
+}
+
+
+Future<void> _launchURL(String urlString) async {
+  final Uri url = Uri.parse(urlString);
+  if (await canLaunchUrl(url)) {
+    await launchUrl(url, mode: LaunchMode.externalApplication);
+  } else {
+    throw 'Could not launch $url';
   }
 }
 

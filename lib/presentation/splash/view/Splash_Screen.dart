@@ -662,13 +662,46 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SizedBox.expand(
-        child: Image.asset(
-          'assets/splashgif.gif', // 👈 your image path here
-          fit: BoxFit.cover,
+    return
+
+      Scaffold(
+        // 1. Sets the entire screen background to #EEF1FC so the GIF blends in perfectly
+        backgroundColor: const Color(0xFFEEF1FC),
+        body: SizedBox.expand(
+          child: Stack(
+            alignment: Alignment.center, // Centers both the image and the text
+            children: [
+
+              // 2. The GIF Layer (Centered with side padding)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0), // Adjust this for more/less side space
+                child: Image.asset(
+                  'assets/splashgif.gif',
+                  fit: BoxFit.contain, // Prevents stretching
+                ),
+              ),
+
+              // 3. The Text Layer (Centered right on top of the GIF)
+              // const Text(
+              //   'Your App Name',
+              //   style: TextStyle(
+              //     fontSize: 28,
+              //     fontWeight: FontWeight.bold,
+              //     color: Color(0xFF1A1A1A), // Dark text that looks good on light blue
+              //   ),
+              // ),
+
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    //   Scaffold(
+    //   body: SizedBox.expand(
+    //     child: Image.asset(
+    //       'assets/splashgif.gif', // 👈 your image path here
+    //       fit: BoxFit.contain,
+    //     ),
+    //   ),
+    // );
   }
 }

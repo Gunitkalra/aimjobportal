@@ -516,8 +516,10 @@
 
 
 import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../Utils/colors.dart';
 import '../../../routes/app_routes.dart';
 import '../controller/Auth_Controller.dart';
@@ -554,8 +556,9 @@ class LoginScreen extends GetView<AuthController> {
             children: [
               // ── Top Header Bar (Logo & Action Buttons) ─────────────────────
               Container(
+                height: 70,
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 14),
                 decoration: const BoxDecoration(
                   color: Colors.white,
                 ),
@@ -565,6 +568,7 @@ class LoginScreen extends GetView<AuthController> {
                       'assets/logo.png',
                       fit: BoxFit.contain,
                       height: 90,
+                   //   width: 17,
                     ),
                     const Spacer(),
                     Row(
@@ -578,7 +582,7 @@ class LoginScreen extends GetView<AuthController> {
                               borderRadius: BorderRadius.circular(20),
                               side: BorderSide(color: AppColors.darkRed, width: 1.5),
                             ),
-                            minimumSize: const Size(85, 36),
+                            minimumSize: const Size(80, 30),
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             elevation: 0,
                           ),
@@ -587,7 +591,7 @@ class LoginScreen extends GetView<AuthController> {
                             style: TextStyle(
                               color: AppColors.darkRed,
                               fontWeight: FontWeight.w600,
-                              fontSize: 13,
+                              fontSize: 12,
                             ),
                           ),
                         ),
@@ -599,8 +603,8 @@ class LoginScreen extends GetView<AuthController> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            minimumSize: const Size(85, 36),
-                            // padding: const EdgeInsets.symmetric(horizontal: 16),
+                            minimumSize: const Size(80, 30),
+                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             elevation: 0,
                           ),
                           child: const Text(
@@ -608,7 +612,7 @@ class LoginScreen extends GetView<AuthController> {
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
-                              fontSize: 13,
+                              fontSize: 12,
                             ),
                           ),
                         ),
@@ -930,20 +934,36 @@ class LoginScreen extends GetView<AuthController> {
                                       ),
                                       children: [
                                         const TextSpan(
-                                            text: "By continuing, you agree to AimJobs' "),
-                                        const TextSpan(
+                                            text: "By continuing, you agree to AimJobs.AI' "),
+
+
+                                        TextSpan(
                                           text: 'Terms of Service',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                          style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.blue),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () => _launchURL('https://www.aimjobs.ai/Home/Terms'),
                                         ),
                                         const TextSpan(text: '\nand '),
-                                        const TextSpan(
+                                        TextSpan(
                                           text: 'Privacy Policy',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                          style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.blue),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () => _launchURL('https://www.aimjobs.ai/Home/Privacy'),
                                         ),
+                                        // TextSpan(
+                                        //   text: 'Terms of Service',
+                                        //   style: TextStyle(
+                                        //     fontWeight: FontWeight.w500,
+                                        //   ),
+                                        // ),
+                                        // const TextSpan(text: '\nand '),
+                                        // const
+                                        // TextSpan(
+                                        //   text: 'Privacy Policy',
+                                        //   style: TextStyle(
+                                        //     fontWeight: FontWeight.w500,
+                                        //   ),
+                                        // ),
                                       ],
                                     ),
                                   ),
@@ -1004,6 +1024,14 @@ class LoginScreen extends GetView<AuthController> {
   }
 }
 
+Future<void> _launchURL(String urlString) async {
+  final Uri url = Uri.parse(urlString);
+  if (await canLaunchUrl(url)) {
+    await launchUrl(url, mode: LaunchMode.externalApplication);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
 // ── Unified Social Login Button ───────────────────────────────────────────────
 // All three social buttons share the same look: white bg, light border.
 

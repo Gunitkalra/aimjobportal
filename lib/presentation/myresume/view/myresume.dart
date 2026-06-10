@@ -85,14 +85,35 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
               color: AppColors.textPrimary, size: 20),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'My Resume',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
+        title:
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+
+            Image.asset(
+              'assets/logo.png',
+              height: 80,
+              fit: BoxFit.contain,
+            ),
+            SizedBox(width: 23,)
+            // Text(
+            //   'Dashboard',
+            //   style: TextStyle(
+            //     fontSize: 18,
+            //     fontWeight: FontWeight.w700,
+            //     color: AppColors.textPrimary,
+            //   ),
+            // ),
+          ],
         ),
+        // const Text(
+        //   'My Resume',
+        //   style: TextStyle(
+        //     fontSize: 18,
+        //     fontWeight: FontWeight.w700,
+        //     color: AppColors.textPrimary,
+        //   ),
+        // ),
       ),
       body: Obx(() {
         if (_resumeController.isLoading.value && _resumeController.resumeData.value == null) {
@@ -528,36 +549,36 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
               const SizedBox(height: 30),
 
               // ── Footer ──────────────────────────────────────────────
-              Center(
-                child: Column(
-                  children: [
-                    Text(
-                      'AIMJOBS.AI',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF1E88E5),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      '© 2026 Aimjobs.ai All Rights Reserved.',
-                      style: TextStyle(fontSize: 11, color: AppColors.textMuted),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _FooterLink('About Us'),
-                        const _FooterDivider(),
-                        _FooterLink('Privacy Policy'),
-                        const _FooterDivider(),
-                        _FooterLink('Terms & Conditions'),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              // Center(
+              //   child: Column(
+              //     children: [
+              //       Text(
+              //         'AIMJOBS.AI',
+              //         style: GoogleFonts.poppins(
+              //           fontSize: 16,
+              //           fontWeight: FontWeight.w800,
+              //           color: const Color(0xFF1E88E5),
+              //         ),
+              //       ),
+              //       const SizedBox(height: 6),
+              //       const Text(
+              //         '© 2026 Aimjobs.ai All Rights Reserved.',
+              //         style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+              //       ),
+              //       const SizedBox(height: 12),
+              //       Row(
+              //         mainAxisAlignment: MainAxisAlignment.center,
+              //         children: [
+              //           _FooterLink('About Us'),
+              //           const _FooterDivider(),
+              //           _FooterLink('Privacy Policy'),
+              //           const _FooterDivider(),
+              //           _FooterLink('Terms & Conditions'),
+              //         ],
+              //       ),
+              //     ],
+              //   ),
+              // ),
 
               const SizedBox(height: 16),
                     ],

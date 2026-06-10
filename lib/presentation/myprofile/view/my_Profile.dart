@@ -240,9 +240,31 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               color: AppColors.textPrimary, size: 20),
           onPressed: () => Get.back(),
         ),
-        title: const Text('My Profile',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary)),
+        title:
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+
+            Image.asset(
+              'assets/logo.png',
+              height: 80,
+              fit: BoxFit.contain,
+            ),
+            SizedBox(width: 23,)
+            // Text(
+            //   'Dashboard',
+            //   style: TextStyle(
+            //     fontSize: 18,
+            //     fontWeight: FontWeight.w700,
+            //     color: AppColors.textPrimary,
+            //   ),
+            // ),
+          ],
+        ),
+        //
+        // const Text('My Profile',
+        //     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700,
+        //         color: AppColors.textPrimary)),
       ),
       body: Obx(() {
         if (_profileController.isLoading.value && _profileController.profileData.value == null) {
