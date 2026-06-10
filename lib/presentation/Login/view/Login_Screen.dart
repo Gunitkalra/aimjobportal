@@ -591,7 +591,7 @@ class LoginScreen extends GetView<AuthController> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 5),
                         ElevatedButton(
                           onPressed: () => Get.toNamed(AppRoutes.login),
                           style: ElevatedButton.styleFrom(
@@ -600,7 +600,7 @@ class LoginScreen extends GetView<AuthController> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             minimumSize: const Size(85, 36),
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            // padding: const EdgeInsets.symmetric(horizontal: 16),
                             elevation: 0,
                           ),
                           child: const Text(
@@ -686,7 +686,7 @@ class LoginScreen extends GetView<AuthController> {
                             // ── Sign-up banner ─────────────────────────────────────
                             Container(
                               width: double.infinity,
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                               decoration: BoxDecoration(
                                 color: _kBlueSoft,
                                 borderRadius: BorderRadius.circular(12),
@@ -697,7 +697,7 @@ class LoginScreen extends GetView<AuthController> {
                                   Text(
                                     "Don't have an account? ",
                                     style: TextStyle(
-                                      fontSize: 13.5,
+                                      fontSize: 12,
                                       color: _kTextSecondary,
                                       fontWeight: FontWeight.w400,
                                     ),
@@ -707,7 +707,7 @@ class LoginScreen extends GetView<AuthController> {
                                     child: const Text(
                                       'Sign up here',
                                       style: TextStyle(
-                                        fontSize: 13.5,
+                                        fontSize: 12,
                                         color: AppColors.darkRed,
                                         fontWeight: FontWeight.w700,
                                         decorationColor: _kBlue,

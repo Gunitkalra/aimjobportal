@@ -1776,7 +1776,7 @@ class SignupScreen extends GetView<AuthController> {
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(
-                                  vertical: 12, horizontal: 10),
+                                  vertical: 12, horizontal: 8),
                               decoration: BoxDecoration(
                                 color: _kBlueSoft,
                                 borderRadius: BorderRadius.circular(12),
@@ -1787,7 +1787,7 @@ class SignupScreen extends GetView<AuthController> {
                                   const Text(
                                     "Already have an account? ",
                                     style: TextStyle(
-                                      fontSize: 13.5,
+                                      fontSize: 12,
                                       color: _kTextSecondary,
                                     ),
                                   ),
@@ -1796,7 +1796,7 @@ class SignupScreen extends GetView<AuthController> {
                                     child: const Text(
                                       'Sign in here',
                                       style: TextStyle(
-                                        fontSize: 13.5,
+                                        fontSize: 12,
                                         color: AppColors.darkRed,
                                         fontWeight: FontWeight.w700,
                                         // decoration: TextDecoration.underline,

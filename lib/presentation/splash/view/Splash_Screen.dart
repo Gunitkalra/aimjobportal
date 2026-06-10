@@ -665,7 +665,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: SizedBox.expand(
         child: Image.asset(
-          'assets/Screenedit.png', // 👈 your image path here
+          'assets/splashgif.gif', // 👈 your image path here
           fit: BoxFit.cover,
         ),
       ),
