@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../../../Utils/colors.dart';
 import '../../../routes/app_routes.dart';
@@ -834,8 +835,16 @@ class _SideDrawer extends StatelessWidget {
 
             const Divider(height: 1, color: AppColors.border),
 
+            // _DrawerItem(
+            //   icon: Icons.speed_outlined,
+            //   label: 'Dashboard',
+            //   onTap: () {
+            //     Navigator.of(context).pop();
+            //     Get.toNamed(AppRoutes.sideDashboard);
+            //   },
+            // ),
             _DrawerItem(
-              icon: Icons.speed_outlined,
+              svgAsset: 'assets/speedometer2.svg',
               label: 'Dashboard',
               onTap: () {
                 Navigator.of(context).pop();
@@ -851,7 +860,7 @@ class _SideDrawer extends StatelessWidget {
               },
             ),
             _DrawerItem(
-              icon: Icons.bookmark_outline_rounded,
+              icon: Icons.bookmark,
               label: 'Saved Jobs',
               onTap: () {
                 Navigator.of(context).pop();
@@ -955,18 +964,21 @@ class _SideDrawer extends StatelessWidget {
 // ── Drawer item ───────────────────────────────────────────────────────────────
 
 class _DrawerItem extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final String? svgAsset;
   final String label;
   final VoidCallback onTap;
   final Color iconColor;
   final Color labelColor;
 
   const _DrawerItem({
-    required this.icon,
+    super.key,
+    this.icon,
+    this.svgAsset,
     required this.label,
     required this.onTap,
-    this.iconColor = AppColors.textPrimary,
-    this.labelColor = AppColors.textPrimary,
+    this.iconColor = AppColors.black,
+    this.labelColor = AppColors.black,
   });
 
   @override
@@ -974,10 +986,27 @@ class _DrawerItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 16,
+        ),
         child: Row(
           children: [
-            Icon(icon, size: 22, color: iconColor),
+            svgAsset != null
+                ? SvgPicture.asset(
+              svgAsset!,
+              width: 22,
+              height: 22,
+              colorFilter: ColorFilter.mode(
+                iconColor,
+                BlendMode.srcIn,
+              ),
+            )
+                : Icon(
+              icon,
+              size: 22,
+              color: iconColor,
+            ),
             const SizedBox(width: 16),
             Text(
               label,
