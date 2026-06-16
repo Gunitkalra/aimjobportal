@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../../../Utils/colors.dart';
@@ -7,6 +8,7 @@ import '../../../routes/app_routes.dart';
 import '../Controller/Dashboard_Controller.dart';
 import '../Controller/Get_Job_Controller.dart';
 import '../Controller/Get_stats_Controller.dart';
+import '../model/job_model/job_Filter.dart';
 import 'widget/filter_sheet.dart';
 import 'widget/job_card.dart';
 import 'package:http/http.dart' as http;
@@ -23,6 +25,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final _scrollCtrl    = ScrollController();        // ✅ for infinite scroll
 
   bool _hasSearched = false;
+  DateTime? _lastPressedAt;
+
+  Future<void> _handleBackPress() async {
+    final hasSearch = controller.searchCtrl.text.isNotEmpty;
+    final hasLocation = controller.locationCtrl.text.isNotEmpty;
+    final hasFilter = controller.filter.value.activeCount > 0;
+
+    if (hasSearch || hasLocation || hasFilter || _hasSearched) {
+      FocusScope.of(context).unfocus();
+      controller.searchCtrl.clear();
+      controller.locationCtrl.clear();
+      controller.filter.value = JobFilter();
+      getjobcontroller.alljobs.clear();
+      getjobcontroller.totalResults.value = 0;
+      if (_scrollCtrl.hasClients) {
+        _scrollCtrl.jumpTo(0);
+      }
+      setState(() {
+        _hasSearched = false;
+      });
+      return;
+    }
+
+    final now = DateTime.now();
+    if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
+      _lastPressedAt = now;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'If you press back button again you will be exiting the app',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: AppColors.darkRed,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    await SystemNavigator.pop();
+  }
 
   final GetAllJobsController getjobcontroller = Get.put(GetAllJobsController());
   final GetStatsController getstatscontroller = Get.put(GetStatsController());
@@ -103,7 +146,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final sw = MediaQuery.of(context).size.width;
     final sh = MediaQuery.of(context).size.height;
 
-    return Obx(() => Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _handleBackPress();
+      },
+      child: Obx(() => Scaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.appBg1,
       endDrawer: controller.isLoggedIn.value
@@ -120,10 +169,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   horizontal: sw * 0.05, vertical: 0),
               child: Row(
                 children: [
-                  Image.asset(
-                    'assets/logo.png',
-                    height: 80,
-                    fit: BoxFit.contain,
+                  GestureDetector(
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                      controller.searchCtrl.clear();
+                      controller.locationCtrl.clear();
+                      controller.filter.value = JobFilter();
+                      getjobcontroller.alljobs.clear();
+                      getjobcontroller.totalResults.value = 0;
+                      if (_scrollCtrl.hasClients) {
+                        _scrollCtrl.jumpTo(0);
+                      }
+                      setState(() {
+                        _hasSearched = false;
+                      });
+                    },
+                    child: Image.asset(
+                      'assets/logo.png',
+                      height: 80,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                   const Spacer(),
                   Obx(() {
@@ -713,7 +778,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ],
         ),
-      ),
+      )),
     ));
   }
 }
