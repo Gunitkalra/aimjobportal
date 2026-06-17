@@ -1659,8 +1659,8 @@ class _RecentActivityCard extends StatelessWidget {
 
   String _getIconSvg(String? type) {
     if (type == "Profile Updated") return "assets/pencil-square.svg";
-    if (type == "CV Upload") return "assets/cloud-upload.svg";
-    return "assets/person-lines-fill.svg";
+    if (type == "CV Upload") return "assets/file-earmark-arrow-up.svg";
+    return "assets/person-plus-fill.svg";
   }
 
   String _formatTime(DateTime? date) {
@@ -1904,9 +1904,9 @@ class _QuickActionsCard extends StatelessWidget {
       child: Column(children: [
         SizedBox(width: double.infinity, height: 80, child: DecoratedBox(decoration: BoxDecoration(gradient: AppColors.blueGradient, borderRadius: BorderRadius.circular(12)), child: ElevatedButton(onPressed: () {Get.toNamed(AppRoutes.dashboard);}, style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [SvgPicture.asset('assets/search.svg', colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn), width: 28, height: 28), const SizedBox(height: 4), const Text('Search Jobs', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600))])))),
         const SizedBox(height: 10),
-        _QuickActionTile(icon: 'assets/bookmarks-fill.svg', iconColor: const Color(0xFF2196F3), label: 'Saved Jobs', labelColor: const Color(0xFF2196F3), onTap: () {Get.toNamed(AppRoutes.savedJobs);}),
+        _QuickActionTile(icon: 'assets/bookmark-fill.svg', iconColor: const Color(0xFF2196F3), label: 'Saved Jobs', labelColor: const Color(0xFF2196F3), onTap: () {Get.toNamed(AppRoutes.savedJobs);}),
         const SizedBox(height: 10),
-        _QuickActionTile(icon: 'assets/file-earmark-text.svg', iconColor: const Color(0xFF2ECC71), label: 'View Resume', labelColor: const Color(0xFF2ECC71), onTap: () {Get.toNamed(AppRoutes.myresume);}),
+        _QuickActionTile(icon: 'assets/file-earmark-person.svg', iconColor: const Color(0xFF2ECC71), label: 'View Resume', labelColor: const Color(0xFF2ECC71), onTap: () {Get.toNamed(AppRoutes.myresume);}),
         const SizedBox(height: 10),
         _QuickActionTile(icon: 'assets/pencil-square.svg', iconColor: AppColors.appBg2, label: 'Edit Profile', labelColor: AppColors.appBg2, onTap: () {Get.toNamed(AppRoutes.myprofile);}),
       ]),

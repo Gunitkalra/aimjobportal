@@ -297,7 +297,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                           ),
                           icon: SvgPicture.asset(
-                            'assets/person-circle.svg',
+                            'assets/person-check.svg',
                             colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                             width: 16,
                             height: 16,
@@ -484,7 +484,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                               color: Colors.white),
                         )
                       : SvgPicture.asset(
-                          'assets/cloud-upload.svg',
+                          'assets/upload.svg',
                           colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                           width: 18,
                           height: 18,
