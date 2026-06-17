@@ -1,3 +1,4 @@
+import 'package:aimjobs/presentation/aboutus/view/aboutus_screen.dart';
 import 'package:get/get.dart';
 
 
@@ -32,6 +33,7 @@ class AppRoutes {
   static const forgotPassword = '/forgot-password';
   static const savedJobs = '/saved-jobs';
   static const myresume = '/my-resume';
+  static const aboutus = '/aboutus_screen';
   static const myprofile = '/my-profile';
   static const verifyotp = '/verifyOTP';
   static List<GetPage> routes = [
@@ -95,6 +97,11 @@ class AppRoutes {
     GetPage(
       name: myresume,
       page: () => const MyResumeScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: aboutus,
+      page: () => const AboutUsScreen(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

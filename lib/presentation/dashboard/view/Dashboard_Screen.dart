@@ -977,8 +977,20 @@ class _SideDrawer extends StatelessWidget {
               },
             ),
 
+<<<<<<< HEAD
 
             // const Divider(height: 1, color: AppColors.border),
+=======
+            _DrawerItem(
+              icon: Icons.info_outline, // Swapped to an 'info' icon which fits 'About Us' perfectly
+              label: 'About Us',
+              onTap: () {
+                Navigator.of(context).pop();
+                Get.toNamed(AppRoutes.aboutus);
+              },
+            ),
+
+>>>>>>> eb0ad95112169f3e86e4b68975156b22fc771994
 
             // In your Drawer - update the DrawerItem
 
@@ -993,6 +1005,10 @@ class _SideDrawer extends StatelessWidget {
 
             const Divider(height: 1, color: AppColors.border),
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> eb0ad95112169f3e86e4b68975156b22fc771994
 
             _DrawerItem(
               icon: Icons.logout_rounded,
@@ -1059,69 +1075,6 @@ class _SideDrawer extends StatelessWidget {
   }
 }
 
-void _showAboutUsDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text(
-          'About Us',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Aim Jobs is the fast growing online job providing portals which help to search relevant job to the jobseekers and the best service across the country.\n\n'
-                    'It is a platform which provides right opportunity for the right candidate.',
-                style: TextStyle(fontSize: 15, height: 1.4),
-              ),
-              const SizedBox(height: 20),
-              const Divider(),
-              const SizedBox(height: 10),
-              const Text(
-                'Connect With Us:',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              const SizedBox(height: 12),
-
-              // Website Link
-              _buildHyperlink(
-                label: 'Website: ',
-                linkText: 'aimjobs.ai',
-                url: 'https://www.aimjobs.ai/',
-              ),
-              const SizedBox(height: 8),
-
-              // Instagram Link
-              _buildHyperlink(
-                label: 'Instagram: ',
-                linkText: '@aimjobs',
-                url: 'https://www.instagram.com/p/DZBpXBcmdKI/?igsh=OWxsaW5meGJxenpq',
-              ),
-              const SizedBox(height: 8),
-
-              // X (Twitter) Link
-              _buildHyperlink(
-                label: 'X (Twitter): ',
-                linkText: '@aimjobsai',
-                url: 'https://x.com/aimjobsai',
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      );
-    },
-  );
-}
 
 // Helper widget to generate clickable hyperlinks
 Widget _buildHyperlink({required String label, required String linkText, required String url}) {
