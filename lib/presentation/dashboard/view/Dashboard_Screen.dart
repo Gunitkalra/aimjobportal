@@ -968,8 +968,17 @@ class _SideDrawer extends StatelessWidget {
               label: 'Search',
               onTap: () => Navigator.of(context).pop(),
             ),
+            _DrawerItem(
+              icon: Icons.info_outline, // Swapped to an 'info' icon which fits 'About Us' perfectly
+              label: 'About Us',
+              onTap: () {
+                Navigator.of(context).pop(); // Close drawer first
+                _showAboutUsDialog(context); // Launch the About Us dialog
+              },
+            ),
 
-            const Divider(height: 1, color: AppColors.border),
+
+            // const Divider(height: 1, color: AppColors.border),
 
             // In your Drawer - update the DrawerItem
 
@@ -984,15 +993,6 @@ class _SideDrawer extends StatelessWidget {
 
             const Divider(height: 1, color: AppColors.border),
 
-            _DrawerItem(
-              icon: Icons.info_outline, // Swapped to an 'info' icon which fits 'About Us' perfectly
-              label: 'About Us',
-              onTap: () {
-                Navigator.of(context).pop(); // Close drawer first
-                _showAboutUsDialog(context); // Launch the About Us dialog
-              },
-            ),
-            const Divider(height: 1, color: AppColors.border),
 
             _DrawerItem(
               icon: Icons.logout_rounded,
