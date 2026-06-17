@@ -28,6 +28,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   bool _hasSearched = false;
   DateTime? _lastPressedAt;
+  String _lastSearchText = '';
+  String _lastLocationText = '';
 
   Future<void> _handleBackPress() async {
     final hasSearch = controller.searchCtrl.text.isNotEmpty;
@@ -79,8 +81,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     controller = Get.find<DashboardController>();
     controller.loadUser();
     getstatscontroller.fetchStats();
+    _lastSearchText = controller.searchCtrl.text;
+    _lastLocationText = controller.locationCtrl.text;
+
     // Reset to home when search bar is cleared
     controller.searchCtrl.addListener(() {
+      final newText = controller.searchCtrl.text;
+      if (newText != _lastSearchText) {
+        _lastSearchText = newText;
+        if (controller.filter.value.activeCount > 0) {
+          controller.filter.value = JobFilter();
+        }
+      }
+
       if (controller.searchCtrl.text.isEmpty &&
           controller.locationCtrl.text.isEmpty &&
           _hasSearched) {
@@ -88,6 +101,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
     });
     controller.locationCtrl.addListener(() {
+      final newText = controller.locationCtrl.text;
+      if (newText != _lastLocationText) {
+        _lastLocationText = newText;
+        if (controller.filter.value.activeCount > 0) {
+          controller.filter.value = JobFilter();
+        }
+      }
+
       if (controller.searchCtrl.text.isEmpty &&
           controller.locationCtrl.text.isEmpty &&
           _hasSearched) {
