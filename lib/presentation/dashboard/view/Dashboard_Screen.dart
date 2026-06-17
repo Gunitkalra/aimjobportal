@@ -1,8 +1,10 @@
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../Utils/colors.dart';
 import '../../../routes/app_routes.dart';
 import '../Controller/Dashboard_Controller.dart';
@@ -962,6 +964,16 @@ class _SideDrawer extends StatelessWidget {
             const Divider(height: 1, color: AppColors.border),
 
             _DrawerItem(
+              icon: Icons.info_outline, // Swapped to an 'info' icon which fits 'About Us' perfectly
+              label: 'About Us',
+              onTap: () {
+                Navigator.of(context).pop(); // Close drawer first
+                _showAboutUsDialog(context); // Launch the About Us dialog
+              },
+            ),
+            const Divider(height: 1, color: AppColors.border),
+
+            _DrawerItem(
               icon: Icons.logout_rounded,
               label: 'Logout',
               labelColor: AppColors.textRed,
@@ -1024,6 +1036,99 @@ class _SideDrawer extends StatelessWidget {
       },
     );
   }
+}
+
+void _showAboutUsDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text(
+          'About Us',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Aim Jobs is the fast growing online job providing portals which help to search relevant job to the jobseekers and the best service across the country.\n\n'
+                    'It is a platform which provides right opportunity for the right candidate.',
+                style: TextStyle(fontSize: 15, height: 1.4),
+              ),
+              const SizedBox(height: 20),
+              const Divider(),
+              const SizedBox(height: 10),
+              const Text(
+                'Connect With Us:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(height: 12),
+
+              // Website Link
+              _buildHyperlink(
+                label: 'Website: ',
+                linkText: 'aimjobs.ai',
+                url: 'https://www.aimjobs.ai/',
+              ),
+              const SizedBox(height: 8),
+
+              // Instagram Link
+              _buildHyperlink(
+                label: 'Instagram: ',
+                linkText: '@aimjobs',
+                url: 'https://www.instagram.com/p/DZBpXBcmdKI/?igsh=OWxsaW5meGJxenpq',
+              ),
+              const SizedBox(height: 8),
+
+              // X (Twitter) Link
+              _buildHyperlink(
+                label: 'X (Twitter): ',
+                linkText: '@aimjobsai',
+                url: 'https://x.com/aimjobsai',
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+// Helper widget to generate clickable hyperlinks
+Widget _buildHyperlink({required String label, required String linkText, required String url}) {
+  return RichText(
+    text: TextSpan(
+      style: const TextStyle(color: Colors.black, fontSize: 14),
+      children: [
+        TextSpan(text: label),
+        TextSpan(
+          text: linkText,
+          style: const TextStyle(
+            color: Colors.blue,
+            decoration: TextDecoration.underline,
+            fontWeight: FontWeight.w500,
+          ),
+          recognizer: TapGestureRecognizer()
+            ..onTap = () async {
+              final Uri uri = Uri.parse(url);
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              } else {
+                throw 'Could not launch $url';
+              }
+            },
+        ),
+      ],
+    ),
+  );
 }
 
 // ── Drawer item ───────────────────────────────────────────────────────────────
