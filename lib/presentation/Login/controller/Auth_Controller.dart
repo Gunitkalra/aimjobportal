@@ -84,7 +84,14 @@ class AuthController extends GetxController {
           showToastFail(data.message ?? "Failed to send OTP");
         }
       } else {
-        showToastFail("Error: ${response.statusCode}");
+        String errMsg = "Error: ${response.statusCode}";
+        try {
+          final data = json.decode(response.body);
+          if (data != null && data['message'] != null) {
+            errMsg = data['message'].toString();
+          }
+        } catch (_) {}
+        showToastFail(errMsg);
       }
     } catch (e) {
       showToastFail("Connection error.");
@@ -141,7 +148,14 @@ class AuthController extends GetxController {
           showToastFail(verifyRes.message ?? "Verification failed");
         }
       } else {
-        showToastFail("Verification error: ${response.statusCode}");
+        String errMsg = "Verification error: ${response.statusCode}";
+        try {
+          final data = json.decode(response.body);
+          if (data != null && data['message'] != null) {
+            errMsg = data['message'].toString();
+          }
+        } catch (_) {}
+        showToastFail(errMsg);
       }
     } catch (e) {
       print("Verify Error: $e");

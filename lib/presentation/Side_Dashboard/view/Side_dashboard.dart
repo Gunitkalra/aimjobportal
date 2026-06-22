@@ -1281,64 +1281,72 @@ class SideDashboardScreen extends GetView<SideDashboardController> {
         ),
       ),
       body: SafeArea(
-        child: Obx(() {
-          // Show loader if API is fetching and we have no data yet
-          if (controller.isLoading.value && controller.dashboardData.value == null) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.darkRed));
-          }
+        child: RefreshIndicator(
+          onRefresh: () => controller.refreshDashboard(),
+          color: AppColors.darkRed,
+          child: Obx(() {
+            // Show loader if API is fetching and we have no data yet
+            if (controller.isLoading.value && controller.dashboardData.value == null) {
+              return const Center(child: CircularProgressIndicator(color: AppColors.darkRed));
+            }
 
-          final data = controller.dashboardData.value?.data;
-          if (data == null) return const Center(child: Text("No Dashboard Data Available"));
-
-          return Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: sw * 0.04, vertical: 16),
-                  child: Column(
-                    children: [
-                      // 1. Welcome card
-                      _WelcomeCard(controller: controller),
-                      const SizedBox(height: 14),
-
-                      // 2. Profile strength + Saved jobs row
-                      _StatsRow(data: data),
-                      const SizedBox(height: 14),
-
-                      // 3. Profile completion
-                      _ProfileCompletionCard(data: data),
-                      const SizedBox(height: 14),
-
-                      // 4. Complete your profile (Missing Fields)
-                      _CompleteProfileCard(data: data),
-                      const SizedBox(height: 14),
-
-                      // 5. Quick actions
-                      const _QuickActionsCard(),
-                      const SizedBox(height: 14),
-
-                      // 6. Recent activity
-                      _RecentActivityCard(data: data),
-                      const SizedBox(height: 14),
-
-                      // 7. CV Status
-                      _CvStatusCard(data: data),
-                      const SizedBox(height: 14),
-
-                      // 8. Profile tips
-                      const _ProfileTipsCard(),
-                      const SizedBox(height: 20),
-
-                      // 9. Footer
-                      //const _Footer(),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
+            final data = controller.dashboardData.value?.data;
+            if (data == null) {
+              return SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Container(
+                  height: MediaQuery.of(context).size.height - 150,
+                  alignment: Alignment.center,
+                  child: const Text("No Dashboard Data Available"),
                 ),
+              );
+            }
+
+            return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: sw * 0.04, vertical: 16),
+              child: Column(
+                children: [
+                  // 1. Welcome card
+                  _WelcomeCard(controller: controller),
+                  const SizedBox(height: 14),
+
+                  // 2. Profile strength + Saved jobs row
+                  _StatsRow(data: data),
+                  const SizedBox(height: 14),
+
+                  // 3. Profile completion
+                  _ProfileCompletionCard(data: data),
+                  const SizedBox(height: 14),
+
+                  // 4. Complete your profile (Missing Fields)
+                  _CompleteProfileCard(data: data),
+                  const SizedBox(height: 14),
+
+                  // 5. Quick actions
+                  const _QuickActionsCard(),
+                  const SizedBox(height: 14),
+
+                  // 6. Recent activity
+                  _RecentActivityCard(data: data),
+                  const SizedBox(height: 14),
+
+                  // 7. CV Status
+                  _CvStatusCard(data: data),
+                  const SizedBox(height: 14),
+
+                  // 8. Profile tips
+                  const _ProfileTipsCard(),
+                  const SizedBox(height: 20),
+
+                  // 9. Footer
+                  //const _Footer(),
+                  const SizedBox(height: 16),
+                ],
               ),
-            ],
-          );
-        }),
+            );
+          }),
+        ),
       ),
     );
   }
@@ -1999,7 +2007,7 @@ class _ProfileTaskCard extends StatelessWidget {
             height: 40,
             child: ElevatedButton.icon(
               onPressed: () {
-                Get.toNamed(AppRoutes.myprofile);
+                Get.toNamed(AppRoutes.myprofile, arguments: {'scrollTo': category});
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor:AppColors.darkRed,

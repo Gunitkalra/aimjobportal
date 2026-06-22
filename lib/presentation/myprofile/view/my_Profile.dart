@@ -20,6 +20,61 @@ class MyProfileScreen extends StatefulWidget {
 }
 
 class _MyProfileScreenState extends State<MyProfileScreen> {
+  // ── Scroll Keys ────────────────────────────────────────────────
+  final GlobalKey _personalInfoKey = GlobalKey();
+  final GlobalKey _jobDetailsKey = GlobalKey();
+  final GlobalKey _profileSummaryKey = GlobalKey();
+  final GlobalKey _skillsKey = GlobalKey();
+  final GlobalKey _workExperienceKey = GlobalKey();
+  final GlobalKey _educationKey = GlobalKey();
+
+  bool _hasScrolled = false;
+
+  void _scrollToSection(String section) {
+    GlobalKey? targetKey;
+    switch (section) {
+      case 'Personal Information':
+        targetKey = _personalInfoKey;
+        break;
+      case 'Job Details':
+        targetKey = _jobDetailsKey;
+        break;
+      case 'Profile Summary':
+        targetKey = _profileSummaryKey;
+        break;
+      case 'Skills & Languages':
+        targetKey = _skillsKey;
+        break;
+      case 'Work Experience':
+        targetKey = _workExperienceKey;
+        break;
+      case 'Education':
+        targetKey = _educationKey;
+        break;
+    }
+
+    if (targetKey != null && targetKey.currentContext != null) {
+      _hasScrolled = true;
+      Scrollable.ensureVisible(
+        targetKey.currentContext!,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _checkScrollTo() {
+    if (_hasScrolled) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.arguments != null && Get.arguments is Map) {
+        final scrollTo = Get.arguments['scrollTo'];
+        if (scrollTo != null) {
+          _scrollToSection(scrollTo.toString());
+        }
+      }
+    });
+  }
+
   // ── Personal Info ──────────────────────────────────────────────
   final _nameCtrl       = TextEditingController(text: 'N/A');
   final _mobileCtrl     = TextEditingController(text: 'N/A');
@@ -152,8 +207,15 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           level: e.level ?? '',
         )).toList();
         
-        if (mounted) setState((){});
+        if (mounted) {
+          setState(() {});
+          _checkScrollTo();
+        }
       }
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkScrollTo();
     });
   }
 
@@ -281,6 +343,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
             // Personal Information
             _ProfileCard(
+              key: _personalInfoKey,
               icon: 'assets/person-circle.svg',
               title: 'Personal Information',
               isEditing: _editPersonal,
@@ -361,6 +424,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
             // Job Details
             _ProfileCard(
+              key: _jobDetailsKey,
               icon: 'assets/briefcase-fill.svg',
               title: 'Job Details',
               isEditing: _editJob,
@@ -427,6 +491,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
             // Profile Summary
             _ProfileCard(
+              key: _profileSummaryKey,
               icon: 'assets/card-text.svg',
               title: 'Profile Summary',
               isEditing: _editSummary,
@@ -477,6 +542,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
             // Skills & Languages
             _ProfileCard(
+              key: _skillsKey,
               icon: 'assets/lightbulb-fill.svg',
               title: 'Skills & Languages',
               isEditing: _editSkills,
@@ -566,6 +632,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
             // ── Work Experience ──────────────────────────────────────
             _MultiEntryCard(
+              key: _workExperienceKey,
               icon: 'assets/building.svg',
               title: 'Work Experience',
               isEditing: _editWork,
@@ -658,6 +725,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
             // ── Education ────────────────────────────────────────────
             _MultiEntryCard(
+              key: _educationKey,
               icon: 'assets/mortarboard-fill.svg',
               title: 'Education',
               isEditing: _editEdu,
@@ -871,6 +939,7 @@ class _MultiEntryCard extends StatelessWidget {
   final RxBool? isLoading;
 
   const _MultiEntryCard({
+    super.key,
     required this.icon, required this.title,
     required this.isEditing,
     this.isLoading,
@@ -1503,6 +1572,7 @@ class _ProfileCard extends StatelessWidget {
   final RxBool? isLoading;
 
   const _ProfileCard({
+    super.key,
     required this.icon, required this.title,
     required this.isEditing,
     required this.onEdit, required this.onCancel, required this.onSave,
