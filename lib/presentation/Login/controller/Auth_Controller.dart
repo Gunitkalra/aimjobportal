@@ -243,8 +243,6 @@ class AuthController extends GetxController {
         } else {
           showToastFail(loginRes.message ?? "Login failed");
         }
-      } else if (response.statusCode == 401) {
-        showToastFail("Invalid email or password");
       } else if (response.statusCode == 404) {
         try {
           final errorData = json.decode(response.body);
@@ -254,7 +252,16 @@ class AuthController extends GetxController {
           return "ACCOUNT_NOT_FOUND";
         }
       } else {
-        showToastFail("Login failed. Status: ${response.statusCode}");
+        String errMsg = response.statusCode == 401
+            ? "Invalid email or password"
+            : "Login failed. Status: ${response.statusCode}";
+        try {
+          final data = json.decode(response.body);
+          if (data != null && data['message'] != null) {
+            errMsg = data['message'].toString();
+          }
+        } catch (_) {}
+        showToastFail(errMsg);
       }
       return null;
     } catch (e) {
